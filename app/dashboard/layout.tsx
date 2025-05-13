@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { SessionProvider, useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -15,8 +16,9 @@ import {
   Settings,
   TrendingUp,
   Calendar,
+  History,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function DashboardLayout({
   children,
@@ -28,6 +30,24 @@ export default function DashboardLayout({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  // Fetch notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("/api/notification");
+        if (res.ok) {
+          const data = await res.json();
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ redirect: false }); // Sign out without automatic redirect
@@ -91,7 +111,7 @@ export default function DashboardLayout({
                   >
                     <Bell className="h-5 w-5" />
                     <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      2
+                      {notifications.filter((n) => !n.isRead).length || 0}
                     </span>
                   </button>
 
@@ -104,26 +124,34 @@ export default function DashboardLayout({
                         </h3>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
-                        <div className="px-4 py-3 hover:bg-gray-50 border-l-4 border-blue-500">
-                          <p className="text-sm font-medium text-gray-800">
-                            New client registered
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            John Doe has registered today
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">Just now</p>
-                        </div>
-                        <div className="px-4 py-3 hover:bg-gray-50 border-l-4 border-green-500">
-                          <p className="text-sm font-medium text-gray-800">
-                            Payment received
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            15,000 FCFA from Sarah Johnson
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            2 hours ago
-                          </p>
-                        </div>
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-3 text-center text-gray-500">
+                            No new notifications
+                          </div>
+                        ) : (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              className={`px-4 py-3 hover:bg-gray-50 border-l-4 ${
+                                notification.type === "CLIENT_REGISTERED"
+                                  ? "border-blue-500"
+                                  : "border-green-500"
+                              }`}
+                            >
+                              <p className="text-sm font-medium text-gray-800">
+                                {notification.type === "CLIENT_REGISTERED"
+                                  ? "New client registered"
+                                  : "Payment received"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {notification.createdAt}
+                              </p>
+                            </div>
+                          ))
+                        )}
                         <div className="px-4 py-3 text-center border-t border-gray-100">
                           <Link
                             href="/dashboard/notifications"
@@ -249,6 +277,14 @@ export default function DashboardLayout({
                   >
                     <Calendar className="h-5 w-5 mr-3 text-gray-500" />
                     <span className="font-medium">Schedule</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/historic"
+                    className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <History className="h-5 w-5 mr-3 text-gray-500" />
+                    <span className="font-medium">Historic</span>
                   </Link>
                 </div>
 

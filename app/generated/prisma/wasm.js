@@ -131,6 +131,17 @@ exports.Prisma.ClientScalarFieldEnum = {
   userId: 'userId'
 };
 
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  message: 'message',
+  isRead: 'isRead',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  clientId: 'clientId',
+  paymentId: 'paymentId'
+};
+
 exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
@@ -147,6 +158,20 @@ exports.Prisma.PaymentScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   date: 'date',
   userId: 'userId'
+};
+
+exports.Prisma.HistoricScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  oldData: 'oldData',
+  newData: 'newData',
+  changedBy: 'changedBy',
+  createdAt: 'createdAt',
+  description: 'description',
+  clientId: 'clientId',
+  paymentId: 'paymentId'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -192,7 +217,9 @@ exports.Prisma.QueryMode = {
 exports.Prisma.ModelName = {
   User: 'User',
   Client: 'Client',
+  Notification: 'Notification',
   Payment: 'Payment',
+  Historic: 'Historic',
   Account: 'Account',
   Session: 'Session',
   VerificationToken: 'VerificationToken'

@@ -5,11 +5,20 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { ObjectId } from "mongodb"; // For ObjectId validation
 
 export async function POST(request: Request) {
-  // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
   if (!session || !session.user || !session.user.id) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: "unknown",
+        description: "Unauthorized attempt to create a payment",
+      },
+    });
     return NextResponse.json(
       { error: "Unauthorized: User not authenticated" },
       { status: 401 }
@@ -17,14 +26,6 @@ export async function POST(request: Request) {
   }
 
   const userId = session.user.id;
-
-  // Validate userId as a MongoDB ObjectId
-  if (!ObjectId.isValid(userId)) {
-    return NextResponse.json(
-      { error: "Invalid user ID format" },
-      { status: 400 }
-    );
-  }
 
   const {
     clientEmail,
@@ -39,55 +40,97 @@ export async function POST(request: Request) {
     paymentStatus,
   } = await request.json();
 
-  // Validate required fields
   if (!clientEmail || !amount) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: "Client email and amount are required",
+      },
+    });
     return NextResponse.json(
       { error: "Client email and amount are required" },
       { status: 400 }
     );
   }
 
-  // Validate amount
   const parsedAmount = Number(amount);
   if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: "Amount must be a positive number",
+      },
+    });
     return NextResponse.json(
       { error: "Amount must be a positive number" },
       { status: 400 }
     );
   }
 
-  // Validate required date fields
-  if (!startDate || !endDate) {
+  if (!startDate || !endDate || !nextPaymentDate) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: "Start date, end date, and next payment date are required",
+      },
+    });
     return NextResponse.json(
-      { error: "Start date and end date are required" },
+      { error: "Start date, end date, and next payment date are required" },
       { status: 400 }
     );
   }
 
   try {
-    // Find the client by email and verify it belongs to the user
     const client = await prisma.client.findUnique({
       where: { email: clientEmail },
     });
     if (!client) {
+      await prisma.historic.create({
+        data: {
+          action: "CREATE",
+          entityType: "PAYMENT",
+          entityId: "unknown",
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Client not found",
+        },
+      });
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
     if (client.userId !== userId) {
+      await prisma.historic.create({
+        data: {
+          action: "CREATE",
+          entityType: "PAYMENT",
+          entityId: "unknown",
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Client does not belong to the authenticated user",
+        },
+      });
       return NextResponse.json(
         { error: "Client does not belong to the authenticated user" },
         { status: 403 }
       );
     }
 
-    // Validate clientId as a MongoDB ObjectId
-    if (!ObjectId.isValid(client.id)) {
-      return NextResponse.json(
-        { error: "Invalid client ID format" },
-        { status: 400 }
-      );
-    }
-
-    // Prepare the data object, handling nullable fields correctly
     const paymentData: any = {
       amount: parsedAmount,
       subscription: subscription || "Monthly",
@@ -95,8 +138,9 @@ export async function POST(request: Request) {
       status: status || "Pending",
       startDate: new Date(startDate),
       endDate: new Date(endDate),
+      nextPaymentDate: new Date(nextPaymentDate),
       paymentStatus: paymentStatus || "Unpaid",
-      date: new Date(), // Explicitly set date, even though it has a default
+      date: new Date(),
       client: {
         connect: { id: client.id },
       },
@@ -105,22 +149,66 @@ export async function POST(request: Request) {
       },
     };
 
-    // Only include nullable fields if they have a value
-    if (nextPaymentDate) {
-      paymentData.nextPaymentDate = new Date(nextPaymentDate);
-    }
     if (paymentDate) {
       paymentData.paymentDate = new Date(paymentDate);
     }
 
-    // Create the payment
     const payment = await prisma.payment.create({
       data: paymentData,
+    });
+
+    const newData = {
+      amount: parsedAmount,
+      subscription: subscription || "Monthly",
+      method: method || "Cash",
+      status: status || "Pending",
+      startDate,
+      endDate,
+      nextPaymentDate,
+      paymentDate,
+      paymentStatus: paymentStatus || "Unpaid",
+      clientId: client.id,
+    };
+
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: payment.id,
+        paymentId: payment.id, // Link to the payment
+        oldData: null,
+        newData,
+        changedBy: userId,
+        description: "Payment created successfully",
+      },
+    });
+
+    // Create a notification for the user
+    await prisma.notification.create({
+      data: {
+        type: "PAYMENT_RECEIVED",
+        message: `${parsedAmount.toLocaleString()} FCFA from ${client.name}`,
+        userId: userId,
+        paymentId: payment.id,
+      },
     });
 
     return NextResponse.json({ message: "Payment recorded", payment });
   } catch (error: any) {
     console.error("Payment creation error:", error);
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: `Error creating payment: ${
+          error.message || "Unknown error"
+        }`,
+      },
+    });
     return NextResponse.json(
       { error: error.message || "Error recording payment" },
       { status: 400 }

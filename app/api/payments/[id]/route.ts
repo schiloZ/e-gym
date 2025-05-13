@@ -166,12 +166,21 @@ export async function PATCH(
     params.id
   );
 
-  // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
   if (!session || !session.user || !session.user.id) {
     console.log("Unauthorized: No session or user ID");
+    await prisma.historic.create({
+      data: {
+        action: "UPDATE",
+        entityType: "PAYMENT",
+        entityId: params.id,
+        oldData: null,
+        newData: null,
+        changedBy: "unknown",
+        description: "Unauthorized attempt to update payment",
+      },
+    });
     return NextResponse.json(
       { error: "Unauthorized: User not authenticated" },
       { status: 401 }
@@ -181,9 +190,19 @@ export async function PATCH(
   const userId = session.user.id;
   const paymentId = params.id;
 
-  // Validate paymentId as a MongoDB ObjectId
   if (!ObjectId.isValid(paymentId)) {
     console.log("Invalid paymentId format:", paymentId);
+    await prisma.historic.create({
+      data: {
+        action: "UPDATE",
+        entityType: "PAYMENT",
+        entityId: paymentId,
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: "Invalid payment ID format",
+      },
+    });
     return NextResponse.json(
       { error: "Invalid payment ID format" },
       { status: 400 }
@@ -191,7 +210,6 @@ export async function PATCH(
   }
 
   try {
-    // Get the updated data from the request body
     const {
       amount,
       subscription,
@@ -204,7 +222,6 @@ export async function PATCH(
       paymentDate,
     } = await request.json();
 
-    // Validate required fields
     if (
       !amount ||
       !subscription ||
@@ -214,6 +231,18 @@ export async function PATCH(
       !startDate ||
       !endDate
     ) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description:
+            "Amount, subscription, method, status, payment status, start date, and end date are required",
+        },
+      });
       return NextResponse.json(
         {
           error:
@@ -223,16 +252,25 @@ export async function PATCH(
       );
     }
 
-    // Validate amount
     const parsedAmount = Number(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Amount must be a positive number",
+        },
+      });
       return NextResponse.json(
         { error: "Amount must be a positive number" },
         { status: 400 }
       );
     }
 
-    // Validate dates
     const parsedStartDate = new Date(startDate);
     const parsedEndDate = new Date(endDate);
     let parsedNextPaymentDate = nextPaymentDate
@@ -241,6 +279,17 @@ export async function PATCH(
     let parsedPaymentDate = paymentDate ? new Date(paymentDate) : undefined;
 
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Invalid start or end date format",
+        },
+      });
       return NextResponse.json(
         { error: "Invalid start or end date format" },
         { status: 400 }
@@ -248,6 +297,17 @@ export async function PATCH(
     }
 
     if (nextPaymentDate && isNaN(parsedNextPaymentDate.getTime())) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Invalid next payment date format",
+        },
+      });
       return NextResponse.json(
         { error: "Invalid next payment date format" },
         { status: 400 }
@@ -255,13 +315,23 @@ export async function PATCH(
     }
 
     if (paymentDate && isNaN(parsedPaymentDate.getTime())) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Invalid payment date format",
+        },
+      });
       return NextResponse.json(
         { error: "Invalid payment date format" },
         { status: 400 }
       );
     }
 
-    // Fetch the payment to verify ownership
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
       include: { user: true },
@@ -269,6 +339,17 @@ export async function PATCH(
 
     if (!payment) {
       console.log("Payment not found for paymentId:", paymentId);
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Payment not found",
+        },
+      });
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
@@ -279,13 +360,35 @@ export async function PATCH(
         "Authenticated userId:",
         userId
       );
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          description: "Payment does not belong to the authenticated user",
+        },
+      });
       return NextResponse.json(
         { error: "Payment does not belong to the authenticated user" },
         { status: 403 }
       );
     }
 
-    // Update the payment
+    const oldData = {
+      amount: payment.amount,
+      subscription: payment.subscription,
+      method: payment.method,
+      status: payment.status,
+      paymentStatus: payment.paymentStatus,
+      startDate: payment.startDate.toISOString(),
+      endDate: payment.endDate.toISOString(),
+      nextPaymentDate: payment.nextPaymentDate?.toISOString(),
+      paymentDate: payment.paymentDate?.toISOString(),
+    };
+
     const updatedPayment = await prisma.payment.update({
       where: { id: paymentId },
       data: {
@@ -301,10 +404,48 @@ export async function PATCH(
       },
     });
 
+    const newData = {
+      amount: parsedAmount,
+      subscription,
+      method,
+      status,
+      paymentStatus,
+      startDate: startDate,
+      endDate: endDate,
+      nextPaymentDate: nextPaymentDate,
+      paymentDate: paymentDate,
+    };
+
+    await prisma.historic.create({
+      data: {
+        action: "UPDATE",
+        entityType: "PAYMENT",
+        entityId: paymentId,
+        paymentId: paymentId, // Link to the payment
+        oldData,
+        newData,
+        changedBy: userId,
+        description: "Payment updated successfully",
+      },
+    });
+
     console.log("Payment updated successfully:", updatedPayment);
     return NextResponse.json(updatedPayment);
   } catch (error) {
     console.error("Error updating payment:", error);
+    await prisma.historic.create({
+      data: {
+        action: "UPDATE",
+        entityType: "PAYMENT",
+        entityId: paymentId,
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        description: `Error updating payment: ${
+          error.message || "Unknown error"
+        }`,
+      },
+    });
     return NextResponse.json(
       { error: error.message || "Error updating payment data" },
       { status: 500 }

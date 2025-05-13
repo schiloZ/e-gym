@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -7,11 +8,36 @@ import {
   Calendar,
   DollarSign,
   Search,
-  UserPlus,
   ArrowRight,
   TrendingUp,
   Activity,
+  BarChart,
 } from "lucide-react";
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -21,11 +47,15 @@ export default function Dashboard() {
     averagePayment: 0,
   });
   const [recentClients, setRecentClients] = useState([]);
+  const [chartData, setChartData] = useState({
+    registrationsPerDay: [],
+    activeSubscriptionsPerDay: [],
+  });
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch stats and recent clients on mount
+  // Fetch stats, recent clients, and chart data on mount
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
         // Fetch total clients
         const clientsRes = await fetch("/api/clients");
@@ -74,13 +104,118 @@ export default function Dashboard() {
           )
           .slice(0, 5);
         setRecentClients(recentClients);
+
+        // Fetch chart data
+        const [registrations, subscriptions] = await Promise.all([
+          fetch("/api/stats/registrations-per-day").then((res) => res.json()),
+          fetch("/api/stats/active-subscriptions-per-day").then((res) =>
+            res.json()
+          ),
+        ]);
+        setChartData({
+          registrationsPerDay: registrations,
+          activeSubscriptionsPerDay: subscriptions,
+        });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
     };
 
-    fetchStats();
+    fetchData();
   }, []);
+
+  // Chart configurations (reused from StatsPage)
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        titleColor: "#1e293b",
+        bodyColor: "#334155",
+        titleFont: { weight: "bold" },
+        bodyFont: { size: 13 },
+        padding: 12,
+        borderColor: "rgba(203, 213, 225, 0.5)",
+        borderWidth: 1,
+        displayColors: false,
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat("en-US").format(context.parsed.y);
+            }
+            return label;
+          },
+        },
+      },
+    },
+    elements: {
+      line: { tension: 0.3 },
+      point: { radius: 3, hoverRadius: 5 },
+    },
+    scales: {
+      x: {
+        grid: { display: false, drawBorder: false },
+        ticks: { font: { size: 10 }, color: "#94a3b8" },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(203, 213, 225, 0.2)", drawBorder: false },
+        ticks: { font: { size: 11 }, color: "#94a3b8", padding: 8 },
+      },
+    },
+  };
+
+  // Registrations chart data
+  const registrationsData = {
+    labels: chartData.registrationsPerDay.map((d) =>
+      new Date(d.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    ),
+    datasets: [
+      {
+        label: "Registrations",
+        data: chartData.registrationsPerDay.map((d) => d.count),
+        backgroundColor: "rgba(59, 130, 246, 0.7)",
+        borderColor: "rgba(37, 99, 235, 1)",
+        borderWidth: 2,
+        borderRadius: 4,
+        barThickness: 12,
+      },
+    ],
+  };
+
+  // Subscriptions chart data
+  const subscriptionsData = {
+    labels: chartData.activeSubscriptionsPerDay.map((d) =>
+      new Date(d.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    ),
+    datasets: [
+      {
+        label: "Active Subscriptions",
+        data: chartData.activeSubscriptionsPerDay.map((d) => d.count),
+        backgroundColor: "rgba(168, 85, 247, 0.15)",
+        borderColor: "rgba(126, 34, 206, 1)",
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: "rgba(126, 34, 206, 1)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 1,
+        pointRadius: 4,
+      },
+    ],
+  };
 
   return (
     <div className="space-y-8">
@@ -97,7 +232,7 @@ export default function Dashboard() {
             href="/dashboard/clients/new"
             className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-lg font-medium flex items-center gap-2 transition shadow-md"
           >
-            <UserPlus className="h-5 w-5" />
+            <Users className="h-5 w-5" />
             New Client
           </Link>
           <Link
@@ -270,44 +405,41 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="space-y-6">
-          {/* Add Client */}
+          {/* Registrations Chart */}
           <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-              <UserPlus className="h-5 w-5 mr-2 text-blue-500" />
-              Add New Client
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Register a new client to your system and start tracking their
-              progress
-            </p>
-            <Link
-              href="/dashboard/clients/new"
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition shadow-md"
-            >
-              <UserPlus className="h-5 w-5" />
-              Add Client
-            </Link>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800 flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-blue-500" />
+                  User Registrations
+                </h2>
+                <p className="text-sm text-gray-600">New users over time</p>
+              </div>
+            </div>
+            <div className="h-64">
+              <Bar data={registrationsData} options={commonOptions} />
+            </div>
           </div>
 
-          {/* Quick Payment */}
-          <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-              <CreditCard className="h-5 w-5 mr-2 text-green-500" />
-              Quick Payment
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Record a client payment quickly to keep your finances up to date
-            </p>
-            <Link
-              href="/dashboard/payments/new"
-              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-green-700 transition shadow-md"
-            >
-              New Payment
-              <ArrowRight className="h-5 w-5" />
-            </Link>
+          {/* Subscriptions Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-purple-500">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-purple-500" />
+                  Active Subscriptions
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Subscription growth over time
+                </p>
+              </div>
+            </div>
+            <div className="h-64">
+              <Line data={subscriptionsData} options={commonOptions} />
+            </div>
           </div>
 
-          {/* Manage Payments */}
+          {/* Business Analytics */}
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
               <Activity className="h-5 w-5 mr-2 text-purple-500" />
@@ -341,6 +473,16 @@ export default function Dashboard() {
                 <span className="flex items-center">
                   <Users className="h-4 w-4 mr-2 text-purple-500" />
                   Client Management
+                </span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/dashboard/reports"
+                className="text-gray-700 hover:text-blue-600 flex items-center justify-between p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition"
+              >
+                <span className="flex items-center">
+                  <BarChart className="h-4 w-4 mr-2 text-purple-500" />
+                  View More Analytics
                 </span>
                 <ArrowRight className="h-4 w-4" />
               </Link>

@@ -24,10 +24,20 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type Client = $Result.DefaultSelection<Prisma.$ClientPayload>
 /**
+ * Model Notification
+ * 
+ */
+export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
+/**
  * Model Payment
  * 
  */
 export type Payment = $Result.DefaultSelection<Prisma.$PaymentPayload>
+/**
+ * Model Historic
+ * 
+ */
+export type Historic = $Result.DefaultSelection<Prisma.$HistoricPayload>
 /**
  * Model Account
  * 
@@ -157,6 +167,16 @@ export class PrismaClient<
   get client(): Prisma.ClientDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.notification`: Exposes CRUD operations for the **Notification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Notifications
+    * const notifications = await prisma.notification.findMany()
+    * ```
+    */
+  get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.payment`: Exposes CRUD operations for the **Payment** model.
     * Example usage:
     * ```ts
@@ -165,6 +185,16 @@ export class PrismaClient<
     * ```
     */
   get payment(): Prisma.PaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.historic`: Exposes CRUD operations for the **Historic** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Historics
+    * const historics = await prisma.historic.findMany()
+    * ```
+    */
+  get historic(): Prisma.HistoricDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.account`: Exposes CRUD operations for the **Account** model.
@@ -637,7 +667,9 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     Client: 'Client',
+    Notification: 'Notification',
     Payment: 'Payment',
+    Historic: 'Historic',
     Account: 'Account',
     Session: 'Session',
     VerificationToken: 'VerificationToken'
@@ -659,7 +691,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "client" | "payment" | "account" | "session" | "verificationToken"
+      modelProps: "user" | "client" | "notification" | "payment" | "historic" | "account" | "session" | "verificationToken"
       txIsolationLevel: never
     }
     model: {
@@ -811,6 +843,80 @@ export namespace Prisma {
           }
         }
       }
+      Notification: {
+        payload: Prisma.$NotificationPayload<ExtArgs>
+        fields: Prisma.NotificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findFirst: {
+            args: Prisma.NotificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findMany: {
+            args: Prisma.NotificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          create: {
+            args: Prisma.NotificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          createMany: {
+            args: Prisma.NotificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.NotificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          update: {
+            args: Prisma.NotificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NotificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          aggregate: {
+            args: Prisma.NotificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNotification>
+          }
+          groupBy: {
+            args: Prisma.NotificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NotificationGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.NotificationFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.NotificationAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.NotificationCountArgs<ExtArgs>
+            result: $Utils.Optional<NotificationCountAggregateOutputType> | number
+          }
+        }
+      }
       Payment: {
         payload: Prisma.$PaymentPayload<ExtArgs>
         fields: Prisma.PaymentFieldRefs
@@ -882,6 +988,80 @@ export namespace Prisma {
           count: {
             args: Prisma.PaymentCountArgs<ExtArgs>
             result: $Utils.Optional<PaymentCountAggregateOutputType> | number
+          }
+        }
+      }
+      Historic: {
+        payload: Prisma.$HistoricPayload<ExtArgs>
+        fields: Prisma.HistoricFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HistoricFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HistoricFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          findFirst: {
+            args: Prisma.HistoricFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HistoricFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          findMany: {
+            args: Prisma.HistoricFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>[]
+          }
+          create: {
+            args: Prisma.HistoricCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          createMany: {
+            args: Prisma.HistoricCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.HistoricDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          update: {
+            args: Prisma.HistoricUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          deleteMany: {
+            args: Prisma.HistoricDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HistoricUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.HistoricUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HistoricPayload>
+          }
+          aggregate: {
+            args: Prisma.HistoricAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHistoric>
+          }
+          groupBy: {
+            args: Prisma.HistoricGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HistoricGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.HistoricFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.HistoricAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.HistoricCountArgs<ExtArgs>
+            result: $Utils.Optional<HistoricCountAggregateOutputType> | number
           }
         }
       }
@@ -1180,7 +1360,9 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     client?: ClientOmit
+    notification?: NotificationOmit
     payment?: PaymentOmit
+    historic?: HistoricOmit
     account?: AccountOmit
     session?: SessionOmit
     verificationToken?: VerificationTokenOmit
@@ -1282,6 +1464,8 @@ export namespace Prisma {
     sessions: number
     accounts: number
     payments: number
+    historics: number
+    notifications: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1289,6 +1473,8 @@ export namespace Prisma {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     payments?: boolean | UserCountOutputTypeCountPaymentsArgs
+    historics?: boolean | UserCountOutputTypeCountHistoricsArgs
+    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   }
 
   // Custom InputTypes
@@ -1330,6 +1516,20 @@ export namespace Prisma {
     where?: PaymentWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountHistoricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HistoricWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+  }
+
 
   /**
    * Count Type ClientCountOutputType
@@ -1337,10 +1537,14 @@ export namespace Prisma {
 
   export type ClientCountOutputType = {
     payments: number
+    historics: number
+    notifications: number
   }
 
   export type ClientCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | ClientCountOutputTypeCountPaymentsArgs
+    historics?: boolean | ClientCountOutputTypeCountHistoricsArgs
+    notifications?: boolean | ClientCountOutputTypeCountNotificationsArgs
   }
 
   // Custom InputTypes
@@ -1359,6 +1563,60 @@ export namespace Prisma {
    */
   export type ClientCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentWhereInput
+  }
+
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountHistoricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HistoricWhereInput
+  }
+
+  /**
+   * ClientCountOutputType without action
+   */
+  export type ClientCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+  }
+
+
+  /**
+   * Count Type PaymentCountOutputType
+   */
+
+  export type PaymentCountOutputType = {
+    historics: number
+    notifications: number
+  }
+
+  export type PaymentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    historics?: boolean | PaymentCountOutputTypeCountHistoricsArgs
+    notifications?: boolean | PaymentCountOutputTypeCountNotificationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PaymentCountOutputType without action
+   */
+  export type PaymentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCountOutputType
+     */
+    select?: PaymentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PaymentCountOutputType without action
+   */
+  export type PaymentCountOutputTypeCountHistoricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HistoricWhereInput
+  }
+
+  /**
+   * PaymentCountOutputType without action
+   */
+  export type PaymentCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
   }
 
 
@@ -1542,6 +1800,8 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    historics?: boolean | User$historicsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1562,6 +1822,8 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     payments?: boolean | User$paymentsArgs<ExtArgs>
+    historics?: boolean | User$historicsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1572,6 +1834,8 @@ export namespace Prisma {
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
+      historics: Prisma.$HistoricPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1947,6 +2211,8 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends User$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    historics<T extends User$historicsArgs<ExtArgs> = {}>(args?: Subset<T, User$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2448,6 +2714,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.historics
+   */
+  export type User$historicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    where?: HistoricWhereInput
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    cursor?: HistoricWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * User.notifications
+   */
+  export type User$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2640,6 +2954,8 @@ export namespace Prisma {
     userId?: boolean
     payments?: boolean | Client$paymentsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    historics?: boolean | Client$historicsArgs<ExtArgs>
+    notifications?: boolean | Client$notificationsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["client"]>
 
@@ -2658,6 +2974,8 @@ export namespace Prisma {
   export type ClientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Client$paymentsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    historics?: boolean | Client$historicsArgs<ExtArgs>
+    notifications?: boolean | Client$notificationsArgs<ExtArgs>
     _count?: boolean | ClientCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -2666,6 +2984,8 @@ export namespace Prisma {
     objects: {
       payments: Prisma.$PaymentPayload<ExtArgs>[]
       user: Prisma.$UserPayload<ExtArgs>
+      historics: Prisma.$HistoricPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3039,6 +3359,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     payments<T extends Client$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Client$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    historics<T extends Client$historicsArgs<ExtArgs> = {}>(args?: Subset<T, Client$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends Client$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Client$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3468,6 +3790,54 @@ export namespace Prisma {
   }
 
   /**
+   * Client.historics
+   */
+  export type Client$historicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    where?: HistoricWhereInput
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    cursor?: HistoricWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * Client.notifications
+   */
+  export type Client$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
    * Client without action
    */
   export type ClientDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3483,6 +3853,1064 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ClientInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Notification
+   */
+
+  export type AggregateNotification = {
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  export type NotificationMinAggregateOutputType = {
+    id: string | null
+    type: string | null
+    message: string | null
+    isRead: boolean | null
+    createdAt: Date | null
+    userId: string | null
+    clientId: string | null
+    paymentId: string | null
+  }
+
+  export type NotificationMaxAggregateOutputType = {
+    id: string | null
+    type: string | null
+    message: string | null
+    isRead: boolean | null
+    createdAt: Date | null
+    userId: string | null
+    clientId: string | null
+    paymentId: string | null
+  }
+
+  export type NotificationCountAggregateOutputType = {
+    id: number
+    type: number
+    message: number
+    isRead: number
+    createdAt: number
+    userId: number
+    clientId: number
+    paymentId: number
+    _all: number
+  }
+
+
+  export type NotificationMinAggregateInputType = {
+    id?: true
+    type?: true
+    message?: true
+    isRead?: true
+    createdAt?: true
+    userId?: true
+    clientId?: true
+    paymentId?: true
+  }
+
+  export type NotificationMaxAggregateInputType = {
+    id?: true
+    type?: true
+    message?: true
+    isRead?: true
+    createdAt?: true
+    userId?: true
+    clientId?: true
+    paymentId?: true
+  }
+
+  export type NotificationCountAggregateInputType = {
+    id?: true
+    type?: true
+    message?: true
+    isRead?: true
+    createdAt?: true
+    userId?: true
+    clientId?: true
+    paymentId?: true
+    _all?: true
+  }
+
+  export type NotificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notification to aggregate.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Notifications
+    **/
+    _count?: true | NotificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NotificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type GetNotificationAggregateType<T extends NotificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateNotification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNotification[P]>
+      : GetScalarType<T[P], AggregateNotification[P]>
+  }
+
+
+
+
+  export type NotificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithAggregationInput | NotificationOrderByWithAggregationInput[]
+    by: NotificationScalarFieldEnum[] | NotificationScalarFieldEnum
+    having?: NotificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NotificationCountAggregateInputType | true
+    _min?: NotificationMinAggregateInputType
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type NotificationGroupByOutputType = {
+    id: string
+    type: string
+    message: string
+    isRead: boolean
+    createdAt: Date
+    userId: string
+    clientId: string | null
+    paymentId: string | null
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  type GetNotificationGroupByPayload<T extends NotificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NotificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NotificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+            : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NotificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    message?: boolean
+    isRead?: boolean
+    createdAt?: boolean
+    userId?: boolean
+    clientId?: boolean
+    paymentId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | Notification$clientArgs<ExtArgs>
+    payment?: boolean | Notification$paymentArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+
+
+  export type NotificationSelectScalar = {
+    id?: boolean
+    type?: boolean
+    message?: boolean
+    isRead?: boolean
+    createdAt?: boolean
+    userId?: boolean
+    clientId?: boolean
+    paymentId?: boolean
+  }
+
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "message" | "isRead" | "createdAt" | "userId" | "clientId" | "paymentId", ExtArgs["result"]["notification"]>
+  export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | Notification$clientArgs<ExtArgs>
+    payment?: boolean | Notification$paymentArgs<ExtArgs>
+  }
+
+  export type $NotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Notification"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs> | null
+      payment: Prisma.$PaymentPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: string
+      message: string
+      isRead: boolean
+      createdAt: Date
+      userId: string
+      clientId: string | null
+      paymentId: string | null
+    }, ExtArgs["result"]["notification"]>
+    composites: {}
+  }
+
+  type NotificationGetPayload<S extends boolean | null | undefined | NotificationDefaultArgs> = $Result.GetResult<Prisma.$NotificationPayload, S>
+
+  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NotificationCountAggregateInputType | true
+    }
+
+  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Notification'], meta: { name: 'Notification' } }
+    /**
+     * Find zero or one Notification that matches the filter.
+     * @param {NotificationFindUniqueArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Notification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NotificationFindUniqueOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Notifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Notifications
+     * const notifications = await prisma.notification.findMany()
+     * 
+     * // Get first 10 Notifications
+     * const notifications = await prisma.notification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Notification.
+     * @param {NotificationCreateArgs} args - Arguments to create a Notification.
+     * @example
+     * // Create one Notification
+     * const Notification = await prisma.notification.create({
+     *   data: {
+     *     // ... data to create a Notification
+     *   }
+     * })
+     * 
+     */
+    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Notifications.
+     * @param {NotificationCreateManyArgs} args - Arguments to create many Notifications.
+     * @example
+     * // Create many Notifications
+     * const notification = await prisma.notification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NotificationCreateManyArgs>(args?: SelectSubset<T, NotificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Notification.
+     * @param {NotificationDeleteArgs} args - Arguments to delete one Notification.
+     * @example
+     * // Delete one Notification
+     * const Notification = await prisma.notification.delete({
+     *   where: {
+     *     // ... filter to delete one Notification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Notification.
+     * @param {NotificationUpdateArgs} args - Arguments to update one Notification.
+     * @example
+     * // Update one Notification
+     * const notification = await prisma.notification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Notifications.
+     * @param {NotificationDeleteManyArgs} args - Arguments to filter Notifications to delete.
+     * @example
+     * // Delete a few Notifications
+     * const { count } = await prisma.notification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NotificationDeleteManyArgs>(args?: SelectSubset<T, NotificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NotificationUpdateManyArgs>(args: SelectSubset<T, NotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Notification.
+     * @param {NotificationUpsertArgs} args - Arguments to update or create a Notification.
+     * @example
+     * // Update or create a Notification
+     * const notification = await prisma.notification.upsert({
+     *   create: {
+     *     // ... data to create a Notification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Notification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Notifications that matches the filter.
+     * @param {NotificationFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const notification = await prisma.notification.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: NotificationFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Notification.
+     * @param {NotificationAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const notification = await prisma.notification.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: NotificationAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationCountArgs} args - Arguments to filter Notifications to count.
+     * @example
+     * // Count the number of Notifications
+     * const count = await prisma.notification.count({
+     *   where: {
+     *     // ... the filter for the Notifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends NotificationCountArgs>(
+      args?: Subset<T, NotificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NotificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NotificationAggregateArgs>(args: Subset<T, NotificationAggregateArgs>): Prisma.PrismaPromise<GetNotificationAggregateType<T>>
+
+    /**
+     * Group by Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NotificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NotificationGroupByArgs['orderBy'] }
+        : { orderBy?: NotificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NotificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNotificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Notification model
+   */
+  readonly fields: NotificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Notification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends Notification$clientArgs<ExtArgs> = {}>(args?: Subset<T, Notification$clientArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    payment<T extends Notification$paymentArgs<ExtArgs> = {}>(args?: Subset<T, Notification$paymentArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Notification model
+   */
+  interface NotificationFieldRefs {
+    readonly id: FieldRef<"Notification", 'String'>
+    readonly type: FieldRef<"Notification", 'String'>
+    readonly message: FieldRef<"Notification", 'String'>
+    readonly isRead: FieldRef<"Notification", 'Boolean'>
+    readonly createdAt: FieldRef<"Notification", 'DateTime'>
+    readonly userId: FieldRef<"Notification", 'String'>
+    readonly clientId: FieldRef<"Notification", 'String'>
+    readonly paymentId: FieldRef<"Notification", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Notification findUnique
+   */
+  export type NotificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findUniqueOrThrow
+   */
+  export type NotificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findFirst
+   */
+  export type NotificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findFirstOrThrow
+   */
+  export type NotificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findMany
+   */
+  export type NotificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notifications to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification create
+   */
+  export type NotificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Notification.
+     */
+    data: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+  }
+
+  /**
+   * Notification createMany
+   */
+  export type NotificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Notifications.
+     */
+    data: NotificationCreateManyInput | NotificationCreateManyInput[]
+  }
+
+  /**
+   * Notification update
+   */
+  export type NotificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Notification.
+     */
+    data: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+    /**
+     * Choose, which Notification to update.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification updateMany
+   */
+  export type NotificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification upsert
+   */
+  export type NotificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Notification to update in case it exists.
+     */
+    where: NotificationWhereUniqueInput
+    /**
+     * In case the Notification found by the `where` argument doesn't exist, create a new Notification with this data.
+     */
+    create: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+    /**
+     * In case the Notification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+  }
+
+  /**
+   * Notification delete
+   */
+  export type NotificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter which Notification to delete.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification deleteMany
+   */
+  export type NotificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notifications to delete
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification findRaw
+   */
+  export type NotificationFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Notification aggregateRaw
+   */
+  export type NotificationAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Notification.client
+   */
+  export type Notification$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Client
+     */
+    select?: ClientSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Client
+     */
+    omit?: ClientOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientInclude<ExtArgs> | null
+    where?: ClientWhereInput
+  }
+
+  /**
+   * Notification.payment
+   */
+  export type Notification$paymentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payment
+     */
+    select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentInclude<ExtArgs> | null
+    where?: PaymentWhereInput
+  }
+
+  /**
+   * Notification without action
+   */
+  export type NotificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
   }
 
 
@@ -3766,6 +5194,9 @@ export namespace Prisma {
     userId?: boolean
     client?: boolean | ClientDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    historics?: boolean | Payment$historicsArgs<ExtArgs>
+    notifications?: boolean | Payment$notificationsArgs<ExtArgs>
+    _count?: boolean | PaymentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
 
 
@@ -3792,6 +5223,9 @@ export namespace Prisma {
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     client?: boolean | ClientDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    historics?: boolean | Payment$historicsArgs<ExtArgs>
+    notifications?: boolean | Payment$notificationsArgs<ExtArgs>
+    _count?: boolean | PaymentCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $PaymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3799,6 +5233,8 @@ export namespace Prisma {
     objects: {
       client: Prisma.$ClientPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
+      historics: Prisma.$HistoricPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4181,6 +5617,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    historics<T extends Payment$historicsArgs<ExtArgs> = {}>(args?: Subset<T, Payment$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends Payment$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Payment$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4595,6 +6033,54 @@ export namespace Prisma {
   }
 
   /**
+   * Payment.historics
+   */
+  export type Payment$historicsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    where?: HistoricWhereInput
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    cursor?: HistoricWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * Payment.notifications
+   */
+  export type Payment$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
    * Payment without action
    */
   export type PaymentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4610,6 +6096,1089 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Historic
+   */
+
+  export type AggregateHistoric = {
+    _count: HistoricCountAggregateOutputType | null
+    _min: HistoricMinAggregateOutputType | null
+    _max: HistoricMaxAggregateOutputType | null
+  }
+
+  export type HistoricMinAggregateOutputType = {
+    id: string | null
+    action: string | null
+    entityType: string | null
+    entityId: string | null
+    changedBy: string | null
+    createdAt: Date | null
+    description: string | null
+    clientId: string | null
+    paymentId: string | null
+  }
+
+  export type HistoricMaxAggregateOutputType = {
+    id: string | null
+    action: string | null
+    entityType: string | null
+    entityId: string | null
+    changedBy: string | null
+    createdAt: Date | null
+    description: string | null
+    clientId: string | null
+    paymentId: string | null
+  }
+
+  export type HistoricCountAggregateOutputType = {
+    id: number
+    action: number
+    entityType: number
+    entityId: number
+    oldData: number
+    newData: number
+    changedBy: number
+    createdAt: number
+    description: number
+    clientId: number
+    paymentId: number
+    _all: number
+  }
+
+
+  export type HistoricMinAggregateInputType = {
+    id?: true
+    action?: true
+    entityType?: true
+    entityId?: true
+    changedBy?: true
+    createdAt?: true
+    description?: true
+    clientId?: true
+    paymentId?: true
+  }
+
+  export type HistoricMaxAggregateInputType = {
+    id?: true
+    action?: true
+    entityType?: true
+    entityId?: true
+    changedBy?: true
+    createdAt?: true
+    description?: true
+    clientId?: true
+    paymentId?: true
+  }
+
+  export type HistoricCountAggregateInputType = {
+    id?: true
+    action?: true
+    entityType?: true
+    entityId?: true
+    oldData?: true
+    newData?: true
+    changedBy?: true
+    createdAt?: true
+    description?: true
+    clientId?: true
+    paymentId?: true
+    _all?: true
+  }
+
+  export type HistoricAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Historic to aggregate.
+     */
+    where?: HistoricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Historics to fetch.
+     */
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HistoricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Historics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Historics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Historics
+    **/
+    _count?: true | HistoricCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HistoricMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HistoricMaxAggregateInputType
+  }
+
+  export type GetHistoricAggregateType<T extends HistoricAggregateArgs> = {
+        [P in keyof T & keyof AggregateHistoric]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHistoric[P]>
+      : GetScalarType<T[P], AggregateHistoric[P]>
+  }
+
+
+
+
+  export type HistoricGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HistoricWhereInput
+    orderBy?: HistoricOrderByWithAggregationInput | HistoricOrderByWithAggregationInput[]
+    by: HistoricScalarFieldEnum[] | HistoricScalarFieldEnum
+    having?: HistoricScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HistoricCountAggregateInputType | true
+    _min?: HistoricMinAggregateInputType
+    _max?: HistoricMaxAggregateInputType
+  }
+
+  export type HistoricGroupByOutputType = {
+    id: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData: JsonValue | null
+    newData: JsonValue | null
+    changedBy: string
+    createdAt: Date
+    description: string | null
+    clientId: string | null
+    paymentId: string | null
+    _count: HistoricCountAggregateOutputType | null
+    _min: HistoricMinAggregateOutputType | null
+    _max: HistoricMaxAggregateOutputType | null
+  }
+
+  type GetHistoricGroupByPayload<T extends HistoricGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HistoricGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HistoricGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HistoricGroupByOutputType[P]>
+            : GetScalarType<T[P], HistoricGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HistoricSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    action?: boolean
+    entityType?: boolean
+    entityId?: boolean
+    oldData?: boolean
+    newData?: boolean
+    changedBy?: boolean
+    createdAt?: boolean
+    description?: boolean
+    clientId?: boolean
+    paymentId?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | Historic$clientArgs<ExtArgs>
+    payment?: boolean | Historic$paymentArgs<ExtArgs>
+  }, ExtArgs["result"]["historic"]>
+
+
+
+  export type HistoricSelectScalar = {
+    id?: boolean
+    action?: boolean
+    entityType?: boolean
+    entityId?: boolean
+    oldData?: boolean
+    newData?: boolean
+    changedBy?: boolean
+    createdAt?: boolean
+    description?: boolean
+    clientId?: boolean
+    paymentId?: boolean
+  }
+
+  export type HistoricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "action" | "entityType" | "entityId" | "oldData" | "newData" | "changedBy" | "createdAt" | "description" | "clientId" | "paymentId", ExtArgs["result"]["historic"]>
+  export type HistoricInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    client?: boolean | Historic$clientArgs<ExtArgs>
+    payment?: boolean | Historic$paymentArgs<ExtArgs>
+  }
+
+  export type $HistoricPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Historic"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs> | null
+      payment: Prisma.$PaymentPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      action: string
+      entityType: string
+      entityId: string
+      oldData: Prisma.JsonValue | null
+      newData: Prisma.JsonValue | null
+      changedBy: string
+      createdAt: Date
+      description: string | null
+      clientId: string | null
+      paymentId: string | null
+    }, ExtArgs["result"]["historic"]>
+    composites: {}
+  }
+
+  type HistoricGetPayload<S extends boolean | null | undefined | HistoricDefaultArgs> = $Result.GetResult<Prisma.$HistoricPayload, S>
+
+  type HistoricCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HistoricFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HistoricCountAggregateInputType | true
+    }
+
+  export interface HistoricDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Historic'], meta: { name: 'Historic' } }
+    /**
+     * Find zero or one Historic that matches the filter.
+     * @param {HistoricFindUniqueArgs} args - Arguments to find a Historic
+     * @example
+     * // Get one Historic
+     * const historic = await prisma.historic.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HistoricFindUniqueArgs>(args: SelectSubset<T, HistoricFindUniqueArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Historic that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HistoricFindUniqueOrThrowArgs} args - Arguments to find a Historic
+     * @example
+     * // Get one Historic
+     * const historic = await prisma.historic.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HistoricFindUniqueOrThrowArgs>(args: SelectSubset<T, HistoricFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Historic that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricFindFirstArgs} args - Arguments to find a Historic
+     * @example
+     * // Get one Historic
+     * const historic = await prisma.historic.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HistoricFindFirstArgs>(args?: SelectSubset<T, HistoricFindFirstArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Historic that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricFindFirstOrThrowArgs} args - Arguments to find a Historic
+     * @example
+     * // Get one Historic
+     * const historic = await prisma.historic.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HistoricFindFirstOrThrowArgs>(args?: SelectSubset<T, HistoricFindFirstOrThrowArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Historics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Historics
+     * const historics = await prisma.historic.findMany()
+     * 
+     * // Get first 10 Historics
+     * const historics = await prisma.historic.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const historicWithIdOnly = await prisma.historic.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HistoricFindManyArgs>(args?: SelectSubset<T, HistoricFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Historic.
+     * @param {HistoricCreateArgs} args - Arguments to create a Historic.
+     * @example
+     * // Create one Historic
+     * const Historic = await prisma.historic.create({
+     *   data: {
+     *     // ... data to create a Historic
+     *   }
+     * })
+     * 
+     */
+    create<T extends HistoricCreateArgs>(args: SelectSubset<T, HistoricCreateArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Historics.
+     * @param {HistoricCreateManyArgs} args - Arguments to create many Historics.
+     * @example
+     * // Create many Historics
+     * const historic = await prisma.historic.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HistoricCreateManyArgs>(args?: SelectSubset<T, HistoricCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Historic.
+     * @param {HistoricDeleteArgs} args - Arguments to delete one Historic.
+     * @example
+     * // Delete one Historic
+     * const Historic = await prisma.historic.delete({
+     *   where: {
+     *     // ... filter to delete one Historic
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HistoricDeleteArgs>(args: SelectSubset<T, HistoricDeleteArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Historic.
+     * @param {HistoricUpdateArgs} args - Arguments to update one Historic.
+     * @example
+     * // Update one Historic
+     * const historic = await prisma.historic.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HistoricUpdateArgs>(args: SelectSubset<T, HistoricUpdateArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Historics.
+     * @param {HistoricDeleteManyArgs} args - Arguments to filter Historics to delete.
+     * @example
+     * // Delete a few Historics
+     * const { count } = await prisma.historic.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HistoricDeleteManyArgs>(args?: SelectSubset<T, HistoricDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Historics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Historics
+     * const historic = await prisma.historic.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HistoricUpdateManyArgs>(args: SelectSubset<T, HistoricUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Historic.
+     * @param {HistoricUpsertArgs} args - Arguments to update or create a Historic.
+     * @example
+     * // Update or create a Historic
+     * const historic = await prisma.historic.upsert({
+     *   create: {
+     *     // ... data to create a Historic
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Historic we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HistoricUpsertArgs>(args: SelectSubset<T, HistoricUpsertArgs<ExtArgs>>): Prisma__HistoricClient<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Historics that matches the filter.
+     * @param {HistoricFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const historic = await prisma.historic.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: HistoricFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Historic.
+     * @param {HistoricAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const historic = await prisma.historic.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: HistoricAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Historics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricCountArgs} args - Arguments to filter Historics to count.
+     * @example
+     * // Count the number of Historics
+     * const count = await prisma.historic.count({
+     *   where: {
+     *     // ... the filter for the Historics we want to count
+     *   }
+     * })
+    **/
+    count<T extends HistoricCountArgs>(
+      args?: Subset<T, HistoricCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HistoricCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Historic.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HistoricAggregateArgs>(args: Subset<T, HistoricAggregateArgs>): Prisma.PrismaPromise<GetHistoricAggregateType<T>>
+
+    /**
+     * Group by Historic.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HistoricGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HistoricGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HistoricGroupByArgs['orderBy'] }
+        : { orderBy?: HistoricGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HistoricGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHistoricGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Historic model
+   */
+  readonly fields: HistoricFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Historic.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HistoricClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends Historic$clientArgs<ExtArgs> = {}>(args?: Subset<T, Historic$clientArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    payment<T extends Historic$paymentArgs<ExtArgs> = {}>(args?: Subset<T, Historic$paymentArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Historic model
+   */
+  interface HistoricFieldRefs {
+    readonly id: FieldRef<"Historic", 'String'>
+    readonly action: FieldRef<"Historic", 'String'>
+    readonly entityType: FieldRef<"Historic", 'String'>
+    readonly entityId: FieldRef<"Historic", 'String'>
+    readonly oldData: FieldRef<"Historic", 'Json'>
+    readonly newData: FieldRef<"Historic", 'Json'>
+    readonly changedBy: FieldRef<"Historic", 'String'>
+    readonly createdAt: FieldRef<"Historic", 'DateTime'>
+    readonly description: FieldRef<"Historic", 'String'>
+    readonly clientId: FieldRef<"Historic", 'String'>
+    readonly paymentId: FieldRef<"Historic", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Historic findUnique
+   */
+  export type HistoricFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter, which Historic to fetch.
+     */
+    where: HistoricWhereUniqueInput
+  }
+
+  /**
+   * Historic findUniqueOrThrow
+   */
+  export type HistoricFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter, which Historic to fetch.
+     */
+    where: HistoricWhereUniqueInput
+  }
+
+  /**
+   * Historic findFirst
+   */
+  export type HistoricFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter, which Historic to fetch.
+     */
+    where?: HistoricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Historics to fetch.
+     */
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Historics.
+     */
+    cursor?: HistoricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Historics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Historics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Historics.
+     */
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * Historic findFirstOrThrow
+   */
+  export type HistoricFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter, which Historic to fetch.
+     */
+    where?: HistoricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Historics to fetch.
+     */
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Historics.
+     */
+    cursor?: HistoricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Historics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Historics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Historics.
+     */
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * Historic findMany
+   */
+  export type HistoricFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter, which Historics to fetch.
+     */
+    where?: HistoricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Historics to fetch.
+     */
+    orderBy?: HistoricOrderByWithRelationInput | HistoricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Historics.
+     */
+    cursor?: HistoricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Historics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Historics.
+     */
+    skip?: number
+    distinct?: HistoricScalarFieldEnum | HistoricScalarFieldEnum[]
+  }
+
+  /**
+   * Historic create
+   */
+  export type HistoricCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Historic.
+     */
+    data: XOR<HistoricCreateInput, HistoricUncheckedCreateInput>
+  }
+
+  /**
+   * Historic createMany
+   */
+  export type HistoricCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Historics.
+     */
+    data: HistoricCreateManyInput | HistoricCreateManyInput[]
+  }
+
+  /**
+   * Historic update
+   */
+  export type HistoricUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Historic.
+     */
+    data: XOR<HistoricUpdateInput, HistoricUncheckedUpdateInput>
+    /**
+     * Choose, which Historic to update.
+     */
+    where: HistoricWhereUniqueInput
+  }
+
+  /**
+   * Historic updateMany
+   */
+  export type HistoricUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Historics.
+     */
+    data: XOR<HistoricUpdateManyMutationInput, HistoricUncheckedUpdateManyInput>
+    /**
+     * Filter which Historics to update
+     */
+    where?: HistoricWhereInput
+    /**
+     * Limit how many Historics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Historic upsert
+   */
+  export type HistoricUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Historic to update in case it exists.
+     */
+    where: HistoricWhereUniqueInput
+    /**
+     * In case the Historic found by the `where` argument doesn't exist, create a new Historic with this data.
+     */
+    create: XOR<HistoricCreateInput, HistoricUncheckedCreateInput>
+    /**
+     * In case the Historic was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HistoricUpdateInput, HistoricUncheckedUpdateInput>
+  }
+
+  /**
+   * Historic delete
+   */
+  export type HistoricDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
+    /**
+     * Filter which Historic to delete.
+     */
+    where: HistoricWhereUniqueInput
+  }
+
+  /**
+   * Historic deleteMany
+   */
+  export type HistoricDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Historics to delete
+     */
+    where?: HistoricWhereInput
+    /**
+     * Limit how many Historics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Historic findRaw
+   */
+  export type HistoricFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Historic aggregateRaw
+   */
+  export type HistoricAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Historic.client
+   */
+  export type Historic$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Client
+     */
+    select?: ClientSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Client
+     */
+    omit?: ClientOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientInclude<ExtArgs> | null
+    where?: ClientWhereInput
+  }
+
+  /**
+   * Historic.payment
+   */
+  export type Historic$paymentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payment
+     */
+    select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentInclude<ExtArgs> | null
+    where?: PaymentWhereInput
+  }
+
+  /**
+   * Historic without action
+   */
+  export type HistoricDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Historic
+     */
+    select?: HistoricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Historic
+     */
+    omit?: HistoricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HistoricInclude<ExtArgs> | null
   }
 
 
@@ -7620,6 +10189,20 @@ export namespace Prisma {
   export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
 
 
+  export const NotificationScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    message: 'message',
+    isRead: 'isRead',
+    createdAt: 'createdAt',
+    userId: 'userId',
+    clientId: 'clientId',
+    paymentId: 'paymentId'
+  };
+
+  export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
   export const PaymentScalarFieldEnum: {
     id: 'id',
     clientId: 'clientId',
@@ -7639,6 +10222,23 @@ export namespace Prisma {
   };
 
   export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+  export const HistoricScalarFieldEnum: {
+    id: 'id',
+    action: 'action',
+    entityType: 'entityType',
+    entityId: 'entityId',
+    oldData: 'oldData',
+    newData: 'newData',
+    changedBy: 'changedBy',
+    createdAt: 'createdAt',
+    description: 'description',
+    clientId: 'clientId',
+    paymentId: 'paymentId'
+  };
+
+  export type HistoricScalarFieldEnum = (typeof HistoricScalarFieldEnum)[keyof typeof HistoricScalarFieldEnum]
 
 
   export const AccountScalarFieldEnum: {
@@ -7729,6 +10329,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -7739,6 +10346,13 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
 
 
@@ -7773,6 +10387,8 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     payments?: PaymentListRelationFilter
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7786,6 +10402,8 @@ export namespace Prisma {
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
+    historics?: HistoricOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7802,6 +10420,8 @@ export namespace Prisma {
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     payments?: PaymentListRelationFilter
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7840,6 +10460,8 @@ export namespace Prisma {
     userId?: StringFilter<"Client"> | string
     payments?: PaymentListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }
 
   export type ClientOrderByWithRelationInput = {
@@ -7851,6 +10473,8 @@ export namespace Prisma {
     userId?: SortOrder
     payments?: PaymentOrderByRelationAggregateInput
     user?: UserOrderByWithRelationInput
+    historics?: HistoricOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
   }
 
   export type ClientWhereUniqueInput = Prisma.AtLeast<{
@@ -7865,6 +10489,8 @@ export namespace Prisma {
     userId?: StringFilter<"Client"> | string
     payments?: PaymentListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }, "id" | "email">
 
   export type ClientOrderByWithAggregationInput = {
@@ -7891,6 +10517,82 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"Client"> | string
   }
 
+  export type NotificationWhereInput = {
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    type?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    userId?: StringFilter<"Notification"> | string
+    clientId?: StringNullableFilter<"Notification"> | string | null
+    paymentId?: StringNullableFilter<"Notification"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
+    payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+  }
+
+  export type NotificationOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    createdAt?: SortOrder
+    userId?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+    user?: UserOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+    payment?: PaymentOrderByWithRelationInput
+  }
+
+  export type NotificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    type?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    userId?: StringFilter<"Notification"> | string
+    clientId?: StringNullableFilter<"Notification"> | string | null
+    paymentId?: StringNullableFilter<"Notification"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
+    payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+  }, "id">
+
+  export type NotificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    createdAt?: SortOrder
+    userId?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+    _count?: NotificationCountOrderByAggregateInput
+    _max?: NotificationMaxOrderByAggregateInput
+    _min?: NotificationMinOrderByAggregateInput
+  }
+
+  export type NotificationScalarWhereWithAggregatesInput = {
+    AND?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    OR?: NotificationScalarWhereWithAggregatesInput[]
+    NOT?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Notification"> | string
+    type?: StringWithAggregatesFilter<"Notification"> | string
+    message?: StringWithAggregatesFilter<"Notification"> | string
+    isRead?: BoolWithAggregatesFilter<"Notification"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
+    userId?: StringWithAggregatesFilter<"Notification"> | string
+    clientId?: StringNullableWithAggregatesFilter<"Notification"> | string | null
+    paymentId?: StringNullableWithAggregatesFilter<"Notification"> | string | null
+  }
+
   export type PaymentWhereInput = {
     AND?: PaymentWhereInput | PaymentWhereInput[]
     OR?: PaymentWhereInput[]
@@ -7912,6 +10614,8 @@ export namespace Prisma {
     userId?: StringFilter<"Payment"> | string
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }
 
   export type PaymentOrderByWithRelationInput = {
@@ -7932,6 +10636,8 @@ export namespace Prisma {
     userId?: SortOrder
     client?: ClientOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    historics?: HistoricOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
   }
 
   export type PaymentWhereUniqueInput = Prisma.AtLeast<{
@@ -7955,6 +10661,8 @@ export namespace Prisma {
     userId?: StringFilter<"Payment"> | string
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    historics?: HistoricListRelationFilter
+    notifications?: NotificationListRelationFilter
   }, "id">
 
   export type PaymentOrderByWithAggregationInput = {
@@ -7999,6 +10707,97 @@ export namespace Prisma {
     paymentStatus?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     date?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
     userId?: StringWithAggregatesFilter<"Payment"> | string
+  }
+
+  export type HistoricWhereInput = {
+    AND?: HistoricWhereInput | HistoricWhereInput[]
+    OR?: HistoricWhereInput[]
+    NOT?: HistoricWhereInput | HistoricWhereInput[]
+    id?: StringFilter<"Historic"> | string
+    action?: StringFilter<"Historic"> | string
+    entityType?: StringFilter<"Historic"> | string
+    entityId?: StringFilter<"Historic"> | string
+    oldData?: JsonNullableFilter<"Historic">
+    newData?: JsonNullableFilter<"Historic">
+    changedBy?: StringFilter<"Historic"> | string
+    createdAt?: DateTimeFilter<"Historic"> | Date | string
+    description?: StringNullableFilter<"Historic"> | string | null
+    clientId?: StringNullableFilter<"Historic"> | string | null
+    paymentId?: StringNullableFilter<"Historic"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
+    payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+  }
+
+  export type HistoricOrderByWithRelationInput = {
+    id?: SortOrder
+    action?: SortOrder
+    entityType?: SortOrder
+    entityId?: SortOrder
+    oldData?: SortOrder
+    newData?: SortOrder
+    changedBy?: SortOrder
+    createdAt?: SortOrder
+    description?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+    user?: UserOrderByWithRelationInput
+    client?: ClientOrderByWithRelationInput
+    payment?: PaymentOrderByWithRelationInput
+  }
+
+  export type HistoricWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: HistoricWhereInput | HistoricWhereInput[]
+    OR?: HistoricWhereInput[]
+    NOT?: HistoricWhereInput | HistoricWhereInput[]
+    action?: StringFilter<"Historic"> | string
+    entityType?: StringFilter<"Historic"> | string
+    entityId?: StringFilter<"Historic"> | string
+    oldData?: JsonNullableFilter<"Historic">
+    newData?: JsonNullableFilter<"Historic">
+    changedBy?: StringFilter<"Historic"> | string
+    createdAt?: DateTimeFilter<"Historic"> | Date | string
+    description?: StringNullableFilter<"Historic"> | string | null
+    clientId?: StringNullableFilter<"Historic"> | string | null
+    paymentId?: StringNullableFilter<"Historic"> | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
+    payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
+  }, "id">
+
+  export type HistoricOrderByWithAggregationInput = {
+    id?: SortOrder
+    action?: SortOrder
+    entityType?: SortOrder
+    entityId?: SortOrder
+    oldData?: SortOrder
+    newData?: SortOrder
+    changedBy?: SortOrder
+    createdAt?: SortOrder
+    description?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+    _count?: HistoricCountOrderByAggregateInput
+    _max?: HistoricMaxOrderByAggregateInput
+    _min?: HistoricMinOrderByAggregateInput
+  }
+
+  export type HistoricScalarWhereWithAggregatesInput = {
+    AND?: HistoricScalarWhereWithAggregatesInput | HistoricScalarWhereWithAggregatesInput[]
+    OR?: HistoricScalarWhereWithAggregatesInput[]
+    NOT?: HistoricScalarWhereWithAggregatesInput | HistoricScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Historic"> | string
+    action?: StringWithAggregatesFilter<"Historic"> | string
+    entityType?: StringWithAggregatesFilter<"Historic"> | string
+    entityId?: StringWithAggregatesFilter<"Historic"> | string
+    oldData?: JsonNullableWithAggregatesFilter<"Historic">
+    newData?: JsonNullableWithAggregatesFilter<"Historic">
+    changedBy?: StringWithAggregatesFilter<"Historic"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Historic"> | Date | string
+    description?: StringNullableWithAggregatesFilter<"Historic"> | string | null
+    clientId?: StringNullableWithAggregatesFilter<"Historic"> | string | null
+    paymentId?: StringNullableWithAggregatesFilter<"Historic"> | string | null
   }
 
   export type AccountWhereInput = {
@@ -8203,6 +11002,8 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -8216,6 +11017,8 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -8228,6 +11031,8 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -8240,6 +11045,8 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -8275,6 +11082,8 @@ export namespace Prisma {
     registrationDate?: Date | string
     payments?: PaymentCreateNestedManyWithoutClientInput
     user: UserCreateNestedOneWithoutClientsInput
+    historics?: HistoricCreateNestedManyWithoutClientInput
+    notifications?: NotificationCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateInput = {
@@ -8285,6 +11094,8 @@ export namespace Prisma {
     registrationDate?: Date | string
     userId: string
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientUpdateInput = {
@@ -8294,6 +11105,8 @@ export namespace Prisma {
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: PaymentUpdateManyWithoutClientNestedInput
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    historics?: HistoricUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateInput = {
@@ -8303,6 +11116,8 @@ export namespace Prisma {
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientCreateManyInput = {
@@ -8329,6 +11144,76 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type NotificationCreateInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+    client?: ClientCreateNestedOneWithoutNotificationsInput
+    payment?: PaymentCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type NotificationUpdateInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+    client?: ClientUpdateOneWithoutNotificationsNestedInput
+    payment?: PaymentUpdateOneWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationCreateManyInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type NotificationUpdateManyMutationInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type PaymentCreateInput = {
     id?: string
     amount: number
@@ -8345,6 +11230,8 @@ export namespace Prisma {
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
     user: UserCreateNestedOneWithoutPaymentsInput
+    historics?: HistoricCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentUncheckedCreateInput = {
@@ -8363,6 +11250,8 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     userId: string
+    historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentUpdateInput = {
@@ -8380,6 +11269,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
     user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    historics?: HistoricUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateInput = {
@@ -8397,6 +11288,8 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+    historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentCreateManyInput = {
@@ -8447,6 +11340,97 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type HistoricCreateInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    user: UserCreateNestedOneWithoutHistoricsInput
+    client?: ClientCreateNestedOneWithoutHistoricsInput
+    payment?: PaymentCreateNestedOneWithoutHistoricsInput
+  }
+
+  export type HistoricUncheckedCreateInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type HistoricUpdateInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    client?: ClientUpdateOneWithoutHistoricsNestedInput
+    payment?: PaymentUpdateOneWithoutHistoricsNestedInput
+  }
+
+  export type HistoricUncheckedUpdateInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricCreateManyInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type HistoricUpdateManyMutationInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricUncheckedUpdateManyInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountCreateInput = {
@@ -8716,6 +11700,18 @@ export namespace Prisma {
     none?: PaymentWhereInput
   }
 
+  export type HistoricListRelationFilter = {
+    every?: HistoricWhereInput
+    some?: HistoricWhereInput
+    none?: HistoricWhereInput
+  }
+
+  export type NotificationListRelationFilter = {
+    every?: NotificationWhereInput
+    some?: NotificationWhereInput
+    none?: NotificationWhereInput
+  }
+
   export type ClientOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -8729,6 +11725,14 @@ export namespace Prisma {
   }
 
   export type PaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type HistoricOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type NotificationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8857,6 +11861,62 @@ export namespace Prisma {
     userId?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type ClientNullableScalarRelationFilter = {
+    is?: ClientWhereInput | null
+    isNot?: ClientWhereInput | null
+  }
+
+  export type PaymentNullableScalarRelationFilter = {
+    is?: PaymentWhereInput | null
+    isNot?: PaymentWhereInput | null
+  }
+
+  export type NotificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    createdAt?: SortOrder
+    userId?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+
+  export type NotificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    createdAt?: SortOrder
+    userId?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+
+  export type NotificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    message?: SortOrder
+    isRead?: SortOrder
+    createdAt?: SortOrder
+    userId?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -8949,6 +12009,71 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    isSet?: boolean
+  }
+
+  export type HistoricCountOrderByAggregateInput = {
+    id?: SortOrder
+    action?: SortOrder
+    entityType?: SortOrder
+    entityId?: SortOrder
+    oldData?: SortOrder
+    newData?: SortOrder
+    changedBy?: SortOrder
+    createdAt?: SortOrder
+    description?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+
+  export type HistoricMaxOrderByAggregateInput = {
+    id?: SortOrder
+    action?: SortOrder
+    entityType?: SortOrder
+    entityId?: SortOrder
+    changedBy?: SortOrder
+    createdAt?: SortOrder
+    description?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+
+  export type HistoricMinOrderByAggregateInput = {
+    id?: SortOrder
+    action?: SortOrder
+    entityType?: SortOrder
+    entityId?: SortOrder
+    changedBy?: SortOrder
+    createdAt?: SortOrder
+    description?: SortOrder
+    clientId?: SortOrder
+    paymentId?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -9113,6 +12238,20 @@ export namespace Prisma {
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
   }
 
+  export type HistoricCreateNestedManyWithoutUserInput = {
+    create?: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput> | HistoricCreateWithoutUserInput[] | HistoricUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutUserInput | HistoricCreateOrConnectWithoutUserInput[]
+    createMany?: HistoricCreateManyUserInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
   export type ClientUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ClientCreateWithoutUserInput, ClientUncheckedCreateWithoutUserInput> | ClientCreateWithoutUserInput[] | ClientUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ClientCreateOrConnectWithoutUserInput | ClientCreateOrConnectWithoutUserInput[]
@@ -9139,6 +12278,20 @@ export namespace Prisma {
     connectOrCreate?: PaymentCreateOrConnectWithoutUserInput | PaymentCreateOrConnectWithoutUserInput[]
     createMany?: PaymentCreateManyUserInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type HistoricUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput> | HistoricCreateWithoutUserInput[] | HistoricUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutUserInput | HistoricCreateOrConnectWithoutUserInput[]
+    createMany?: HistoricCreateManyUserInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9215,6 +12368,34 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type HistoricUpdateManyWithoutUserNestedInput = {
+    create?: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput> | HistoricCreateWithoutUserInput[] | HistoricUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutUserInput | HistoricCreateOrConnectWithoutUserInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutUserInput | HistoricUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: HistoricCreateManyUserInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutUserInput | HistoricUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutUserInput | HistoricUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
   export type ClientUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ClientCreateWithoutUserInput, ClientUncheckedCreateWithoutUserInput> | ClientCreateWithoutUserInput[] | ClientUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ClientCreateOrConnectWithoutUserInput | ClientCreateOrConnectWithoutUserInput[]
@@ -9271,6 +12452,34 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type HistoricUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput> | HistoricCreateWithoutUserInput[] | HistoricUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutUserInput | HistoricCreateOrConnectWithoutUserInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutUserInput | HistoricUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: HistoricCreateManyUserInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutUserInput | HistoricUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutUserInput | HistoricUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
   export type PaymentCreateNestedManyWithoutClientInput = {
     create?: XOR<PaymentCreateWithoutClientInput, PaymentUncheckedCreateWithoutClientInput> | PaymentCreateWithoutClientInput[] | PaymentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutClientInput | PaymentCreateOrConnectWithoutClientInput[]
@@ -9284,11 +12493,39 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type HistoricCreateNestedManyWithoutClientInput = {
+    create?: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput> | HistoricCreateWithoutClientInput[] | HistoricUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutClientInput | HistoricCreateOrConnectWithoutClientInput[]
+    createMany?: HistoricCreateManyClientInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutClientInput = {
+    create?: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput> | NotificationCreateWithoutClientInput[] | NotificationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutClientInput | NotificationCreateOrConnectWithoutClientInput[]
+    createMany?: NotificationCreateManyClientInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
   export type PaymentUncheckedCreateNestedManyWithoutClientInput = {
     create?: XOR<PaymentCreateWithoutClientInput, PaymentUncheckedCreateWithoutClientInput> | PaymentCreateWithoutClientInput[] | PaymentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutClientInput | PaymentCreateOrConnectWithoutClientInput[]
     createMany?: PaymentCreateManyClientInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type HistoricUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput> | HistoricCreateWithoutClientInput[] | HistoricUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutClientInput | HistoricCreateOrConnectWithoutClientInput[]
+    createMany?: HistoricCreateManyClientInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput> | NotificationCreateWithoutClientInput[] | NotificationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutClientInput | NotificationCreateOrConnectWithoutClientInput[]
+    createMany?: NotificationCreateManyClientInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type PaymentUpdateManyWithoutClientNestedInput = {
@@ -9313,6 +12550,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClientsInput, UserUpdateWithoutClientsInput>, UserUncheckedUpdateWithoutClientsInput>
   }
 
+  export type HistoricUpdateManyWithoutClientNestedInput = {
+    create?: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput> | HistoricCreateWithoutClientInput[] | HistoricUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutClientInput | HistoricCreateOrConnectWithoutClientInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutClientInput | HistoricUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: HistoricCreateManyClientInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutClientInput | HistoricUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutClientInput | HistoricUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutClientNestedInput = {
+    create?: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput> | NotificationCreateWithoutClientInput[] | NotificationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutClientInput | NotificationCreateOrConnectWithoutClientInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutClientInput | NotificationUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: NotificationCreateManyClientInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutClientInput | NotificationUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutClientInput | NotificationUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
   export type PaymentUncheckedUpdateManyWithoutClientNestedInput = {
     create?: XOR<PaymentCreateWithoutClientInput, PaymentUncheckedCreateWithoutClientInput> | PaymentCreateWithoutClientInput[] | PaymentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutClientInput | PaymentCreateOrConnectWithoutClientInput[]
@@ -9327,6 +12592,84 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type HistoricUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput> | HistoricCreateWithoutClientInput[] | HistoricUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutClientInput | HistoricCreateOrConnectWithoutClientInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutClientInput | HistoricUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: HistoricCreateManyClientInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutClientInput | HistoricUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutClientInput | HistoricUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput> | NotificationCreateWithoutClientInput[] | NotificationUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutClientInput | NotificationCreateOrConnectWithoutClientInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutClientInput | NotificationUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: NotificationCreateManyClientInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutClientInput | NotificationUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutClientInput | NotificationUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<ClientCreateWithoutNotificationsInput, ClientUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutNotificationsInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type PaymentCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<PaymentCreateWithoutNotificationsInput, PaymentUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: PaymentCreateOrConnectWithoutNotificationsInput
+    connect?: PaymentWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    upsert?: UserUpsertWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type ClientUpdateOneWithoutNotificationsNestedInput = {
+    create?: XOR<ClientCreateWithoutNotificationsInput, ClientUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutNotificationsInput
+    upsert?: ClientUpsertWithoutNotificationsInput
+    disconnect?: boolean
+    delete?: ClientWhereInput | boolean
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutNotificationsInput, ClientUpdateWithoutNotificationsInput>, ClientUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type PaymentUpdateOneWithoutNotificationsNestedInput = {
+    create?: XOR<PaymentCreateWithoutNotificationsInput, PaymentUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: PaymentCreateOrConnectWithoutNotificationsInput
+    upsert?: PaymentUpsertWithoutNotificationsInput
+    disconnect?: boolean
+    delete?: PaymentWhereInput | boolean
+    connect?: PaymentWhereUniqueInput
+    update?: XOR<XOR<PaymentUpdateToOneWithWhereWithoutNotificationsInput, PaymentUpdateWithoutNotificationsInput>, PaymentUncheckedUpdateWithoutNotificationsInput>
+  }
+
   export type ClientCreateNestedOneWithoutPaymentsInput = {
     create?: XOR<ClientCreateWithoutPaymentsInput, ClientUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: ClientCreateOrConnectWithoutPaymentsInput
@@ -9337,6 +12680,34 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutPaymentsInput, UserUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPaymentsInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type HistoricCreateNestedManyWithoutPaymentInput = {
+    create?: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput> | HistoricCreateWithoutPaymentInput[] | HistoricUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutPaymentInput | HistoricCreateOrConnectWithoutPaymentInput[]
+    createMany?: HistoricCreateManyPaymentInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutPaymentInput = {
+    create?: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput> | NotificationCreateWithoutPaymentInput[] | NotificationUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutPaymentInput | NotificationCreateOrConnectWithoutPaymentInput[]
+    createMany?: NotificationCreateManyPaymentInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type HistoricUncheckedCreateNestedManyWithoutPaymentInput = {
+    create?: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput> | HistoricCreateWithoutPaymentInput[] | HistoricUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutPaymentInput | HistoricCreateOrConnectWithoutPaymentInput[]
+    createMany?: HistoricCreateManyPaymentInputEnvelope
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutPaymentInput = {
+    create?: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput> | NotificationCreateWithoutPaymentInput[] | NotificationUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutPaymentInput | NotificationCreateOrConnectWithoutPaymentInput[]
+    createMany?: NotificationCreateManyPaymentInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -9361,6 +12732,108 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutPaymentsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPaymentsInput, UserUpdateWithoutPaymentsInput>, UserUncheckedUpdateWithoutPaymentsInput>
+  }
+
+  export type HistoricUpdateManyWithoutPaymentNestedInput = {
+    create?: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput> | HistoricCreateWithoutPaymentInput[] | HistoricUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutPaymentInput | HistoricCreateOrConnectWithoutPaymentInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutPaymentInput | HistoricUpsertWithWhereUniqueWithoutPaymentInput[]
+    createMany?: HistoricCreateManyPaymentInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutPaymentInput | HistoricUpdateWithWhereUniqueWithoutPaymentInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutPaymentInput | HistoricUpdateManyWithWhereWithoutPaymentInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutPaymentNestedInput = {
+    create?: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput> | NotificationCreateWithoutPaymentInput[] | NotificationUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutPaymentInput | NotificationCreateOrConnectWithoutPaymentInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutPaymentInput | NotificationUpsertWithWhereUniqueWithoutPaymentInput[]
+    createMany?: NotificationCreateManyPaymentInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutPaymentInput | NotificationUpdateWithWhereUniqueWithoutPaymentInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutPaymentInput | NotificationUpdateManyWithWhereWithoutPaymentInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type HistoricUncheckedUpdateManyWithoutPaymentNestedInput = {
+    create?: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput> | HistoricCreateWithoutPaymentInput[] | HistoricUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: HistoricCreateOrConnectWithoutPaymentInput | HistoricCreateOrConnectWithoutPaymentInput[]
+    upsert?: HistoricUpsertWithWhereUniqueWithoutPaymentInput | HistoricUpsertWithWhereUniqueWithoutPaymentInput[]
+    createMany?: HistoricCreateManyPaymentInputEnvelope
+    set?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    disconnect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    delete?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    connect?: HistoricWhereUniqueInput | HistoricWhereUniqueInput[]
+    update?: HistoricUpdateWithWhereUniqueWithoutPaymentInput | HistoricUpdateWithWhereUniqueWithoutPaymentInput[]
+    updateMany?: HistoricUpdateManyWithWhereWithoutPaymentInput | HistoricUpdateManyWithWhereWithoutPaymentInput[]
+    deleteMany?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutPaymentNestedInput = {
+    create?: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput> | NotificationCreateWithoutPaymentInput[] | NotificationUncheckedCreateWithoutPaymentInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutPaymentInput | NotificationCreateOrConnectWithoutPaymentInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutPaymentInput | NotificationUpsertWithWhereUniqueWithoutPaymentInput[]
+    createMany?: NotificationCreateManyPaymentInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutPaymentInput | NotificationUpdateWithWhereUniqueWithoutPaymentInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutPaymentInput | NotificationUpdateManyWithWhereWithoutPaymentInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutHistoricsInput = {
+    create?: XOR<UserCreateWithoutHistoricsInput, UserUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHistoricsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ClientCreateNestedOneWithoutHistoricsInput = {
+    create?: XOR<ClientCreateWithoutHistoricsInput, ClientUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutHistoricsInput
+    connect?: ClientWhereUniqueInput
+  }
+
+  export type PaymentCreateNestedOneWithoutHistoricsInput = {
+    create?: XOR<PaymentCreateWithoutHistoricsInput, PaymentUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: PaymentCreateOrConnectWithoutHistoricsInput
+    connect?: PaymentWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutHistoricsNestedInput = {
+    create?: XOR<UserCreateWithoutHistoricsInput, UserUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHistoricsInput
+    upsert?: UserUpsertWithoutHistoricsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHistoricsInput, UserUpdateWithoutHistoricsInput>, UserUncheckedUpdateWithoutHistoricsInput>
+  }
+
+  export type ClientUpdateOneWithoutHistoricsNestedInput = {
+    create?: XOR<ClientCreateWithoutHistoricsInput, ClientUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: ClientCreateOrConnectWithoutHistoricsInput
+    upsert?: ClientUpsertWithoutHistoricsInput
+    disconnect?: boolean
+    delete?: ClientWhereInput | boolean
+    connect?: ClientWhereUniqueInput
+    update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutHistoricsInput, ClientUpdateWithoutHistoricsInput>, ClientUncheckedUpdateWithoutHistoricsInput>
+  }
+
+  export type PaymentUpdateOneWithoutHistoricsNestedInput = {
+    create?: XOR<PaymentCreateWithoutHistoricsInput, PaymentUncheckedCreateWithoutHistoricsInput>
+    connectOrCreate?: PaymentCreateOrConnectWithoutHistoricsInput
+    upsert?: PaymentUpsertWithoutHistoricsInput
+    disconnect?: boolean
+    delete?: PaymentWhereInput | boolean
+    connect?: PaymentWhereUniqueInput
+    update?: XOR<XOR<PaymentUpdateToOneWithWhereWithoutHistoricsInput, PaymentUpdateWithoutHistoricsInput>, PaymentUncheckedUpdateWithoutHistoricsInput>
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -9539,6 +13012,19 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -9564,6 +13050,18 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    isSet?: boolean
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -9602,6 +13100,8 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     payments?: PaymentCreateNestedManyWithoutClientInput
+    historics?: HistoricCreateNestedManyWithoutClientInput
+    notifications?: NotificationCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutUserInput = {
@@ -9611,6 +13111,8 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutUserInput = {
@@ -9695,6 +13197,8 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
+    historics?: HistoricCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentUncheckedCreateWithoutUserInput = {
@@ -9712,6 +13216,8 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
+    historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentCreateOrConnectWithoutUserInput = {
@@ -9721,6 +13227,70 @@ export namespace Prisma {
 
   export type PaymentCreateManyUserInputEnvelope = {
     data: PaymentCreateManyUserInput | PaymentCreateManyUserInput[]
+  }
+
+  export type HistoricCreateWithoutUserInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    client?: ClientCreateNestedOneWithoutHistoricsInput
+    payment?: PaymentCreateNestedOneWithoutHistoricsInput
+  }
+
+  export type HistoricUncheckedCreateWithoutUserInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type HistoricCreateOrConnectWithoutUserInput = {
+    where: HistoricWhereUniqueInput
+    create: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput>
+  }
+
+  export type HistoricCreateManyUserInputEnvelope = {
+    data: HistoricCreateManyUserInput | HistoricCreateManyUserInput[]
+  }
+
+  export type NotificationCreateWithoutUserInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    client?: ClientCreateNestedOneWithoutNotificationsInput
+    payment?: PaymentCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateWithoutUserInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type NotificationCreateOrConnectWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationCreateManyUserInputEnvelope = {
+    data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
   }
 
   export type ClientUpsertWithWhereUniqueWithoutUserInput = {
@@ -9848,6 +13418,69 @@ export namespace Prisma {
     userId?: StringFilter<"Payment"> | string
   }
 
+  export type HistoricUpsertWithWhereUniqueWithoutUserInput = {
+    where: HistoricWhereUniqueInput
+    update: XOR<HistoricUpdateWithoutUserInput, HistoricUncheckedUpdateWithoutUserInput>
+    create: XOR<HistoricCreateWithoutUserInput, HistoricUncheckedCreateWithoutUserInput>
+  }
+
+  export type HistoricUpdateWithWhereUniqueWithoutUserInput = {
+    where: HistoricWhereUniqueInput
+    data: XOR<HistoricUpdateWithoutUserInput, HistoricUncheckedUpdateWithoutUserInput>
+  }
+
+  export type HistoricUpdateManyWithWhereWithoutUserInput = {
+    where: HistoricScalarWhereInput
+    data: XOR<HistoricUpdateManyMutationInput, HistoricUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type HistoricScalarWhereInput = {
+    AND?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+    OR?: HistoricScalarWhereInput[]
+    NOT?: HistoricScalarWhereInput | HistoricScalarWhereInput[]
+    id?: StringFilter<"Historic"> | string
+    action?: StringFilter<"Historic"> | string
+    entityType?: StringFilter<"Historic"> | string
+    entityId?: StringFilter<"Historic"> | string
+    oldData?: JsonNullableFilter<"Historic">
+    newData?: JsonNullableFilter<"Historic">
+    changedBy?: StringFilter<"Historic"> | string
+    createdAt?: DateTimeFilter<"Historic"> | Date | string
+    description?: StringNullableFilter<"Historic"> | string | null
+    clientId?: StringNullableFilter<"Historic"> | string | null
+    paymentId?: StringNullableFilter<"Historic"> | string | null
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutUserInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type NotificationScalarWhereInput = {
+    AND?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    OR?: NotificationScalarWhereInput[]
+    NOT?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    type?: StringFilter<"Notification"> | string
+    message?: StringFilter<"Notification"> | string
+    isRead?: BoolFilter<"Notification"> | boolean
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    userId?: StringFilter<"Notification"> | string
+    clientId?: StringNullableFilter<"Notification"> | string | null
+    paymentId?: StringNullableFilter<"Notification"> | string | null
+  }
+
   export type PaymentCreateWithoutClientInput = {
     id?: string
     amount: number
@@ -9863,6 +13496,8 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     user: UserCreateNestedOneWithoutPaymentsInput
+    historics?: HistoricCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentUncheckedCreateWithoutClientInput = {
@@ -9880,6 +13515,8 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     userId: string
+    historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
   }
 
   export type PaymentCreateOrConnectWithoutClientInput = {
@@ -9901,6 +13538,8 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClientsInput = {
@@ -9913,11 +13552,77 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClientsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutClientsInput, UserUncheckedCreateWithoutClientsInput>
+  }
+
+  export type HistoricCreateWithoutClientInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    user: UserCreateNestedOneWithoutHistoricsInput
+    payment?: PaymentCreateNestedOneWithoutHistoricsInput
+  }
+
+  export type HistoricUncheckedCreateWithoutClientInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    paymentId?: string | null
+  }
+
+  export type HistoricCreateOrConnectWithoutClientInput = {
+    where: HistoricWhereUniqueInput
+    create: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput>
+  }
+
+  export type HistoricCreateManyClientInputEnvelope = {
+    data: HistoricCreateManyClientInput | HistoricCreateManyClientInput[]
+  }
+
+  export type NotificationCreateWithoutClientInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+    payment?: PaymentCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateWithoutClientInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    paymentId?: string | null
+  }
+
+  export type NotificationCreateOrConnectWithoutClientInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput>
+  }
+
+  export type NotificationCreateManyClientInputEnvelope = {
+    data: NotificationCreateManyClientInput | NotificationCreateManyClientInput[]
   }
 
   export type PaymentUpsertWithWhereUniqueWithoutClientInput = {
@@ -9956,6 +13661,8 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClientsInput = {
@@ -9967,6 +13674,258 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type HistoricUpsertWithWhereUniqueWithoutClientInput = {
+    where: HistoricWhereUniqueInput
+    update: XOR<HistoricUpdateWithoutClientInput, HistoricUncheckedUpdateWithoutClientInput>
+    create: XOR<HistoricCreateWithoutClientInput, HistoricUncheckedCreateWithoutClientInput>
+  }
+
+  export type HistoricUpdateWithWhereUniqueWithoutClientInput = {
+    where: HistoricWhereUniqueInput
+    data: XOR<HistoricUpdateWithoutClientInput, HistoricUncheckedUpdateWithoutClientInput>
+  }
+
+  export type HistoricUpdateManyWithWhereWithoutClientInput = {
+    where: HistoricScalarWhereInput
+    data: XOR<HistoricUpdateManyMutationInput, HistoricUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutClientInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutClientInput, NotificationUncheckedUpdateWithoutClientInput>
+    create: XOR<NotificationCreateWithoutClientInput, NotificationUncheckedCreateWithoutClientInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutClientInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutClientInput, NotificationUncheckedUpdateWithoutClientInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutClientInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutClientInput>
+  }
+
+  export type UserCreateWithoutNotificationsInput = {
+    id?: string
+    email: string
+    emailVerified?: Date | string | null
+    phone?: string | null
+    password: string
+    createdAt?: Date | string
+    clients?: ClientCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    email: string
+    emailVerified?: Date | string | null
+    phone?: string | null
+    password: string
+    createdAt?: Date | string
+    clients?: ClientUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutNotificationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type ClientCreateWithoutNotificationsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    email?: string | null
+    registrationDate?: Date | string
+    payments?: PaymentCreateNestedManyWithoutClientInput
+    user: UserCreateNestedOneWithoutClientsInput
+    historics?: HistoricCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    email?: string | null
+    registrationDate?: Date | string
+    userId: string
+    payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutNotificationsInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutNotificationsInput, ClientUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type PaymentCreateWithoutNotificationsInput = {
+    id?: string
+    amount: number
+    subscription: string
+    method: string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    startDate: Date | string
+    endDate: Date | string
+    nextPaymentDate: Date | string
+    paymentDate?: Date | string | null
+    paymentStatus?: string | null
+    date?: Date | string
+    client: ClientCreateNestedOneWithoutPaymentsInput
+    user: UserCreateNestedOneWithoutPaymentsInput
+    historics?: HistoricCreateNestedManyWithoutPaymentInput
+  }
+
+  export type PaymentUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    clientId: string
+    amount: number
+    subscription: string
+    method: string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    startDate: Date | string
+    endDate: Date | string
+    nextPaymentDate: Date | string
+    paymentDate?: Date | string | null
+    paymentStatus?: string | null
+    date?: Date | string
+    userId: string
+    historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
+  }
+
+  export type PaymentCreateOrConnectWithoutNotificationsInput = {
+    where: PaymentWhereUniqueInput
+    create: XOR<PaymentCreateWithoutNotificationsInput, PaymentUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type UserUpsertWithoutNotificationsInput = {
+    update: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type UserUpdateWithoutNotificationsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clients?: ClientUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutNotificationsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clients?: ClientUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ClientUpsertWithoutNotificationsInput = {
+    update: XOR<ClientUpdateWithoutNotificationsInput, ClientUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<ClientCreateWithoutNotificationsInput, ClientUncheckedCreateWithoutNotificationsInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutNotificationsInput, ClientUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type ClientUpdateWithoutNotificationsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    payments?: PaymentUpdateManyWithoutClientNestedInput
+    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    historics?: HistoricUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutNotificationsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type PaymentUpsertWithoutNotificationsInput = {
+    update: XOR<PaymentUpdateWithoutNotificationsInput, PaymentUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<PaymentCreateWithoutNotificationsInput, PaymentUncheckedCreateWithoutNotificationsInput>
+    where?: PaymentWhereInput
+  }
+
+  export type PaymentUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: PaymentWhereInput
+    data: XOR<PaymentUpdateWithoutNotificationsInput, PaymentUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type PaymentUpdateWithoutNotificationsInput = {
+    amount?: IntFieldUpdateOperationsInput | number
+    subscription?: StringFieldUpdateOperationsInput | string
+    method?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    historics?: HistoricUpdateManyWithoutPaymentNestedInput
+  }
+
+  export type PaymentUncheckedUpdateWithoutNotificationsInput = {
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    subscription?: StringFieldUpdateOperationsInput | string
+    method?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
   }
 
   export type ClientCreateWithoutPaymentsInput = {
@@ -9976,6 +13935,8 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     user: UserCreateNestedOneWithoutClientsInput
+    historics?: HistoricCreateNestedManyWithoutClientInput
+    notifications?: NotificationCreateNestedManyWithoutClientInput
   }
 
   export type ClientUncheckedCreateWithoutPaymentsInput = {
@@ -9985,6 +13946,8 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     userId: string
+    historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type ClientCreateOrConnectWithoutPaymentsInput = {
@@ -10002,6 +13965,8 @@ export namespace Prisma {
     clients?: ClientCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -10014,11 +13979,77 @@ export namespace Prisma {
     clients?: ClientUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPaymentsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutPaymentsInput, UserUncheckedCreateWithoutPaymentsInput>
+  }
+
+  export type HistoricCreateWithoutPaymentInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    user: UserCreateNestedOneWithoutHistoricsInput
+    client?: ClientCreateNestedOneWithoutHistoricsInput
+  }
+
+  export type HistoricUncheckedCreateWithoutPaymentInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+  }
+
+  export type HistoricCreateOrConnectWithoutPaymentInput = {
+    where: HistoricWhereUniqueInput
+    create: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput>
+  }
+
+  export type HistoricCreateManyPaymentInputEnvelope = {
+    data: HistoricCreateManyPaymentInput | HistoricCreateManyPaymentInput[]
+  }
+
+  export type NotificationCreateWithoutPaymentInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+    client?: ClientCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateWithoutPaymentInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    clientId?: string | null
+  }
+
+  export type NotificationCreateOrConnectWithoutPaymentInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput>
+  }
+
+  export type NotificationCreateManyPaymentInputEnvelope = {
+    data: NotificationCreateManyPaymentInput | NotificationCreateManyPaymentInput[]
   }
 
   export type ClientUpsertWithoutPaymentsInput = {
@@ -10038,6 +14069,8 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    historics?: HistoricUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutPaymentsInput = {
@@ -10046,6 +14079,8 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+    historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type UserUpsertWithoutPaymentsInput = {
@@ -10068,6 +14103,8 @@ export namespace Prisma {
     clients?: ClientUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -10079,6 +14116,258 @@ export namespace Prisma {
     clients?: ClientUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type HistoricUpsertWithWhereUniqueWithoutPaymentInput = {
+    where: HistoricWhereUniqueInput
+    update: XOR<HistoricUpdateWithoutPaymentInput, HistoricUncheckedUpdateWithoutPaymentInput>
+    create: XOR<HistoricCreateWithoutPaymentInput, HistoricUncheckedCreateWithoutPaymentInput>
+  }
+
+  export type HistoricUpdateWithWhereUniqueWithoutPaymentInput = {
+    where: HistoricWhereUniqueInput
+    data: XOR<HistoricUpdateWithoutPaymentInput, HistoricUncheckedUpdateWithoutPaymentInput>
+  }
+
+  export type HistoricUpdateManyWithWhereWithoutPaymentInput = {
+    where: HistoricScalarWhereInput
+    data: XOR<HistoricUpdateManyMutationInput, HistoricUncheckedUpdateManyWithoutPaymentInput>
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutPaymentInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutPaymentInput, NotificationUncheckedUpdateWithoutPaymentInput>
+    create: XOR<NotificationCreateWithoutPaymentInput, NotificationUncheckedCreateWithoutPaymentInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutPaymentInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutPaymentInput, NotificationUncheckedUpdateWithoutPaymentInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutPaymentInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutPaymentInput>
+  }
+
+  export type UserCreateWithoutHistoricsInput = {
+    id?: string
+    email: string
+    emailVerified?: Date | string | null
+    phone?: string | null
+    password: string
+    createdAt?: Date | string
+    clients?: ClientCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutHistoricsInput = {
+    id?: string
+    email: string
+    emailVerified?: Date | string | null
+    phone?: string | null
+    password: string
+    createdAt?: Date | string
+    clients?: ClientUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutHistoricsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutHistoricsInput, UserUncheckedCreateWithoutHistoricsInput>
+  }
+
+  export type ClientCreateWithoutHistoricsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    email?: string | null
+    registrationDate?: Date | string
+    payments?: PaymentCreateNestedManyWithoutClientInput
+    user: UserCreateNestedOneWithoutClientsInput
+    notifications?: NotificationCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientUncheckedCreateWithoutHistoricsInput = {
+    id?: string
+    name: string
+    phone?: string | null
+    email?: string | null
+    registrationDate?: Date | string
+    userId: string
+    payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type ClientCreateOrConnectWithoutHistoricsInput = {
+    where: ClientWhereUniqueInput
+    create: XOR<ClientCreateWithoutHistoricsInput, ClientUncheckedCreateWithoutHistoricsInput>
+  }
+
+  export type PaymentCreateWithoutHistoricsInput = {
+    id?: string
+    amount: number
+    subscription: string
+    method: string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    startDate: Date | string
+    endDate: Date | string
+    nextPaymentDate: Date | string
+    paymentDate?: Date | string | null
+    paymentStatus?: string | null
+    date?: Date | string
+    client: ClientCreateNestedOneWithoutPaymentsInput
+    user: UserCreateNestedOneWithoutPaymentsInput
+    notifications?: NotificationCreateNestedManyWithoutPaymentInput
+  }
+
+  export type PaymentUncheckedCreateWithoutHistoricsInput = {
+    id?: string
+    clientId: string
+    amount: number
+    subscription: string
+    method: string
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    startDate: Date | string
+    endDate: Date | string
+    nextPaymentDate: Date | string
+    paymentDate?: Date | string | null
+    paymentStatus?: string | null
+    date?: Date | string
+    userId: string
+    notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
+  }
+
+  export type PaymentCreateOrConnectWithoutHistoricsInput = {
+    where: PaymentWhereUniqueInput
+    create: XOR<PaymentCreateWithoutHistoricsInput, PaymentUncheckedCreateWithoutHistoricsInput>
+  }
+
+  export type UserUpsertWithoutHistoricsInput = {
+    update: XOR<UserUpdateWithoutHistoricsInput, UserUncheckedUpdateWithoutHistoricsInput>
+    create: XOR<UserCreateWithoutHistoricsInput, UserUncheckedCreateWithoutHistoricsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutHistoricsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutHistoricsInput, UserUncheckedUpdateWithoutHistoricsInput>
+  }
+
+  export type UserUpdateWithoutHistoricsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clients?: ClientUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutHistoricsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clients?: ClientUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ClientUpsertWithoutHistoricsInput = {
+    update: XOR<ClientUpdateWithoutHistoricsInput, ClientUncheckedUpdateWithoutHistoricsInput>
+    create: XOR<ClientCreateWithoutHistoricsInput, ClientUncheckedCreateWithoutHistoricsInput>
+    where?: ClientWhereInput
+  }
+
+  export type ClientUpdateToOneWithWhereWithoutHistoricsInput = {
+    where?: ClientWhereInput
+    data: XOR<ClientUpdateWithoutHistoricsInput, ClientUncheckedUpdateWithoutHistoricsInput>
+  }
+
+  export type ClientUpdateWithoutHistoricsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    payments?: PaymentUpdateManyWithoutClientNestedInput
+    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    notifications?: NotificationUpdateManyWithoutClientNestedInput
+  }
+
+  export type ClientUncheckedUpdateWithoutHistoricsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type PaymentUpsertWithoutHistoricsInput = {
+    update: XOR<PaymentUpdateWithoutHistoricsInput, PaymentUncheckedUpdateWithoutHistoricsInput>
+    create: XOR<PaymentCreateWithoutHistoricsInput, PaymentUncheckedCreateWithoutHistoricsInput>
+    where?: PaymentWhereInput
+  }
+
+  export type PaymentUpdateToOneWithWhereWithoutHistoricsInput = {
+    where?: PaymentWhereInput
+    data: XOR<PaymentUpdateWithoutHistoricsInput, PaymentUncheckedUpdateWithoutHistoricsInput>
+  }
+
+  export type PaymentUpdateWithoutHistoricsInput = {
+    amount?: IntFieldUpdateOperationsInput | number
+    subscription?: StringFieldUpdateOperationsInput | string
+    method?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    notifications?: NotificationUpdateManyWithoutPaymentNestedInput
+  }
+
+  export type PaymentUncheckedUpdateWithoutHistoricsInput = {
+    clientId?: StringFieldUpdateOperationsInput | string
+    amount?: IntFieldUpdateOperationsInput | number
+    subscription?: StringFieldUpdateOperationsInput | string
+    method?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -10091,6 +14380,8 @@ export namespace Prisma {
     clients?: ClientCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -10103,6 +14394,8 @@ export namespace Prisma {
     clients?: ClientUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -10130,6 +14423,8 @@ export namespace Prisma {
     clients?: ClientUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -10141,6 +14436,8 @@ export namespace Prisma {
     clients?: ClientUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -10153,6 +14450,8 @@ export namespace Prisma {
     clients?: ClientCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     payments?: PaymentCreateNestedManyWithoutUserInput
+    historics?: HistoricCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -10165,6 +14464,8 @@ export namespace Prisma {
     clients?: ClientUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    historics?: HistoricUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -10192,6 +14493,8 @@ export namespace Prisma {
     clients?: ClientUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     payments?: PaymentUpdateManyWithoutUserNestedInput
+    historics?: HistoricUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -10203,6 +14506,8 @@ export namespace Prisma {
     clients?: ClientUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ClientCreateManyUserInput = {
@@ -10250,12 +14555,37 @@ export namespace Prisma {
     date?: Date | string
   }
 
+  export type HistoricCreateManyUserInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
+  export type NotificationCreateManyUserInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    clientId?: string | null
+    paymentId?: string | null
+  }
+
   export type ClientUpdateWithoutUserInput = {
     name?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: PaymentUpdateManyWithoutClientNestedInput
+    historics?: HistoricUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateWithoutUserInput = {
@@ -10264,6 +14594,8 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
+    historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ClientUncheckedUpdateManyWithoutUserInput = {
@@ -10341,6 +14673,8 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    historics?: HistoricUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutUserInput = {
@@ -10357,6 +14691,8 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateManyWithoutUserInput = {
@@ -10373,6 +14709,69 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HistoricUpdateWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    client?: ClientUpdateOneWithoutHistoricsNestedInput
+    payment?: PaymentUpdateOneWithoutHistoricsNestedInput
+  }
+
+  export type HistoricUncheckedUpdateWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricUncheckedUpdateManyWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUpdateWithoutUserInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: ClientUpdateOneWithoutNotificationsNestedInput
+    payment?: PaymentUpdateOneWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutUserInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentCreateManyClientInput = {
@@ -10392,6 +14791,29 @@ export namespace Prisma {
     userId: string
   }
 
+  export type HistoricCreateManyClientInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    paymentId?: string | null
+  }
+
+  export type NotificationCreateManyClientInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    paymentId?: string | null
+  }
+
   export type PaymentUpdateWithoutClientInput = {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
@@ -10406,6 +14828,8 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    historics?: HistoricUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutClientInput = {
@@ -10422,6 +14846,8 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+    historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateManyWithoutClientInput = {
@@ -10438,6 +14864,155 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type HistoricUpdateWithoutClientInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    payment?: PaymentUpdateOneWithoutHistoricsNestedInput
+  }
+
+  export type HistoricUncheckedUpdateWithoutClientInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricUncheckedUpdateManyWithoutClientInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUpdateWithoutClientInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+    payment?: PaymentUpdateOneWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutClientInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutClientInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricCreateManyPaymentInput = {
+    id?: string
+    action: string
+    entityType: string
+    entityId: string
+    oldData?: InputJsonValue | null
+    newData?: InputJsonValue | null
+    changedBy: string
+    createdAt?: Date | string
+    description?: string | null
+    clientId?: string | null
+  }
+
+  export type NotificationCreateManyPaymentInput = {
+    id?: string
+    type: string
+    message: string
+    isRead?: boolean
+    createdAt?: Date | string
+    userId: string
+    clientId?: string | null
+  }
+
+  export type HistoricUpdateWithoutPaymentInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    client?: ClientUpdateOneWithoutHistoricsNestedInput
+  }
+
+  export type HistoricUncheckedUpdateWithoutPaymentInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type HistoricUncheckedUpdateManyWithoutPaymentInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    oldData?: InputJsonValue | InputJsonValue | null
+    newData?: InputJsonValue | InputJsonValue | null
+    changedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUpdateWithoutPaymentInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+    client?: ClientUpdateOneWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutPaymentInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutPaymentInput = {
+    type?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    isRead?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 
