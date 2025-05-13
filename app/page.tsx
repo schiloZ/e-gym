@@ -1,9 +1,11 @@
 "use client";
+
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -12,11 +14,14 @@ export default function Login() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user starts typing
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const toastId = toast.loading("Logging in..."); // Show loading toast
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -24,9 +29,16 @@ export default function Login() {
       password: formData.password,
     });
 
+    toast.dismiss(toastId); // Dismiss loading toast
+
     if (result?.error) {
-      setError(result.error);
+      toast.error(result.error, {
+        duration: 4000,
+      });
     } else {
+      toast.success("Connecté avec succès !", {
+        duration: 3000,
+      });
       router.push("/dashboard");
     }
   };

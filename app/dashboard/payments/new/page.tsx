@@ -10,6 +10,7 @@ import {
   DollarSign,
   AlertCircle,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function NewPaymentPage() {
   const { data: session, status } = useSession();
@@ -73,7 +74,12 @@ export default function NewPaymentPage() {
 
     // Validate required fields
     if (!formData.clientEmail || !formData.amount) {
-      setError("Please select a client and enter an amount.");
+      toast.error(
+        "S'il vous plaît, sélectionnez un client et saisissez un montant."
+      );
+      setError(
+        "S'il vous plaît, sélectionnez un client et saisissez un montant."
+      );
       setSubmitting(false);
       return;
     }
@@ -112,10 +118,11 @@ export default function NewPaymentPage() {
         throw new Error(result.error || "Failed to record payment");
       }
 
-      setSuccess("Payment recorded successfully!");
+      toast.success("Payement enregistré avec succès !");
       // Redirect to payments list after a short delay
       setTimeout(() => router.push("/dashboard/payments"), 1500);
     } catch (err) {
+      toast.error("Erreur lors de l'enregistrement du paiement");
       setError(err.message || "An error occurred while recording the payment.");
     } finally {
       setSubmitting(false);

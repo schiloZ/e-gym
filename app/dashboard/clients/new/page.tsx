@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function AddClientForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
     setIsSubmitting(true);
 
     if (!formData.name) {
-      setError("Name is required");
+      toast.error("Le nom est requis");
       setIsSubmitting(false);
       return;
     }
@@ -45,14 +46,18 @@ export default function AddClientForm({ userId }: { userId: string }) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        toast.error("Erreur lors de l'ajout du client");
         throw new Error(errorData.error || "Failed to add client");
       }
 
       const data = await response.json();
+      toast.success("Client enregistrer avec succès !", {
+        duration: 3000,
+      });
       router.push(`/dashboard/clients/${data.client.id}`);
     } catch (err: any) {
       console.error("Client creation error:", err);
-      setError(err.message || "Error adding client");
+      toast.error("Erreur lors de l'ajout du client");
     } finally {
       setIsSubmitting(false);
     }

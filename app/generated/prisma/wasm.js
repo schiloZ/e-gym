@@ -113,12 +113,25 @@ Prisma.NullTypes = {
  * Enums
  */
 
+exports.Prisma.SuperAdminScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  emailVerified: 'emailVerified',
+  phone: 'phone',
+  password: 'password',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   emailVerified: 'emailVerified',
   phone: 'phone',
   password: 'password',
+  role: 'role',
+  companyName: 'companyName',
+  location: 'location',
+  subscriptionType: 'subscriptionType',
   createdAt: 'createdAt'
 };
 
@@ -215,6 +228,7 @@ exports.Prisma.QueryMode = {
 
 
 exports.Prisma.ModelName = {
+  SuperAdmin: 'SuperAdmin',
   User: 'User',
   Client: 'Client',
   Notification: 'Notification',

@@ -19,6 +19,7 @@ import {
   History,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function DashboardLayout({
   children,
@@ -51,6 +52,9 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     await signOut({ redirect: false }); // Sign out without automatic redirect
+    toast.success("Déconnection réussie !", {
+      duration: 3000,
+    });
     router.push("/"); // Manually redirect to login page
     setIsProfileOpen(false); // Close the profile dropdown
   };

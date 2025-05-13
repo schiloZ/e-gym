@@ -14,19 +14,32 @@ datasource db {
   url      = env("DATABASE_URL_LOCAL")
 }
 
-model User {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  email         String         @unique
+model SuperAdmin {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
   emailVerified DateTime?
   phone         String?
   password      String
-  createdAt     DateTime       @default(now())
-  clients       Client[]
-  sessions      Session[]
-  accounts      Account[]
-  payments      Payment[]
-  historics     Historic[] // Added relation to Historic
-  notifications Notification[] // Added relation to Notification
+  createdAt     DateTime  @default(now())
+}
+
+model User {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  email            String         @unique
+  emailVerified    DateTime?
+  phone            String?
+  password         String
+  role             String         @default("user") // e.g., "user", "manager", "admin"
+  companyName      String? // Optional company name for the user
+  location         String? // Optional location of the user
+  subscriptionType String?        @default("free") // e.g., "free", "premium", "enterprise"
+  createdAt        DateTime       @default(now())
+  clients          Client[]
+  sessions         Session[]
+  accounts         Account[]
+  payments         Payment[]
+  historics        Historic[] // Relation to Historic
+  notifications    Notification[] // Relation to Notification
 }
 
 model Client {

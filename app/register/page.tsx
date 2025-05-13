@@ -1,9 +1,20 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, Phone, Mail, Lock } from "lucide-react";
-import { signIn } from "next-auth/react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Phone,
+  Mail,
+  Lock,
+  Building,
+  MapPin,
+  Users,
+  CreditCard,
+} from "lucide-react";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -11,6 +22,10 @@ export default function Register() {
     phone: "",
     password: "",
     confirmPassword: "",
+    role: "user", // Default role
+    companyName: "",
+    location: "",
+    subscriptionType: "free", // Default subscription type
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,11 +68,35 @@ export default function Register() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    // Role validation
+    if (!formData.role) {
+      newErrors.role = "Role is required";
+    } else if (
+      !["user", "manager", "admin", "superadmin"].includes(
+        formData.role.toLowerCase()
+      )
+    ) {
+      newErrors.role = "Invalid role selected";
+    }
+
+    // Subscription type validation
+    if (!formData.subscriptionType) {
+      newErrors.subscriptionType = "Subscription type is required";
+    } else if (
+      !["free", "premium", "enterprise"].includes(
+        formData.subscriptionType.toLowerCase()
+      )
+    ) {
+      newErrors.subscriptionType = "Invalid subscription type selected";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -83,12 +122,17 @@ export default function Register() {
 
     try {
       const res = await fetch("/api/auth/register", {
+        // Updated endpoint path
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
+          role: formData.role,
+          companyName: formData.companyName || null,
+          location: formData.location || null,
+          subscriptionType: formData.subscriptionType,
         }),
       });
 
@@ -96,13 +140,6 @@ export default function Register() {
         const data = await res.json();
         throw new Error(data.error || "Registration failed");
       }
-
-      // Auto-login after successful registration
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
 
       if (result?.error) {
         throw new Error(result.error);
@@ -116,10 +153,6 @@ export default function Register() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" });
   };
 
   return (
@@ -293,6 +326,119 @@ export default function Register() {
             {errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.confirmPassword}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Role
+            </label>
+            <div className="relative">
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 pl-10 border ${
+                  errors.role ? "border-red-300" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                disabled={isLoading}
+              >
+                <option value="user">User</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+                <option value="superadmin">SuperAdmin</option>
+              </select>
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Users className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            {errors.role && (
+              <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="companyName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Company Name (Optional)
+            </label>
+            <div className="relative">
+              <input
+                id="companyName"
+                name="companyName"
+                type="text"
+                value={formData.companyName}
+                onChange={handleChange}
+                className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="Your company name"
+                disabled={isLoading}
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Building className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="location"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Location (Optional)
+            </label>
+            <div className="relative">
+              <input
+                id="location"
+                name="location"
+                type="text"
+                value={formData.location}
+                onChange={handleChange}
+                className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="Your location"
+                disabled={isLoading}
+              />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <MapPin className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="subscriptionType"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Subscription Type
+            </label>
+            <div className="relative">
+              <select
+                id="subscriptionType"
+                name="subscriptionType"
+                value={formData.subscriptionType}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 pl-10 border ${
+                  errors.subscriptionType ? "border-red-300" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                disabled={isLoading}
+              >
+                <option value="free">Free</option>
+                <option value="premium">Premium</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <CreditCard className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            {errors.subscriptionType && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.subscriptionType}
               </p>
             )}
           </div>
