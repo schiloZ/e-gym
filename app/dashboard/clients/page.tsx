@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -20,8 +21,10 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredClients, setFilteredClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // Fetch clients on mount
+  // Récupérer les clients au montage
   useEffect(() => {
     const fetchClients = async () => {
       if (status === "loading") return;
@@ -36,7 +39,7 @@ export default function ClientsPage() {
         setClients(data);
         setFilteredClients(data);
       } catch (error) {
-        console.error("Error fetching clients:", error);
+        console.error("Erreur lors de la récupération des clients :", error);
       } finally {
         setLoading(false);
       }
@@ -45,7 +48,7 @@ export default function ClientsPage() {
     fetchClients();
   }, [session, status, router]);
 
-  // Handle search
+  // Gérer la recherche
   useEffect(() => {
     const filtered = clients.filter(
       (client) =>
@@ -54,11 +57,12 @@ export default function ClientsPage() {
         client.phone?.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredClients(filtered);
+    setCurrentPage(1); // Réinitialiser à la première page lors d'une nouvelle recherche
   }, [searchQuery, clients]);
 
-  // Handle delete client
+  // Gérer la suppression d'un client
   const handleDelete = async (clientId) => {
-    if (confirm("Are you sure you want to delete this client?")) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
       try {
         await fetch(`/api/clients/${clientId}`, {
           method: "DELETE",
@@ -68,7 +72,7 @@ export default function ClientsPage() {
           filteredClients.filter((client) => client.id !== clientId)
         );
       } catch (error) {
-        console.error("Error deleting client:", error);
+        console.error("Erreur lors de la suppression du client :", error);
       }
     }
   };
@@ -76,18 +80,38 @@ export default function ClientsPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        Loading...
+        Chargement...
       </div>
     );
   }
 
   if (!session) {
-    return null; // Redirect handled in useEffect
+    return null; // La redirection est gérée dans useEffect
   }
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedClients = filteredClients.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 space-y-6">
-      {/* Header */}
+      {/* En-tête */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-blue-600 to-blue-800 p-4 sm:p-6 rounded-xl text-white shadow-lg">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold flex items-center">
@@ -95,7 +119,7 @@ export default function ClientsPage() {
             Clients
           </h1>
           <p className="text-sm sm:text-base text-blue-100">
-            Manage your clients efficiently
+            Gérez vos clients efficacement
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -104,12 +128,12 @@ export default function ClientsPage() {
             className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-sm sm:text-base transition shadow-md w-full sm:w-auto"
           >
             <UserPlus className="h-4 sm:h-5 w-4 sm:w-5" />
-            Add New Client
+            Ajouter un nouveau client
           </Link>
         </div>
       </div>
 
-      {/* Search and Filter */}
+      {/* Recherche et filtres */}
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
         <div className="relative mb-4 sm:mb-6">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
@@ -118,26 +142,27 @@ export default function ClientsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-gray-50 text-sm sm:text-base"
-            placeholder="Search by name, email, or phone..."
+            placeholder="Rechercher par nom, email ou téléphone..."
           />
         </div>
       </div>
 
-      {/* Clients List */}
+      {/* Liste des clients */}
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md overflow-hidden">
         <div className="space-y-3 sm:space-y-4">
-          {filteredClients.length === 0 ? (
+          {paginatedClients.length === 0 ? (
             <div className="text-gray-500 text-center py-8 sm:py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
               <Users className="h-10 sm:h-12 w-10 sm:w-12 mx-auto text-gray-300 mb-3" />
               <p className="font-medium text-sm sm:text-base">
-                No clients found
+                Aucun client trouvé
               </p>
               <p className="text-xs sm:text-sm mt-1">
-                Use the search bar or add a new client to get started
+                Utilisez la barre de recherche ou ajoutez un nouveau client pour
+                commencer
               </p>
             </div>
           ) : (
-            filteredClients.map((client) => (
+            paginatedClients.map((client) => (
               <div
                 key={client.id}
                 className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition border border-gray-100 hover:border-blue-200"
@@ -157,8 +182,10 @@ export default function ClientsPage() {
                     </p>
                   </div>
                   <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                    <span className="text-blue-500">📅</span> Registered:{" "}
-                    {new Date(client.registrationDate).toLocaleDateString()}
+                    <span className="text-blue-500">📅</span> Inscrit(e) le :{" "}
+                    {new Date(client.registrationDate).toLocaleDateString(
+                      "fr-FR"
+                    )}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
@@ -167,36 +194,70 @@ export default function ClientsPage() {
                     className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                   >
                     <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
-                    View
+                    Voir
                   </Link>
                   <Link
                     href={`/dashboard/clients/${client.id}/edit`}
                     className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                   >
                     <Edit className="h-3 sm:h-4 w-3 sm:w-4" />
-                    Edit
+                    Modifier
                   </Link>
                   <button
                     onClick={() => handleDelete(client.id)}
                     className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                   >
                     <Trash2 className="h-3 sm:h-4 w-3 sm:w-4" />
-                    Delete
+                    Supprimer
                   </button>
                 </div>
               </div>
             ))
           )}
         </div>
+
+        {/* Pagination Controls */}
         {filteredClients.length > 0 && (
-          <div className="mt-3 sm:mt-4 text-center">
-            <Link
-              href="/dashboard/clients"
-              className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium inline-flex items-center"
-            >
-              View all clients
-              <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4 ml-1" />
-            </Link>
+          <div className="mt-4 flex justify-center">
+            <nav className="flex items-center gap-2">
+              <button
+                onClick={handlePrevPage}
+                className={`p-2 rounded-lg border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 hover:bg-gray-50 transition"
+                }`}
+                disabled={currentPage === 1}
+              >
+                <ArrowRight className="h-4 w-4 rotate-180" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === page
+                        ? "bg-blue-500 text-white font-medium"
+                        : "border border-gray-200 hover:bg-gray-50 transition"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                onClick={handleNextPage}
+                className={`p-2 rounded-lg border ${
+                  currentPage === totalPages
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 hover:bg-gray-50 transition"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </nav>
           </div>
         )}
       </div>

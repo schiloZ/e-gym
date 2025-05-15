@@ -11,6 +11,8 @@ export async function POST(request: Request) {
     companyName,
     location,
     subscriptionType,
+    subscriptionStartDate,
+    subscriptionEndDate,
   } = await request.json();
 
   // Validate required fields
@@ -39,6 +41,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
+  // Validate subscription dates if provided
+  let parsedStartDate = null;
+  let parsedEndDate = null;
+  if (subscriptionStartDate) {
+    parsedStartDate = new Date(subscriptionStartDate);
+    if (isNaN(parsedStartDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid subscription start date" },
+        { status: 400 }
+      );
+    }
+  }
+  if (subscriptionEndDate) {
+    parsedEndDate = new Date(subscriptionEndDate);
+    if (isNaN(parsedEndDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid subscription end date" },
+        { status: 400 }
+      );
+    }
+    // Ensure end date is after start date if both are provided
+    if (parsedStartDate && parsedEndDate <= parsedStartDate) {
+      return NextResponse.json(
+        { error: "Subscription end date must be after start date" },
+        { status: 400 }
+      );
+    }
+  }
+
   // Hash the password
   const hashedPassword = bcrypt.hashSync(password, 10);
 
@@ -50,7 +81,7 @@ export async function POST(request: Request) {
           email,
           phone: phone || null,
           password: hashedPassword,
-          createdAt: new Date(),
+          createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
         },
       });
       return NextResponse.json({
@@ -58,20 +89,42 @@ export async function POST(request: Request) {
         superAdmin,
       });
     } else {
-      // Create a User (including manager or admin roles)
+      // Handle company creation or linking
+      let companyId = null;
+      if (companyName) {
+        // Check if a company with this name already exists
+        let company = await prisma.company.findFirst({
+          where: { name: companyName },
+        });
 
+        // If not, create a new company
+        if (!company) {
+          company = await prisma.company.create({
+            data: {
+              name: companyName,
+              createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
+            },
+          });
+        }
+        companyId = company.id;
+      }
+
+      // Create a User (including manager or admin roles)
       const user = await prisma.user.create({
         data: {
           email,
           phone: phone || null,
           password: hashedPassword,
           role: role.toLowerCase(),
-          companyName: companyName || null,
+          companyId: companyId, // Link to the company if created
           location: location || null,
           subscriptionType: subscriptionType || "free",
-          createdAt: new Date(),
+          subscriptionStartDate: parsedStartDate || null,
+          subscriptionEndDate: parsedEndDate || null,
+          createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
         },
       });
+
       return NextResponse.json({ message: "User registered", user });
     }
   } catch (error) {

@@ -5,14 +5,13 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  console.log(session);
   if (!session || !session.user?.id) {
     // Log unauthorized attempt to Historic
     await prisma.historic.create({
       data: {
         action: "CREATE",
         entityType: "CLIENT",
-        entityId: "unknown", // No client ID yet since creation failed
+        entityId: "unknown",
         oldData: null,
         newData: null,
         changedBy: "unknown",
@@ -20,6 +19,24 @@ export async function POST(request: Request) {
       },
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Check client registration limit
+  if (user.clientRegistrationCount >= user.maxClientRegistrations) {
+    return NextResponse.json(
+      {
+        error: `Limit of ${user.maxClientRegistrations} client registrations reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
+      },
+      { status: 403 }
+    );
   }
 
   const { name, phone, email } = await request.json();
@@ -45,14 +62,20 @@ export async function POST(request: Request) {
       data: { name, phone, email, userId: session.user.id },
     });
 
+    // Increment client registration count
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { clientRegistrationCount: { increment: 1 } },
+    });
+
     // Log successful client creation to Historic
     await prisma.historic.create({
       data: {
         action: "CREATE",
         entityType: "CLIENT",
         entityId: client.id,
-        clientId: client.id, // Link to the client
-        oldData: null, // No previous data for a new client
+        clientId: client.id,
+        oldData: null,
         newData: {
           name,
           phone,

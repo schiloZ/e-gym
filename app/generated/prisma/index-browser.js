@@ -122,6 +122,13 @@ exports.Prisma.SuperAdminScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -129,10 +136,28 @@ exports.Prisma.UserScalarFieldEnum = {
   phone: 'phone',
   password: 'password',
   role: 'role',
-  companyName: 'companyName',
+  companyId: 'companyId',
   location: 'location',
   subscriptionType: 'subscriptionType',
-  createdAt: 'createdAt'
+  subscriptionStartDate: 'subscriptionStartDate',
+  subscriptionEndDate: 'subscriptionEndDate',
+  createdAt: 'createdAt',
+  clientRegistrationCount: 'clientRegistrationCount',
+  maxClientRegistrations: 'maxClientRegistrations',
+  paymentCount: 'paymentCount',
+  maxPayments: 'maxPayments'
+};
+
+exports.Prisma.BillScalarFieldEnum = {
+  id: 'id',
+  description: 'description',
+  amount: 'amount',
+  date: 'date',
+  category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  companyId: 'companyId'
 };
 
 exports.Prisma.ClientScalarFieldEnum = {
@@ -141,7 +166,8 @@ exports.Prisma.ClientScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   registrationDate: 'registrationDate',
-  userId: 'userId'
+  userId: 'userId',
+  companyId: 'companyId'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {
@@ -170,7 +196,8 @@ exports.Prisma.PaymentScalarFieldEnum = {
   paymentDate: 'paymentDate',
   paymentStatus: 'paymentStatus',
   date: 'date',
-  userId: 'userId'
+  userId: 'userId',
+  companyId: 'companyId'
 };
 
 exports.Prisma.HistoricScalarFieldEnum = {
@@ -229,7 +256,9 @@ exports.Prisma.QueryMode = {
 
 exports.Prisma.ModelName = {
   SuperAdmin: 'SuperAdmin',
+  Company: 'Company',
   User: 'User',
+  Bill: 'Bill',
   Client: 'Client',
   Notification: 'Notification',
   Payment: 'Payment',

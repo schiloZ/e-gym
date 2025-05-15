@@ -45,11 +45,12 @@ export default function StatsPage() {
     registrationsPerDay: [],
     paymentsPerDay: [],
     paymentAmountPerDay: [],
+    billsAmountPerDay: [],
     activeSubscriptionsPerDay: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeRange, setTimeRange] = useState("week"); // week, month, year, all
+  const [timeRange, setTimeRange] = useState("week"); // semaine, mois, année, tout
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -59,12 +60,12 @@ export default function StatsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // In a real app, we would add timeRange as a query parameter
-      const [registrations, payments, amounts, subscriptions] =
+      const [registrations, payments, amounts, bills, subscriptions] =
         await Promise.all([
           fetch("/api/stats/registrations-per-day").then((res) => res.json()),
           fetch("/api/stats/payments-per-day").then((res) => res.json()),
           fetch("/api/stats/payment-amount-per-day").then((res) => res.json()),
+          fetch("/api/stats/bills-amount-per-day").then((res) => res.json()),
           fetch("/api/stats/active-subscriptions-per-day").then((res) =>
             res.json()
           ),
@@ -73,6 +74,7 @@ export default function StatsPage() {
         registrationsPerDay: registrations,
         paymentsPerDay: payments,
         paymentAmountPerDay: amounts,
+        billsAmountPerDay: bills,
         activeSubscriptionsPerDay: subscriptions,
       });
     } catch (err) {
@@ -82,7 +84,7 @@ export default function StatsPage() {
     }
   };
 
-  // Calculate summary statistics for the metric cards
+  // Calculer les statistiques récapitulatives pour les cartes de métriques
   const getTotalRegistrations = () => {
     return stats.registrationsPerDay.reduce((sum, day) => sum + day.count, 0);
   };
@@ -91,11 +93,30 @@ export default function StatsPage() {
     return stats.paymentsPerDay.reduce((sum, day) => sum + day.count, 0);
   };
 
-  const getTotalAmount = () => {
+  const getTotalPaymentAmount = () => {
     return stats.paymentAmountPerDay.reduce(
       (sum, day) => sum + day.totalAmount,
       0
     );
+  };
+
+  const getTotalBillsAmount = () => {
+    return stats.billsAmountPerDay.reduce(
+      (sum, day) => sum + day.totalAmount,
+      0
+    );
+  };
+
+  const getTotalRevenue = () => {
+    const totalPayments = getTotalPaymentAmount();
+    const totalBills = getTotalBillsAmount();
+    return totalPayments - totalBills;
+  };
+
+  const getAverageTransactionValue = () => {
+    const totalPayments = getTotalPaymentAmount();
+    const paymentCount = getTotalPayments();
+    return paymentCount > 0 ? totalPayments / paymentCount : 0;
   };
 
   const getActiveSubscriptions = () => {
@@ -117,20 +138,18 @@ export default function StatsPage() {
     return new Intl.NumberFormat("en-US").format(value);
   };
 
-  // Calculate trends (percentage change)
-  const calculateTrend = (data) => {
+  // Calculer les tendances (changement en pourcentage)
+  const calculateTrend = (data, key = "count") => {
     if (!data || data.length < 2) return 0;
 
-    const current =
-      data[data.length - 1].count || data[data.length - 1].totalAmount || 0;
-    const previous =
-      data[data.length - 2].count || data[data.length - 2].totalAmount || 0;
+    const current = data[data.length - 1][key] || 0;
+    const previous = data[data.length - 2][key] || 0;
 
-    if (previous === 0) return 100; // If previous was 0, show 100% increase
+    if (previous === 0) return 100; // Si précédent était 0, montrer une augmentation de 100%
     return ((current - previous) / previous) * 100;
   };
 
-  // Chart configurations
+  // Configurations des graphiques
   const commonOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -168,7 +187,7 @@ export default function StatsPage() {
     },
     elements: {
       line: {
-        tension: 0.3, // Smoother curves for line charts
+        tension: 0.3, // Courbes plus douces pour les graphiques en ligne
       },
       point: {
         radius: 3,
@@ -182,9 +201,7 @@ export default function StatsPage() {
           drawBorder: false,
         },
         ticks: {
-          font: {
-            size: 10,
-          },
+          font: { size: 10 },
           color: "#94a3b8",
         },
       },
@@ -195,9 +212,7 @@ export default function StatsPage() {
           drawBorder: false,
         },
         ticks: {
-          font: {
-            size: 11,
-          },
+          font: { size: 11 },
           color: "#94a3b8",
           padding: 8,
         },
@@ -205,17 +220,17 @@ export default function StatsPage() {
     },
   };
 
-  // Registration chart data
+  // Données du graphique des inscriptions
   const registrationsData = {
     labels: stats.registrationsPerDay.map((d) =>
-      new Date(d.date).toLocaleDateString("en-US", {
+      new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
       })
     ),
     datasets: [
       {
-        label: "Registrations",
+        label: "Inscriptions",
         data: stats.registrationsPerDay.map((d) => d.count),
         backgroundColor: "rgba(59, 130, 246, 0.7)",
         borderColor: "rgba(37, 99, 235, 1)",
@@ -226,17 +241,17 @@ export default function StatsPage() {
     ],
   };
 
-  // Payments chart data
+  // Données du graphique des paiements
   const paymentsData = {
     labels: stats.paymentsPerDay.map((d) =>
-      new Date(d.date).toLocaleDateString("en-US", {
+      new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
       })
     ),
     datasets: [
       {
-        label: "Payments",
+        label: "Paiements",
         data: stats.paymentsPerDay.map((d) => d.count),
         backgroundColor: "rgba(34, 197, 94, 0.7)",
         borderColor: "rgba(22, 163, 74, 1)",
@@ -247,18 +262,21 @@ export default function StatsPage() {
     ],
   };
 
-  // Amounts chart data
-  const amountsData = {
+  // Données du graphique des revenus (ajusté pour les factures)
+  const revenueData = {
     labels: stats.paymentAmountPerDay.map((d) =>
-      new Date(d.date).toLocaleDateString("en-US", {
+      new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
       })
     ),
     datasets: [
       {
-        label: "Total Amount",
-        data: stats.paymentAmountPerDay.map((d) => d.totalAmount),
+        label: "Revenus",
+        data: stats.paymentAmountPerDay.map((paymentDay, index) => {
+          const billDay = stats.billsAmountPerDay[index] || { totalAmount: 0 };
+          return paymentDay.totalAmount - billDay.totalAmount;
+        }),
         backgroundColor: "rgba(245, 158, 11, 0.7)",
         borderColor: "rgba(217, 119, 6, 1)",
         borderWidth: 2,
@@ -269,17 +287,17 @@ export default function StatsPage() {
     ],
   };
 
-  // Subscriptions chart data
+  // Données du graphique des abonnements
   const subscriptionsData = {
     labels: stats.activeSubscriptionsPerDay.map((d) =>
-      new Date(d.date).toLocaleDateString("en-US", {
+      new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
       })
     ),
     datasets: [
       {
-        label: "Active Subscriptions",
+        label: "Abonnements actifs",
         data: stats.activeSubscriptionsPerDay.map((d) => d.count),
         backgroundColor: "rgba(168, 85, 247, 0.15)",
         borderColor: "rgba(126, 34, 206, 1)",
@@ -294,16 +312,38 @@ export default function StatsPage() {
     ],
   };
 
+  // Données du graphique des factures
+  const billsData = {
+    labels: stats.billsAmountPerDay.map((d) =>
+      new Date(d.date).toLocaleDateString("fr-FR", {
+        month: "short",
+        day: "numeric",
+      })
+    ),
+    datasets: [
+      {
+        label: "Montant des factures",
+        data: stats.billsAmountPerDay.map((d) => d.totalAmount),
+        backgroundColor: "rgba(239, 68, 68, 0.7)",
+        borderColor: "rgba(220, 38, 38, 1)",
+        borderWidth: 2,
+        yAxisID: "amount",
+        borderRadius: 4,
+        barThickness: 12,
+      },
+    ],
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg">
-          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800">
-            Loading statistics
+        <div className="flex flex-col items-center p-6 sm:p-8 bg-white rounded-xl shadow-lg">
+          <Loader2 className="h-10 sm:h-12 w-10 sm:w-12 text-blue-500 animate-spin mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+            Chargement des statistiques
           </h3>
-          <p className="text-gray-500 mt-2">
-            Please wait while we fetch your data...
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">
+            Veuillez patienter pendant que nous récupérons vos données...
           </p>
         </div>
       </div>
@@ -313,18 +353,20 @@ export default function StatsPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="p-8 bg-white rounded-xl shadow-lg max-w-md">
-          <div className="flex items-center gap-3 text-red-500 mb-4">
-            <AlertCircle className="h-8 w-8" />
-            <h2 className="text-xl font-bold">Failed to load statistics</h2>
+        <div className="p-6 sm:p-8 bg-white rounded-xl shadow-lg max-w-md w-full">
+          <div className="flex items-center gap-2 sm:gap-3 text-red-500 mb-4">
+            <AlertCircle className="h-6 sm:h-8 w-6 sm:w-8" />
+            <h2 className="text-base sm:text-xl font-bold">
+              Échec du chargement des statistiques
+            </h2>
           </div>
-          <p className="text-gray-700 mb-6">{error}</p>
+          <p className="text-gray-700 mb-6 text-sm sm:text-base">{error}</p>
           <button
             onClick={fetchData}
-            className="w-full py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2"
+            className="w-full py-2 sm:py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2 text-sm sm:text-base"
           >
             <RefreshCw className="h-4 w-4" />
-            Try Again
+            Réessayer
           </button>
         </div>
       </div>
@@ -332,297 +374,373 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        {/* En-tête */}
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-4 sm:mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <BarChart className="h-6 w-6 text-blue-600" />
-                Statistics Dashboard
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <BarChart className="h-5 sm:h-6 w-5 sm:w-6 text-blue-600" />
+                Tableau de bord statistique
               </h1>
-              <p className="text-gray-500 mt-1">
-                Insights into business performance and user engagement
+              <p className="text-gray-500 mt-1 text-sm sm:text-base">
+                Perspectives sur la performance de l'entreprise et l'engagement
+                des utilisateurs
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="relative">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center gap-2"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center gap-2 text-sm sm:text-base"
                 >
                   <Filter className="h-4 w-4" />
-                  Filters
+                  Filtres
                   <ChevronDown className="h-4 w-4" />
                 </button>
 
                 {showFilters && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 border border-gray-100">
+                  <div className="absolute right-0 mt-1 sm:mt-2 w-40 sm:w-48 bg-white rounded-lg shadow-lg py-1 sm:py-2 z-10 border border-gray-100">
                     <button
                       onClick={() => {
                         setTimeRange("week");
                         setShowFilters(false);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
+                      className={`w-full text-left px-3 sm:px-4 py-1.5 hover:bg-gray-50 ${
                         timeRange === "week"
                           ? "text-blue-600 font-medium"
                           : "text-gray-700"
-                      }`}
+                      } text-xs sm:text-sm`}
                     >
-                      Last 7 days
+                      Derniers 7 jours
                     </button>
                     <button
                       onClick={() => {
                         setTimeRange("month");
                         setShowFilters(false);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
+                      className={`w-full text-left px-3 sm:px-4 py-1.5 hover:bg-gray-50 ${
                         timeRange === "month"
                           ? "text-blue-600 font-medium"
                           : "text-gray-700"
-                      }`}
+                      } text-xs sm:text-sm`}
                     >
-                      Last 30 days
+                      Derniers 30 jours
                     </button>
                     <button
                       onClick={() => {
                         setTimeRange("year");
                         setShowFilters(false);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
+                      className={`w-full text-left px-3 sm:px-4 py-1.5 hover:bg-gray-50 ${
                         timeRange === "year"
                           ? "text-blue-600 font-medium"
                           : "text-gray-700"
-                      }`}
+                      } text-xs sm:text-sm`}
                     >
-                      Last 12 months
+                      Derniers 12 mois
                     </button>
                     <button
                       onClick={() => {
                         setTimeRange("all");
                         setShowFilters(false);
                       }}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
+                      className={`w-full text-left px-3 sm:px-4 py-1.5 hover:bg-gray-50 ${
                         timeRange === "all"
                           ? "text-blue-600 font-medium"
                           : "text-gray-700"
-                      }`}
+                      } text-xs sm:text-sm`}
                     >
-                      All time
+                      Tout le temps
                     </button>
                   </div>
                 )}
               </div>
 
-              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2">
+              <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm sm:text-base">
                 <Download className="h-4 w-4" />
-                Export
+                Exporter
               </button>
 
               <button
                 onClick={fetchData}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm sm:text-base"
               >
                 <RefreshCw className="h-4 w-4" />
-                Refresh
+                Rafraîchir
               </button>
             </div>
           </div>
         </div>
 
-        {/* Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {/* Registrations Card */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+        {/* Cartes de métriques */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          {/* Carte des inscriptions */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">
-                  Total Registrations
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Total des inscriptions
                 </p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {formatNumber(getTotalRegistrations())}
                 </h3>
               </div>
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <User className="h-6 w-6 text-blue-600" />
+              <div className="p-2 sm:p-3 bg-blue-50 rounded-lg">
+                <User className="h-5 sm:h-6 w-5 sm:w-6 text-blue-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
+            <div className="mt-2 sm:mt-4 flex items-center">
               {calculateTrend(stats.registrationsPerDay) > 0 ? (
-                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />+
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1" />+
                   {calculateTrend(stats.registrationsPerDay).toFixed(1)}%
                 </span>
               ) : (
-                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1 transform rotate-180" />
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1 transform rotate-180" />
                   {calculateTrend(stats.registrationsPerDay).toFixed(1)}%
                 </span>
               )}
-              <span className="text-xs text-gray-500 ml-2">
-                vs previous period
+              <span className="text-xs text-gray-500 ml-1 sm:ml-2">
+                vs période précédente
               </span>
             </div>
           </div>
 
-          {/* Payments Card */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          {/* Carte des paiements */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">
-                  Total Payments
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Total des paiements
                 </p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {formatNumber(getTotalPayments())}
                 </h3>
               </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <DollarSign className="h-6 w-6 text-green-600" />
+              <div className="p-2 sm:p-3 bg-green-50 rounded-lg">
+                <DollarSign className="h-5 sm:h-6 w-5 sm:w-6 text-green-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
+            <div className="mt-2 sm:mt-4 flex items-center">
               {calculateTrend(stats.paymentsPerDay) > 0 ? (
-                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />+
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1" />+
                   {calculateTrend(stats.paymentsPerDay).toFixed(1)}%
                 </span>
               ) : (
-                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1 transform rotate-180" />
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1 transform rotate-180" />
                   {calculateTrend(stats.paymentsPerDay).toFixed(1)}%
                 </span>
               )}
-              <span className="text-xs text-gray-500 ml-2">
-                vs previous period
+              <span className="text-xs text-gray-500 ml-1 sm:ml-2">
+                vs période précédente
               </span>
             </div>
           </div>
 
-          {/* Revenue Card */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          {/* Carte des revenus totaux */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">
-                  Total Revenue
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Revenu total
                 </p>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(getTotalAmount())}
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {formatCurrency(getTotalRevenue())}
                 </h3>
               </div>
-              <div className="p-3 bg-amber-50 rounded-lg">
-                <DollarSign className="h-6 w-6 text-amber-600" />
+              <div className="p-2 sm:p-3 bg-amber-50 rounded-lg">
+                <DollarSign className="h-5 sm:h-6 w-5 sm:w-6 text-amber-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
-              {calculateTrend(stats.paymentAmountPerDay) > 0 ? (
-                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />+
-                  {calculateTrend(stats.paymentAmountPerDay).toFixed(1)}%
+            <div className="mt-2 sm:mt-4 flex items-center">
+              {calculateTrend(stats.paymentAmountPerDay, "totalAmount") > 0 ? (
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1" />+
+                  {calculateTrend(
+                    stats.paymentAmountPerDay,
+                    "totalAmount"
+                  ).toFixed(1)}
+                  %
                 </span>
               ) : (
-                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1 transform rotate-180" />
-                  {calculateTrend(stats.paymentAmountPerDay).toFixed(1)}%
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1 transform rotate-180" />
+                  {calculateTrend(
+                    stats.paymentAmountPerDay,
+                    "totalAmount"
+                  ).toFixed(1)}
+                  %
                 </span>
               )}
-              <span className="text-xs text-gray-500 ml-2">
-                vs previous period
+              <span className="text-xs text-gray-500 ml-1 sm:ml-2">
+                vs période précédente
               </span>
             </div>
           </div>
 
-          {/* Subscriptions Card */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
+          {/* Carte des abonnements actifs */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">
-                  Active Subscriptions
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Abonnements actifs
                 </p>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   {formatNumber(getActiveSubscriptions())}
                 </h3>
               </div>
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <Calendar className="h-6 w-6 text-purple-600" />
+              <div className="p-2 sm:p-3 bg-purple-50 rounded-lg">
+                <Calendar className="h-5 sm:h-6 w-5 sm:w-6 text-purple-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
+            <div className="mt-2 sm:mt-4 flex items-center">
               {calculateTrend(stats.activeSubscriptionsPerDay) > 0 ? (
-                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />+
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1" />+
                   {calculateTrend(stats.activeSubscriptionsPerDay).toFixed(1)}%
                 </span>
               ) : (
-                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1 transform rotate-180" />
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1 transform rotate-180" />
                   {calculateTrend(stats.activeSubscriptionsPerDay).toFixed(1)}%
                 </span>
               )}
-              <span className="text-xs text-gray-500 ml-2">
-                vs previous period
+              <span className="text-xs text-gray-500 ml-1 sm:ml-2">
+                vs période précédente
+              </span>
+            </div>
+          </div>
+
+          {/* Carte du montant total des factures */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Montant total des factures
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {formatCurrency(getTotalBillsAmount())}
+                </h3>
+              </div>
+              <div className="p-2 sm:p-3 bg-red-50 rounded-lg">
+                <DollarSign className="h-5 sm:h-6 w-5 sm:w-6 text-red-600" />
+              </div>
+            </div>
+            <div className="mt-2 sm:mt-4 flex items-center">
+              {calculateTrend(stats.billsAmountPerDay, "totalAmount") > 0 ? (
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1" />+
+                  {calculateTrend(
+                    stats.billsAmountPerDay,
+                    "totalAmount"
+                  ).toFixed(1)}
+                  %
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-1.5 sm:px-2 py-1 rounded-full flex items-center">
+                  <TrendingUp className="h-2.5 sm:h-3 w-2.5 sm:w-3 mr-1 transform rotate-180" />
+                  {calculateTrend(
+                    stats.billsAmountPerDay,
+                    "totalAmount"
+                  ).toFixed(1)}
+                  %
+                </span>
+              )}
+              <span className="text-xs text-gray-500 ml-1 sm:ml-2">
+                vs période précédente
+              </span>
+            </div>
+          </div>
+
+          {/* Carte de la valeur moyenne des transactions */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">
+                  Valeur moyenne des transactions
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  {formatCurrency(getAverageTransactionValue())}
+                </h3>
+              </div>
+              <div className="p-2 sm:p-3 bg-teal-50 rounded-lg">
+                <DollarSign className="h-5 sm:h-6 w-5 sm:w-6 text-teal-600" />
+              </div>
+            </div>
+            <div className="mt-2 sm:mt-4 flex items-center">
+              <span className="text-xs text-gray-500">
+                Calculé comme Paiements totaux / Nombre de paiements
               </span>
             </div>
           </div>
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Registrations Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+        {/* Graphiques */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Graphique des inscriptions */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  User Registrations
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Inscriptions des utilisateurs
                 </h2>
-                <p className="text-sm text-gray-500">New users over time</p>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Nouveaux utilisateurs au fil du temps
+                </p>
               </div>
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <User className="h-5 w-5 text-blue-600" />
+              <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg">
+                <User className="h-4 sm:h-5 w-4 sm:w-5 text-blue-600" />
               </div>
             </div>
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
               <Bar data={registrationsData} options={commonOptions} />
             </div>
           </div>
 
-          {/* Payments Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+          {/* Graphique des paiements */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Payment Transactions
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Transactions de paiement
                 </h2>
-                <p className="text-sm text-gray-500">
-                  Number of payments processed
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Nombre de paiements traités
                 </p>
               </div>
-              <div className="p-2 bg-green-50 rounded-lg">
-                <DollarSign className="h-5 w-5 text-green-600" />
+              <div className="p-1.5 sm:p-2 bg-green-50 rounded-lg">
+                <DollarSign className="h-4 sm:h-5 w-4 sm:w-5 text-green-600" />
               </div>
             </div>
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
               <Bar data={paymentsData} options={commonOptions} />
             </div>
           </div>
 
-          {/* Revenue Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+          {/* Graphique des revenus */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Revenue</h2>
-                <p className="text-sm text-gray-500">
-                  Total payment amount per day
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Revenu net
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Revenu total après factures par jour
                 </p>
               </div>
-              <div className="p-2 bg-amber-50 rounded-lg">
-                <DollarSign className="h-5 w-5 text-amber-600" />
+              <div className="p-1.5 sm:p-2 bg-amber-50 rounded-lg">
+                <DollarSign className="h-4 sm:h-5 w-4 sm:w-5 text-amber-600" />
               </div>
             </div>
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
               <Bar
-                data={amountsData}
+                data={revenueData}
                 options={{
                   ...commonOptions,
                   plugins: {
@@ -648,22 +766,65 @@ export default function StatsPage() {
             </div>
           </div>
 
-          {/* Subscriptions Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+          {/* Graphique des factures */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Active Subscriptions
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Montant des factures
                 </h2>
-                <p className="text-sm text-gray-500">
-                  Subscription growth over time
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Dépenses totales des factures par jour
                 </p>
               </div>
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-600" />
+              <div className="p-1.5 sm:p-2 bg-red-50 rounded-lg">
+                <DollarSign className="h-4 sm:h-5 w-4 sm:w-5 text-red-600" />
               </div>
             </div>
-            <div className="h-64">
+            <div className="h-48 sm:h-64">
+              <Bar
+                data={billsData}
+                options={{
+                  ...commonOptions,
+                  plugins: {
+                    ...commonOptions.plugins,
+                    tooltip: {
+                      ...commonOptions.plugins.tooltip,
+                      callbacks: {
+                        label: function (context) {
+                          let label = context.dataset.label || "";
+                          if (label) {
+                            label += ": ";
+                          }
+                          if (context.parsed.y !== null) {
+                            label += formatCurrency(context.parsed.y);
+                          }
+                          return label;
+                        },
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Graphique des abonnements */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                  Abonnements actifs
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Croissance des abonnements au fil du temps
+                </p>
+              </div>
+              <div className="p-1.5 sm:p-2 bg-purple-50 rounded-lg">
+                <Calendar className="h-4 sm:h-5 w-4 sm:w-5 text-purple-600" />
+              </div>
+            </div>
+            <div className="h-48 sm:h-64">
               <Line data={subscriptionsData} options={commonOptions} />
             </div>
           </div>

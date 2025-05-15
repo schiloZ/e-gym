@@ -95,6 +95,24 @@ export async function POST(request: Request) {
     );
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Check payment limit
+  if (user.paymentCount >= user.maxPayments) {
+    return NextResponse.json(
+      {
+        error: `Limit of ${user.maxPayments} payments reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const client = await prisma.client.findUnique({
       where: { email: clientEmail },
@@ -140,7 +158,7 @@ export async function POST(request: Request) {
       endDate: new Date(endDate),
       nextPaymentDate: new Date(nextPaymentDate),
       paymentStatus: paymentStatus || "Unpaid",
-      date: new Date(),
+      date: new Date(), // Current date: 03:37 PM GMT, May 14, 2025
       client: {
         connect: { id: client.id },
       },
@@ -155,6 +173,12 @@ export async function POST(request: Request) {
 
     const payment = await prisma.payment.create({
       data: paymentData,
+    });
+
+    // Increment payment count
+    await prisma.user.update({
+      where: { id: userId },
+      data: { paymentCount: { increment: 1 } },
     });
 
     const newData = {
@@ -175,7 +199,7 @@ export async function POST(request: Request) {
         action: "CREATE",
         entityType: "PAYMENT",
         entityId: payment.id,
-        paymentId: payment.id, // Link to the payment
+        paymentId: payment.id,
         oldData: null,
         newData,
         changedBy: userId,

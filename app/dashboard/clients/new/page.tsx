@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, ArrowLeft } from "lucide-react";
@@ -46,17 +47,17 @@ export default function AddClientForm({ userId }: { userId: string }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error("Erreur lors de l'ajout du client");
-        throw new Error(errorData.error || "Failed to add client");
+        toast.error(errorData.error);
+        throw new Error(errorData.error || "Échec de l'ajout du client");
       }
 
       const data = await response.json();
-      toast.success("Client enregistrer avec succès !", {
+      toast.success("Client enregistré avec succès !", {
         duration: 3000,
       });
       router.push(`/dashboard/clients/${data.client.id}`);
     } catch (err: any) {
-      console.error("Client creation error:", err);
+      console.error("Erreur de création du client :", err);
       toast.error("Erreur lors de l'ajout du client");
     } finally {
       setIsSubmitting(false);
@@ -64,35 +65,35 @@ export default function AddClientForm({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center">
-          <UserPlus className="h-6 w-6 mr-2 text-blue-500" />
-          Register New Client
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 bg-white rounded-xl shadow-md">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 flex items-center mb-4 sm:mb-0">
+          <UserPlus className="h-5 sm:h-6 md:h-7 w-5 sm:w-6 md:w-7 mr-2 text-blue-500" />
+          Enregistrer un nouveau client
         </h1>
         <Link
           href="/dashboard/clients"
-          className="text-gray-600 hover:text-blue-600 flex items-center text-sm"
+          className="text-gray-600 hover:text-blue-600 flex items-center text-xs sm:text-sm md:text-base"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Clients
+          <ArrowLeft className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 mr-1" />
+          Retour aux clients
         </Link>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 text-xs sm:text-sm">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+          <div className="md:col-span-2">
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
             >
-              Full Name <span className="text-red-500">*</span>
+              Nom complet <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -100,8 +101,8 @@ export default function AddClientForm({ userId }: { userId: string }) {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              placeholder="John Doe"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+              placeholder="Jean Dupont"
               required
             />
           </div>
@@ -109,9 +110,9 @@ export default function AddClientForm({ userId }: { userId: string }) {
           <div>
             <label
               htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
             >
-              Phone Number
+              Numéro de téléphone
             </label>
             <input
               type="tel"
@@ -119,7 +120,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
               placeholder="+237 6XX XXX XXX"
             />
           </div>
@@ -127,9 +128,9 @@ export default function AddClientForm({ userId }: { userId: string }) {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
             >
-              Email Address
+              Adresse email
             </label>
             <input
               type="email"
@@ -137,49 +138,54 @@ export default function AddClientForm({ userId }: { userId: string }) {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              placeholder="john@example.com"
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+              placeholder="jean@example.com"
             />
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-4 border-t border-gray-100">
           <Link
             href="/dashboard/clients"
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-xs sm:text-sm md:text-base w-full sm:w-auto"
           >
-            Cancel
+            Annuler
           </Link>
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`px-6 py-2 rounded-lg text-white font-medium flex items-center ${
+            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-white font-medium flex items-center ${
               isSubmitting
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
-            } transition shadow-md`}
+            } transition shadow-md text-xs sm:text-sm md:text-base w-full sm:w-auto`}
           >
             {isSubmitting ? (
-              "Processing..."
+              "Traitement en cours..."
             ) : (
               <>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Register Client
+                <UserPlus className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 mr-2" />
+                Enregistrer le client
               </>
             )}
           </button>
         </div>
       </form>
 
-      <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100">
-        <h3 className="text-sm font-medium text-blue-800 mb-2">
-          Quick Tips for Client Registration
+      <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
+        <h3 className="text-xs sm:text-sm md:text-base font-medium text-blue-800 mb-2">
+          Conseils rapides pour l'enregistrement des clients
         </h3>
-        <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
-          <li>Name is the only required field</li>
-          <li>Phone number helps with SMS notifications</li>
-          <li>Email is optional but useful for digital communication</li>
-          <li>You can add more details later in the client's profile</li>
+        <ul className="text-xs sm:text-sm md:text-base text-blue-600 space-y-1 list-disc list-inside">
+          <li>Le nom est le seul champ requis</li>
+          <li>Le numéro de téléphone aide pour les notifications SMS</li>
+          <li>
+            L'email est facultatif mais utile pour la communication digitale
+          </li>
+          <li>
+            Vous pouvez ajouter plus de détails plus tard dans le profil du
+            client
+          </li>
         </ul>
       </div>
     </div>

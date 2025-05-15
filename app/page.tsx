@@ -1,27 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 export default function Login() {
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user?.role === "superadmin" || session?.user?.isSuperAdmin) {
+        router.push("/dashboardAdmin");
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [status, session, router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(null); // Clear error when user starts typing
+    setError(null); // Effacer l'erreur lorsque l'utilisateur commence à taper
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const toastId = toast.loading("Logging in..."); // Show loading toast
+    const toastId = toast.loading("Connexion en cours..."); // Afficher un toast de chargement
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -29,9 +41,10 @@ export default function Login() {
       password: formData.password,
     });
 
-    toast.dismiss(toastId); // Dismiss loading toast
+    toast.dismiss(toastId); // Fermer le toast de chargement
 
     if (result?.error) {
+      setError(result.error);
       toast.error(result.error, {
         duration: 4000,
       });
@@ -39,16 +52,24 @@ export default function Login() {
       toast.success("Connecté avec succès !", {
         duration: 3000,
       });
-      router.push("/dashboard");
+      // La redirection sera gérée par useEffect en fonction de la session
     }
   };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Chargement...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
           <Lock className="h-6 w-6 mr-2 text-blue-500" />
-          Login to E-Gym
+          Connexion à E-Gym
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -67,7 +88,7 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow shadow-sm"
-                placeholder="Enter your email"
+                placeholder="Entrez votre email"
                 required
               />
             </div>
@@ -77,7 +98,7 @@ export default function Login() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Password
+              Mot de passe
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -88,7 +109,7 @@ export default function Login() {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow shadow-sm"
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
                 required
               />
             </div>
@@ -100,16 +121,14 @@ export default function Login() {
           )}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-md"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-md flex items-center justify-center"
           >
-            Login
+            Se connecter <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don’t have an account?{" "}
-          <Link href="/auth/register" className="text-blue-600 hover:underline">
-            Register here
-          </Link>
+          Pas encore de compte ? <br />
+          Écrivez moi au +225 05-84-18-53-67 par whatsApp.
         </p>
       </div>
     </div>
