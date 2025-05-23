@@ -5,7 +5,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !session.user?.id || !session.user.companyId) {
     // Log unauthorized attempt to Historic
     await prisma.historic.create({
       data: {
@@ -15,10 +15,17 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: "unknown",
-        description: "Unauthorized attempt to create a client",
+        companyId: session?.user?.companyId,
+        description:
+          "Unauthorized attempt to create a client: No session, user ID, or company ID",
       },
     });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
+      { status: 401 }
+    );
   }
 
   const user = await prisma.user.findUnique({
@@ -26,11 +33,35 @@ export async function POST(request: Request) {
   });
 
   if (!user) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "CLIENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: session.user.id,
+        companyId: session.user.companyId,
+        description: "User not found",
+      },
+    });
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Check client registration limit
+  // Check client registration limit (currently only user limit)
   if (user.clientRegistrationCount >= user.maxClientRegistrations) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "CLIENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: session.user.id,
+        companyId: session.user.companyId,
+        description: `Limit of ${user.maxClientRegistrations} client registrations reached for ${user.subscriptionType} plan`,
+      },
+    });
     return NextResponse.json(
       {
         error: `Limit of ${user.maxClientRegistrations} client registrations reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
@@ -51,6 +82,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: session.user.id,
+        companyId: session.user.companyId,
         description: "Failed to create client: Name is required",
       },
     });
@@ -59,12 +91,17 @@ export async function POST(request: Request) {
 
   try {
     const client = await prisma.client.create({
-      data: { name, phone, email, userId: session.user.id },
+      data: {
+        name,
+        phone,
+        email,
+        userId: session.user.id, // Still associate with the user
+        companyId: session.user.companyId, // Associate with the company
+      },
     });
-
-    // Increment client registration count
-    await prisma.user.update({
-      where: { id: session.user.id },
+    // Increment client registration count for the company
+    await prisma.company.update({
+      where: { id: session.user.companyId },
       data: { clientRegistrationCount: { increment: 1 } },
     });
 
@@ -83,6 +120,7 @@ export async function POST(request: Request) {
           registrationDate: client.registrationDate,
         },
         changedBy: session.user.id,
+        companyId: session.user.companyId,
         description: "Client created successfully",
       },
     });
@@ -93,12 +131,13 @@ export async function POST(request: Request) {
         type: "CLIENT_REGISTERED",
         message: `${name} has registered today`,
         userId: session.user.id,
+        companyId: session.user.companyId,
         clientId: client.id,
       },
     });
 
     return NextResponse.json({ message: "Client registered", client });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Client creation error:", error);
 
     // Log error to Historic
@@ -110,6 +149,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: session.user.id,
+        companyId: session.user.companyId,
         description: `Error creating client: ${
           error.message || "Unknown error"
         }`,
@@ -125,13 +165,18 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session || !session.user?.id || !session.user.companyId) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
+      { status: 401 }
+    );
   }
 
   try {
     const clients = await prisma.client.findMany({
-      where: { userId: session.user.id },
+      where: { companyId: session.user.companyId }, // Fetch clients by companyId
       include: { user: true, payments: true },
     });
     return NextResponse.json(clients);

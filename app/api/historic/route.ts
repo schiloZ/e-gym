@@ -6,24 +6,32 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !(session.user as any).companyId
+  ) {
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = (session.user as any).companyId;
 
   try {
     const historyEntries = await prisma.historic.findMany({
       where: {
-        changedBy: userId, // Only fetch entries changed by the authenticated user
+        companyId, // Directly filter by companyId
       },
       include: {
         user: true, // Include the user to get the username (email in this case)
         client: true, // Include client details if applicable
         payment: true, // Include payment details if applicable
+        bill: true, // Include bill details if applicable
       },
       orderBy: {
         createdAt: "desc", // Most recent first
@@ -58,6 +66,15 @@ export async function GET(request: Request) {
             subscription: entry.payment.subscription,
             method: entry.payment.method,
             status: entry.payment.status,
+          }
+        : null,
+      bill: entry.bill
+        ? {
+            id: entry.bill.id,
+            description: entry.bill.description,
+            amount: entry.bill.amount,
+            date: entry.bill.date,
+            category: entry.bill.category,
           }
         : null,
     }));

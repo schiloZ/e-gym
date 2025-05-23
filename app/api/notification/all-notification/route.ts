@@ -5,12 +5,22 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session || !session.user || !session.user.companyId) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
+      { status: 401 }
+    );
   }
   try {
     const notifications = await prisma.notification.findMany({
-      where: { userId: session.user.id },
+      where: {
+        OR: [
+          { client: { companyId: session.user.companyId } }, // Notifications linked to clients in the company
+          { payment: { companyId: session.user.companyId } }, // Notifications linked to payments in the company
+        ],
+      },
       orderBy: { createdAt: "desc" },
       include: {
         client: { select: { name: true } },

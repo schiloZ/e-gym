@@ -14,15 +14,22 @@ export async function PATCH(
 
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
   const notificationId = params.id;
 
   if (!notificationId || typeof notificationId !== "string") {
@@ -36,6 +43,10 @@ export async function PATCH(
   try {
     const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
+      include: {
+        client: true,
+        payment: true,
+      },
     });
 
     if (!notification) {
@@ -46,15 +57,24 @@ export async function PATCH(
       );
     }
 
-    if (notification.userId !== userId) {
+    // Verify the notification is related to the authenticated user's company
+    const isRelatedToCompany =
+      (notification.client && notification.client.companyId === companyId) ||
+      (notification.payment && notification.payment.companyId === companyId);
+    if (!isRelatedToCompany) {
       console.log(
-        "Notification does not belong to user. Notification userId:",
-        notification.userId,
-        "Authenticated userId:",
-        userId
+        "Notification does not belong to company. Notification client companyId:",
+        notification.client?.companyId,
+        "Notification payment companyId:",
+        notification.payment?.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       return NextResponse.json(
-        { error: "Notification does not belong to the authenticated user" },
+        {
+          error:
+            "Notification does not belong to the authenticated user's company",
+        },
         { status: 403 }
       );
     }
@@ -79,7 +99,7 @@ export async function PATCH(
         isRead: updatedNotification.isRead,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error marking notification as read:", error);
     return NextResponse.json(
       { error: error.message || "Error marking notification as read" },

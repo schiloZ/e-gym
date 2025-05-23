@@ -66,21 +66,23 @@ export default function Dashboard() {
         const paymentsRes = await fetch("/api/payments");
         const paymentsData = await paymentsRes.json();
         const totalRevenue = paymentsData.reduce(
-          (sum, payment) => sum + payment.amount,
+          (sum: never, payment: { amount: never }) => sum + payment.amount,
           0
         );
 
         // Calculer les revenus mensuels (pour mai 2025)
         const currentMonth = new Date("2025-05-01");
-        const monthlyPayments = paymentsData.filter((payment) => {
-          const paymentDate = new Date(payment.date);
-          return (
-            paymentDate.getMonth() === currentMonth.getMonth() &&
-            paymentDate.getFullYear() === currentMonth.getFullYear()
-          );
-        });
+        const monthlyPayments = paymentsData.filter(
+          (payment: { date: string | number | Date }) => {
+            const paymentDate = new Date(payment.date);
+            return (
+              paymentDate.getMonth() === currentMonth.getMonth() &&
+              paymentDate.getFullYear() === currentMonth.getFullYear()
+            );
+          }
+        );
         const monthlyRevenue = monthlyPayments.reduce(
-          (sum, payment) => sum + payment.amount,
+          (sum: any, payment: { amount: any }) => sum + payment.amount,
           0
         );
 
@@ -98,7 +100,10 @@ export default function Dashboard() {
         // Récupérer les clients récents (triés par date d'inscription, limités à 3)
         const recentClients = clientsData
           .sort(
-            (a, b) =>
+            (
+              a: { registrationDate: string | number | Date },
+              b: { registrationDate: string | number | Date }
+            ) =>
               new Date(b.registrationDate).getTime() -
               new Date(a.registrationDate).getTime()
           )
@@ -144,7 +149,10 @@ export default function Dashboard() {
         borderWidth: 1,
         displayColors: false,
         callbacks: {
-          label: function (context) {
+          label: function (context: {
+            dataset: { label: string };
+            parsed: { y: string | number | bigint | null };
+          }) {
             let label = context.dataset.label || "";
             if (label) {
               label += ": ";
@@ -219,7 +227,6 @@ export default function Dashboard() {
       },
     ],
   };
-
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* En-tête */}
@@ -367,6 +374,7 @@ export default function Dashboard() {
                       <span className="text-blue-500">✉️</span>{" "}
                       {client.email || "N/A"}
                     </p>
+                    <br />
                     <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                       <span className="text-blue-500">📞</span>{" "}
                       {client.phone || "N/A"}

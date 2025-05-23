@@ -3,10 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  User,
-  Mail,
-  Phone,
-  Shield,
   Building,
   MapPin,
   CreditCard,
@@ -18,46 +14,51 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-type UserDetail = {
+type CompanyDetail = {
   id: string;
-  email: string;
-  emailVerified: string | null;
-  phone: string | null;
-  role: string;
-  companyName: string | null;
+  name: string;
   location: string | null;
   subscriptionType: string | null;
   subscriptionStartDate: string | null;
   subscriptionEndDate: string | null;
+  clientRegistrationCount: number;
+  maxClientRegistrations: number;
+  paymentCount: number;
+  maxPayments: number;
   createdAt: string;
-  clientRegistrationCount: number; // New field
-  maxClientRegistrations: number; // New field
-  paymentCount: number; // New field
-  maxPayments: number; // New field
-  clients: { id: string; name: string }[];
-  payments: { id: string; amount: number; paymentDate: string }[];
+  updatedAt: string;
+  users: {
+    id: string;
+    email: string;
+    phone: string | null;
+    role: string;
+    createdAt: string;
+  }[];
+  clients: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+    createdAt: string;
+  }[];
 };
 
-export default function UserEditPage() {
+export default function CompanyEditPage() {
   const router = useRouter();
   const params = useParams();
-  const userId = params.id as string;
+  const companyId = params.id as string;
 
-  const [user, setUser] = useState<UserDetail | null>(null);
+  const [company, setCompany] = useState<CompanyDetail | null>(null);
   const [formData, setFormData] = useState({
-    email: "",
-    emailVerified: "",
-    phone: "",
-    role: "",
-    companyName: "",
+    name: "",
     location: "",
     subscriptionType: "",
     subscriptionStartDate: "",
     subscriptionEndDate: "",
-    clientRegistrationCount: 0, // New field
-    maxClientRegistrations: 0, // New field
-    paymentCount: 0, // New field
-    maxPayments: 0, // New field
+    clientRegistrationCount: 0,
+    maxClientRegistrations: 0,
+    paymentCount: 0,
+    maxPayments: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,14 +70,14 @@ export default function UserEditPage() {
     return new Date(date).toISOString().split("T")[0]; // Format as YYYY-MM-DD for input
   };
 
-  // Fetch user details from the API
+  // Fetch company details from the API
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchCompany = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`/api/users/${userId}`, {
+        const response = await fetch(`/api/company/${companyId}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -86,31 +87,27 @@ export default function UserEditPage() {
             throw new Error("Unauthorized: Please log in.");
           } else if (response.status === 403) {
             throw new Error(
-              "Forbidden: You don't have permission to edit this user."
+              "Forbidden: You don't have permission to edit this company."
             );
           } else if (response.status === 404) {
-            throw new Error("User not found.");
+            throw new Error("Company not found.");
           } else {
-            throw new Error("Failed to fetch user data.");
+            throw new Error("Failed to fetch company data.");
           }
         }
-
+        console.log("Response from API:", response);
         const data = await response.json();
-        setUser(data);
+        setCompany(data);
         setFormData({
-          email: data.email,
-          emailVerified: data.emailVerified || "",
-          phone: data.phone || "",
-          role: data.role,
-          companyName: data.companyName || "",
+          name: data.name,
           location: data.location || "",
           subscriptionType: data.subscriptionType || "",
           subscriptionStartDate: formatDate(data.subscriptionStartDate),
           subscriptionEndDate: formatDate(data.subscriptionEndDate),
-          clientRegistrationCount: data.clientRegistrationCount || 0, // Sync new field
-          maxClientRegistrations: data.maxClientRegistrations || 0, // Sync new field
-          paymentCount: data.paymentCount || 0, // Sync new field
-          maxPayments: data.maxPayments || 0, // Sync new field
+          clientRegistrationCount: data.clientRegistrationCount || 0,
+          maxClientRegistrations: data.maxClientRegistrations || 0,
+          paymentCount: data.paymentCount || 0,
+          maxPayments: data.maxPayments || 0,
         });
       } catch (err: any) {
         setError(err.message);
@@ -120,8 +117,8 @@ export default function UserEditPage() {
       }
     };
 
-    fetchUser();
-  }, [userId]);
+    fetchCompany();
+  }, [companyId]);
 
   // Handle form input changes
   const handleChange = (
@@ -151,21 +148,31 @@ export default function UserEditPage() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(`/api/company/${companyId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          location: formData.location,
+          subscriptionType: formData.subscriptionType,
+          subscriptionStartDate: formData.subscriptionStartDate,
+          subscriptionEndDate: formData.subscriptionEndDate,
+          clientRegistrationCount: formData.clientRegistrationCount,
+          paymentCount: formData.paymentCount,
+          maxClientRegistrations: formData.maxClientRegistrations,
+          maxPayments: formData.maxPayments,
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update user.");
+        throw new Error(errorData.error || "Failed to update company.");
       }
 
-      const updatedUser = await response.json();
-      setUser(updatedUser); // Update local state with new data
-      toast.success("User updated successfully", { duration: 4000 });
-      router.push(`/dashboardAdmin/users/${userId}`);
+      const updatedCompany = await response.json();
+      setCompany(updatedCompany); // Update local state with new data
+      toast.success("Company updated successfully", { duration: 4000 });
+      router.push(`/dashboardAdmin/users/${companyId}`);
     } catch (err: any) {
       toast.error(err.message, { duration: 4000 });
     } finally {
@@ -179,7 +186,7 @@ export default function UserEditPage() {
       <div className="flex items-center justify-center h-screen">
         <div className="flex items-center space-x-3">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <span className="text-lg text-gray-600">Loading user data...</span>
+          <span className="text-lg text-gray-600">Loading company data...</span>
         </div>
       </div>
     );
@@ -199,32 +206,32 @@ export default function UserEditPage() {
             onClick={() => router.push("/dashboardAdmin/users")}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
-            Back to Users
+            Back to Companies
           </button>
         </div>
       </div>
     );
   }
 
-  // No user found
-  if (!user) {
+  // No company found
+  if (!company) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="bg-yellow-50 p-6 rounded-lg shadow-md max-w-md text-center">
           <div className="flex items-center justify-center space-x-3 mb-3">
             <AlertCircle className="h-6 w-6 text-yellow-600" />
             <h3 className="text-lg font-medium text-yellow-800">
-              No User Found
+              No Company Found
             </h3>
           </div>
           <p className="text-yellow-600 mb-4">
-            The requested user could not be found.
+            The requested company could not be found.
           </p>
           <button
             onClick={() => router.push("/dashboardAdmin/users")}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
-            Back to Users
+            Back to Companies
           </button>
         </div>
       </div>
@@ -240,13 +247,13 @@ export default function UserEditPage() {
           className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
         >
           <ArrowLeft className="h-5 w-5 mr-1" />
-          Back to Users
+          Back to Companies
         </button>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <User className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-800">Edit User</h1>
+            <Building className="h-8 w-8 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-800">Edit Company</h1>
           </div>
         </div>
       </div>
@@ -256,68 +263,16 @@ export default function UserEditPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-              <div className="flex items-center">
-                <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  required
-                />
-              </div>
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
-              <div className="flex items-center">
-                <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-              <div className="flex items-center">
-                <Shield className="h-4 w-4 text-gray-400 mr-2" />
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                  required
-                >
-                  <option value="user">User</option>
-                  <option value="manager">Manager</option>
-                  <option value="superadmin">Superadmin</option>
-                </select>
-              </div>
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
               Company Name
               <div className="flex items-center">
                 <Building className="h-4 w-4 text-gray-400 mr-2" />
                 <input
                   type="text"
-                  name="companyName"
-                  value={formData.companyName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  required
                 />
               </div>
             </label>
@@ -462,7 +417,7 @@ export default function UserEditPage() {
           <div className="flex justify-end space-x-4">
             <button
               type="button"
-              onClick={() => router.push(`/dashboardAdmin/users/${userId}`)}
+              onClick={() => router.push(`/dashboardAdmin/users/${companyId}`)}
               className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
             >
               Cancel

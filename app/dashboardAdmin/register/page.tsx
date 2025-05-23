@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -26,19 +26,69 @@ export default function Register() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "user",
+    role: "manager",
     companyName: "",
+    newCompanyName: "", // Added to store the new company name input
     location: "",
     subscriptionType: "free",
     subscriptionStartDate: "",
     subscriptionEndDate: "",
+    isNewCompany: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [companies, setCompanies] = useState([]);
   const router = useRouter();
+
+  // Fetch companies on component mount
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await fetch("/api/company");
+        if (!res.ok) throw new Error("Failed to fetch companies");
+        const data = await res.json();
+        setCompanies(data);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+        setCompanies([]);
+      }
+    };
+    fetchCompanies();
+  }, []);
+
+  // Auto-set subscription dates and limits based on subscription type for new companies
+  useEffect(() => {
+    if (formData.isNewCompany && formData.subscriptionType) {
+      const startDate = new Date();
+      let endDate = new Date();
+      let maxClientRegistrations = 5;
+      let maxPayments = 20;
+
+      if (formData.subscriptionType === "free") {
+        endDate.setDate(startDate.getDate() + 21); // 21 days for free
+        maxClientRegistrations = 5;
+        maxPayments = 20;
+      } else if (formData.subscriptionType === "premium") {
+        maxClientRegistrations = 50;
+        maxPayments = 100;
+      } else if (formData.subscriptionType === "enterprise") {
+        maxClientRegistrations = 300;
+        maxPayments = 1000;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        subscriptionStartDate: startDate.toISOString().split("T")[0],
+        subscriptionEndDate:
+          formData.subscriptionType === "free"
+            ? endDate.toISOString().split("T")[0]
+            : prev.subscriptionEndDate,
+      }));
+    }
+  }, [formData.subscriptionType, formData.isNewCompany]);
 
   const validateEmail = () => {
     if (!formData.email) {
@@ -99,39 +149,50 @@ export default function Register() {
   const validateStep2 = () => {
     const newErrors = {};
 
-    // Role validation
     if (!formData.role) {
       newErrors.role = "Role is required";
     } else if (
-      !["user", "manager", "admin", "superadmin"].includes(
-        formData.role.toLowerCase()
-      )
+      !["manager", "coach", "superadmin"].includes(formData.role.toLowerCase())
     ) {
       newErrors.role = "Invalid role selected";
     }
 
-    // Subscription type validation
-    if (!formData.subscriptionType) {
-      newErrors.subscriptionType = "Subscription type is required";
-    } else if (
-      !["free", "premium", "enterprise"].includes(
-        formData.subscriptionType.toLowerCase()
-      )
-    ) {
-      newErrors.subscriptionType = "Invalid subscription type selected";
-    }
+    if (formData.isNewCompany) {
+      if (!formData.newCompanyName.trim()) {
+        newErrors.companyName = "New company name is required";
+      }
 
-    // Subscription dates validation
-    if (formData.subscriptionStartDate && formData.subscriptionEndDate) {
-      const startDate = new Date(formData.subscriptionStartDate);
-      const endDate = new Date(formData.subscriptionEndDate);
+      if (!formData.subscriptionType) {
+        newErrors.subscriptionType = "Subscription type is required";
+      } else if (
+        !["free", "premium", "enterprise"].includes(
+          formData.subscriptionType.toLowerCase()
+        )
+      ) {
+        newErrors.subscriptionType = "Invalid subscription type selected";
+      }
 
       if (
-        !isNaN(startDate.getTime()) &&
-        !isNaN(endDate.getTime()) &&
-        endDate <= startDate
+        formData.subscriptionType !== "free" &&
+        (!formData.subscriptionStartDate || !formData.subscriptionEndDate)
       ) {
-        newErrors.subscriptionEndDate = "End date must be after start date";
+        if (!formData.subscriptionStartDate)
+          newErrors.subscriptionStartDate = "Start date is required";
+        if (!formData.subscriptionEndDate)
+          newErrors.subscriptionEndDate = "End date is required";
+      }
+
+      if (formData.subscriptionStartDate && formData.subscriptionEndDate) {
+        const startDate = new Date(formData.subscriptionStartDate);
+        const endDate = new Date(formData.subscriptionEndDate);
+
+        if (
+          !isNaN(startDate.getTime()) &&
+          !isNaN(endDate.getTime()) &&
+          endDate <= startDate
+        ) {
+          newErrors.subscriptionEndDate = "End date must be after start date";
+        }
       }
     }
 
@@ -157,7 +218,6 @@ export default function Register() {
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -166,7 +226,6 @@ export default function Register() {
       });
     }
 
-    // Password strength checker
     if (name === "password") {
       let strength = 0;
       if (value.length >= 8) strength += 1;
@@ -175,6 +234,26 @@ export default function Register() {
       if (/[^A-Za-z0-9]/.test(value)) strength += 1;
       setPasswordStrength(strength);
     }
+  };
+
+  const handleCompanyChange = (e) => {
+    const { value } = e.target;
+    const selectedCompany = companies.find((c) => c.name === value);
+    setFormData((prev) => ({
+      ...prev,
+      companyName: selectedCompany ? value : prev.newCompanyName,
+      newCompanyName: selectedCompany ? "" : prev.newCompanyName,
+      isNewCompany: value === "new" || !selectedCompany,
+      subscriptionType: selectedCompany
+        ? selectedCompany.subscriptionType
+        : prev.subscriptionType,
+      subscriptionStartDate: selectedCompany
+        ? selectedCompany.subscriptionStartDate?.split("T")[0]
+        : prev.subscriptionStartDate,
+      subscriptionEndDate: selectedCompany
+        ? selectedCompany.subscriptionEndDate?.split("T")[0]
+        : prev.subscriptionEndDate,
+    }));
   };
 
   const handleRegister = async (e) => {
@@ -193,11 +272,19 @@ export default function Register() {
           phone: formData.phone,
           password: formData.password,
           role: formData.role,
-          companyName: formData.companyName || null,
-          location: formData.location || null,
-          subscriptionType: formData.subscriptionType,
-          subscriptionStartDate: formData.subscriptionStartDate || null,
-          subscriptionEndDate: formData.subscriptionEndDate || null,
+          companyName: formData.isNewCompany
+            ? formData.newCompanyName
+            : formData.companyName,
+          location: formData.isNewCompany ? formData.location : null,
+          subscriptionType: formData.isNewCompany
+            ? formData.subscriptionType
+            : null,
+          subscriptionStartDate: formData.isNewCompany
+            ? formData.subscriptionStartDate
+            : null,
+          subscriptionEndDate: formData.isNewCompany
+            ? formData.subscriptionEndDate
+            : null,
         }),
       });
 
@@ -206,7 +293,6 @@ export default function Register() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // Auto-login after successful registration
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
@@ -225,10 +311,6 @@ export default function Register() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSocialLogin = (provider) => {
-    signIn(provider, { callbackUrl: "/" });
   };
 
   const getPasswordStrengthColor = () => {
@@ -424,7 +506,6 @@ export default function Register() {
                   </button>
                 </div>
 
-                {/* Password strength indicator */}
                 {formData.password && (
                   <div className="mt-2">
                     <div className="flex justify-between items-center mb-1">
@@ -615,9 +696,8 @@ export default function Register() {
                       } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none`}
                       disabled={isLoading}
                     >
-                      <option value="user">User</option>
                       <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
+                      <option value="coach">Coach</option>
                       <option value="superadmin">SuperAdmin</option>
                     </select>
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -635,177 +715,313 @@ export default function Register() {
                     <p className="mt-1 text-sm text-red-600">{errors.role}</p>
                   )}
                 </div>
+              </div>
 
-                <div>
-                  <label
-                    htmlFor="subscriptionType"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Subscription
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="subscriptionType"
-                      name="subscriptionType"
-                      value={formData.subscriptionType}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-3 pl-10 border ${
-                        errors.subscriptionType
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-300"
-                      } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none`}
-                      disabled={isLoading}
+              {formData.role !== "superadmin" && (
+                <>
+                  <div>
+                    <label
+                      htmlFor="companyName"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      <option value="free">Free</option>
-                      <option value="premium">Premium</option>
-                      <option value="enterprise">Enterprise</option>
-                    </select>
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <CreditCard
-                        className={`h-5 w-5 ${
-                          errors.subscriptionType
-                            ? "text-red-400"
-                            : "text-gray-400"
-                        }`}
-                      />
+                      Company Name
+                    </label>
+                    <div className="relative">
+                      {companies.length > 0 ? (
+                        <select
+                          id="companyName"
+                          name="companyName"
+                          value={formData.companyName}
+                          onChange={handleCompanyChange}
+                          className={`w-full px-4 py-3 pl-10 border ${
+                            errors.companyName
+                              ? "border-red-300 bg-red-50"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none`}
+                          disabled={isLoading}
+                        >
+                          <option value="">Select a company or add new</option>
+                          {companies.map((company) => (
+                            <option key={company.id} value={company.name}>
+                              {company.name} (Created:{" "}
+                              {new Date(company.createdAt).toLocaleDateString()}
+                              )
+                            </option>
+                          ))}
+                          <option value="new">Add new company</option>
+                        </select>
+                      ) : (
+                        <input
+                          id="newCompanyName"
+                          name="newCompanyName"
+                          type="text"
+                          value={formData.newCompanyName}
+                          onChange={handleChange}
+                          className={`w-full px-4 py-3 pl-10 border ${
+                            errors.companyName
+                              ? "border-red-300 bg-red-50"
+                              : "border-gray-300"
+                          } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                          placeholder="Enter your company name"
+                          disabled={isLoading}
+                        />
+                      )}
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <Building
+                          className={`h-5 w-5 ${
+                            errors.companyName
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          }`}
+                        />
+                      </div>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        {companies.length > 0 && (
+                          <ChevronDown className="h-5 w-5 text-gray-400" />
+                        )}
+                      </div>
                     </div>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <ChevronDown className="h-5 w-5 text-gray-400" />
-                    </div>
+                    {errors.companyName && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.companyName}
+                      </p>
+                    )}
                   </div>
-                  {errors.subscriptionType && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.subscriptionType}
-                    </p>
+
+                  {formData.isNewCompany && (
+                    <>
+                      <div>
+                        <label
+                          htmlFor="newCompanyName"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          New Company Name
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="newCompanyName"
+                            name="newCompanyName"
+                            type="text"
+                            value={formData.newCompanyName}
+                            onChange={handleChange}
+                            className={`w-full px-4 py-3 pl-10 border ${
+                              errors.companyName
+                                ? "border-red-300 bg-red-50"
+                                : "border-gray-300"
+                            } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                            placeholder="Enter new company name"
+                            disabled={isLoading}
+                          />
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <Building
+                              className={`h-5 w-5 ${
+                                errors.companyName
+                                  ? "text-red-400"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="location"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Location (Optional)
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="location"
+                            name="location"
+                            type="text"
+                            value={formData.location}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            placeholder="Your location"
+                            disabled={isLoading}
+                          />
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <MapPin className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="subscriptionType"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Subscription
+                          </label>
+                          <div className="relative">
+                            <select
+                              id="subscriptionType"
+                              name="subscriptionType"
+                              value={formData.subscriptionType}
+                              onChange={handleChange}
+                              className={`w-full px-4 py-3 pl-10 border ${
+                                errors.subscriptionType
+                                  ? "border-red-300 bg-red-50"
+                                  : "border-gray-300"
+                              } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition appearance-none`}
+                              disabled={isLoading}
+                            >
+                              <option value="free">
+                                Free (21 days, 5 clients, 20 payments)
+                              </option>
+                              <option value="premium">
+                                Premium (50 clients, 100 payments)
+                              </option>
+                              <option value="enterprise">
+                                Enterprise (300 clients, 1000 payments)
+                              </option>
+                            </select>
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <CreditCard
+                                className={`h-5 w-5 ${
+                                  errors.subscriptionType
+                                    ? "text-red-400"
+                                    : "text-gray-400"
+                                }`}
+                              />
+                            </div>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                              <ChevronDown className="h-5 w-5 text-gray-400" />
+                            </div>
+                          </div>
+                          {errors.subscriptionType && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {errors.subscriptionType}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="subscriptionStartDate"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Start Date
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="subscriptionStartDate"
+                              name="subscriptionStartDate"
+                              type="date"
+                              value={formData.subscriptionStartDate}
+                              onChange={handleChange}
+                              className={`w-full px-4 py-3 pl-10 border ${
+                                errors.subscriptionStartDate
+                                  ? "border-red-300 bg-red-50"
+                                  : "border-gray-300"
+                              } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                              disabled={
+                                isLoading ||
+                                formData.subscriptionType === "free"
+                              }
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <Calendar
+                                className={`h-5 w-5 ${
+                                  errors.subscriptionStartDate
+                                    ? "text-red-400"
+                                    : "text-gray-400"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                          {errors.subscriptionStartDate && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {errors.subscriptionStartDate}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="subscriptionEndDate"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            End Date
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="subscriptionEndDate"
+                              name="subscriptionEndDate"
+                              type="date"
+                              value={formData.subscriptionEndDate}
+                              onChange={handleChange}
+                              className={`w-full px-4 py-3 pl-10 border ${
+                                errors.subscriptionEndDate
+                                  ? "border-red-300 bg-red-50"
+                                  : "border-gray-300"
+                              } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
+                              disabled={
+                                isLoading ||
+                                formData.subscriptionType === "free"
+                              }
+                            />
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                              <Calendar
+                                className={`h-5 w-5 ${
+                                  errors.subscriptionEndDate
+                                    ? "text-red-400"
+                                    : "text-gray-400"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                          {errors.subscriptionEndDate && (
+                            <p className="mt-1 text-sm text-red-600">
+                              {errors.subscriptionEndDate}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </>
                   )}
-                </div>
-              </div>
 
-              <div>
-                <label
-                  htmlFor="companyName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Company Name (Optional)
-                </label>
-                <div className="relative">
-                  <input
-                    id="companyName"
-                    name="companyName"
-                    type="text"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    placeholder="Your company name"
-                    disabled={isLoading}
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Building className="h-5 w-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Location (Optional)
-                </label>
-                <div className="relative">
-                  <input
-                    id="location"
-                    name="location"
-                    type="text"
-                    value={formData.location}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    placeholder="Your location"
-                    disabled={isLoading}
-                  />
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="subscriptionStartDate"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Start Date (Optional)
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="subscriptionStartDate"
-                      name="subscriptionStartDate"
-                      type="date"
-                      value={formData.subscriptionStartDate}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-3 pl-10 border ${
-                        errors.subscriptionStartDate
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-300"
-                      } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
-                      disabled={isLoading}
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Calendar
-                        className={`h-5 w-5 ${
-                          errors.subscriptionStartDate
-                            ? "text-red-400"
-                            : "text-gray-400"
-                        }`}
-                      />
+                  {!formData.isNewCompany && formData.companyName && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <h3 className="text-sm font-medium text-gray-700 mb-2">
+                        Company Subscription Details
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        <strong>Subscription Type:</strong>{" "}
+                        {formData.subscriptionType.charAt(0).toUpperCase() +
+                          formData.subscriptionType.slice(1)}{" "}
+                        {formData.subscriptionType === "free" &&
+                          "(5 clients, 20 payments)"}
+                        {formData.subscriptionType === "premium" &&
+                          "(50 clients, 100 payments)"}
+                        {formData.subscriptionType === "enterprise" &&
+                          "(300 clients, 1000 payments)"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <strong>Start Date:</strong>{" "}
+                        {formData.subscriptionStartDate
+                          ? new Date(
+                              formData.subscriptionStartDate
+                            ).toLocaleDateString()
+                          : "Not set"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <strong>End Date:</strong>{" "}
+                        {formData.subscriptionEndDate
+                          ? new Date(
+                              formData.subscriptionEndDate
+                            ).toLocaleDateString()
+                          : "Not set"}
+                      </p>
                     </div>
-                  </div>
-                  {errors.subscriptionStartDate && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.subscriptionStartDate}
-                    </p>
                   )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="subscriptionEndDate"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    End Date (Optional)
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="subscriptionEndDate"
-                      name="subscriptionEndDate"
-                      type="date"
-                      value={formData.subscriptionEndDate}
-                      onChange={handleChange}
-                      className={`w-full px-4 py-3 pl-10 border ${
-                        errors.subscriptionEndDate
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-300"
-                      } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition`}
-                      disabled={isLoading}
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Calendar
-                        className={`h-5 w-5 ${
-                          errors.subscriptionEndDate
-                            ? "text-red-400"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  {errors.subscriptionEndDate && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.subscriptionEndDate}
-                    </p>
-                  )}
-                </div>
-              </div>
+                </>
+              )}
 
               <div className="flex gap-3 mt-6">
                 <button

@@ -6,25 +6,32 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
 
   try {
-    // Fetch all clients for the authenticated user
+    // Fetch all clients for the authenticated user's company
     const clients = await prisma.client.findMany({
-      where: { userId },
+      where: { companyId },
       select: { id: true, name: true, registrationDate: true },
     });
 
-    // Fetch all payments for the authenticated user
+    // Fetch all payments for the authenticated user's company
     const payments = await prisma.payment.findMany({
-      where: { userId },
+      where: { companyId },
       select: {
         id: true,
         client: { select: { name: true } },
@@ -36,9 +43,14 @@ export async function GET(request: Request) {
       },
     });
 
-    // Fetch all historic entries for the authenticated user
+    // Fetch all historic entries related to clients and payments within the company
     const historicEntries = await prisma.historic.findMany({
-      where: { changedBy: userId },
+      where: {
+        OR: [
+          { client: { companyId } }, // Historic entries linked to clients in the company
+          { payment: { companyId } }, // Historic entries linked to payments in the company
+        ],
+      },
       select: {
         id: true,
         entityType: true,

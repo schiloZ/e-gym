@@ -90,7 +90,18 @@ export default function StatsPage() {
   };
 
   const getTotalPayments = () => {
-    return stats.paymentsPerDay.reduce((sum, day) => sum + day.count, 0);
+    return stats.paymentsPerDay.reduce(
+      (sum, day) => sum + (day.totalAmount || 0),
+      0
+    );
+  };
+
+  const getPaymentDayCount = () => {
+    if (!stats.paymentsPerDay || !Array.isArray(stats.paymentsPerDay)) {
+      console.warn("stats.paymentsPerDay is invalid or empty");
+      return 0;
+    }
+    return stats.paymentsPerDay.length;
   };
 
   const getTotalPaymentAmount = () => {
@@ -115,7 +126,7 @@ export default function StatsPage() {
 
   const getAverageTransactionValue = () => {
     const totalPayments = getTotalPaymentAmount();
-    const paymentCount = getTotalPayments();
+    const paymentCount = getPaymentDayCount();
     return paymentCount > 0 ? totalPayments / paymentCount : 0;
   };
 
@@ -135,7 +146,7 @@ export default function StatsPage() {
   };
 
   const formatNumber = (value) => {
-    return new Intl.NumberFormat("en-US").format(value);
+    return value;
   };
 
   // Calculer les tendances (changement en pourcentage)
@@ -518,7 +529,7 @@ export default function StatsPage() {
                   Total des paiements
                 </p>
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {formatNumber(getTotalPayments())}
+                  {getTotalPaymentAmount()}
                 </h3>
               </div>
               <div className="p-2 sm:p-3 bg-green-50 rounded-lg">

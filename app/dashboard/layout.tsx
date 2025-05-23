@@ -36,23 +36,62 @@ export default function DashboardLayout({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+    clientRegistrationCount: number;
+    maxClientRegistrations: number;
+    paymentCount: number;
+    maxPayments: number;
+    subscriptionEndDate: Date | null;
+  } | null>(null);
   const [subscriptionWarning, setSubscriptionWarning] = useState<{
     message: string;
     severity: "warning" | "error";
     daysRemaining?: number;
   } | null>(null);
 
-  // Vérifier l'état de l'abonnement
+  // Fetch company details from the API
   useEffect(() => {
-    if (session?.user?.subscriptionEndDate) {
-      const endDate = new Date(session.user.subscriptionEndDate);
-      const today = new Date("2025-05-15T12:48:00Z"); // Date et heure actuelles : 12h48 GMT, 15 mai 2025
+    const fetchCompanyInfo = async () => {
+      if (status !== "authenticated" || !session?.user) return;
+
+      try {
+        const response = await fetch("/api/company/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch company details");
+        }
+
+        const data = await response.json();
+        setCompanyInfo({
+          ...data,
+          subscriptionEndDate: data.subscriptionEndDate
+            ? new Date(data.subscriptionEndDate)
+            : null,
+        });
+      } catch (err: unknown) {
+        toast.error((err as Error).message, { duration: 4000 });
+      }
+    };
+    fetchCompanyInfo();
+  }, [session, status]);
+
+  // Check subscription expiry based on companyInfo.subscriptionEndDate
+  useEffect(() => {
+    if (companyInfo?.subscriptionEndDate) {
+      const endDate = companyInfo.subscriptionEndDate;
+      const today = new Date(); // Current date and time: 04:02 PM GMT, May 22, 2025
       const daysRemaining = differenceInDays(endDate, today);
 
       if (daysRemaining <= 0) {
         setSubscriptionWarning({
           message:
-            "Votre abonnement a expiré. Veuillez renouveler votre abonnement.",
+            "Votre abonnement a expiré. Veuillez renouveler votre abonnement. Contactez-nous pour plus d'informations au +225 05 84 18 53 67 merci.",
           severity: "error",
           daysRemaining: 0,
         });
@@ -68,11 +107,11 @@ export default function DashboardLayout({
         setSubscriptionWarning(null);
       }
     } else {
-      setSubscriptionWarning(null); // Pas d'avertissement si aucune date de fin d'abonnement
+      setSubscriptionWarning(null); // No warning if no subscription end date
     }
-  }, [session]);
+  }, [companyInfo]);
 
-  // Récupérer les notifications
+  // Fetch notifications
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -114,7 +153,7 @@ export default function DashboardLayout({
     return null;
   }
 
-  // Déterminer le style du badge du plan en fonction de subscriptionType
+  // Determine plan badge style based on subscriptionType from companyInfo
   const getPlanBadgeStyle = (plan: string | null | undefined) => {
     switch (plan) {
       case "free":
@@ -128,7 +167,7 @@ export default function DashboardLayout({
     }
   };
 
-  // Déterminer le texte du plan en fonction de subscriptionType
+  // Determine plan text based on subscriptionType from companyInfo
   const getPlanText = (plan: string | null | undefined) => {
     switch (plan) {
       case "free":
@@ -145,7 +184,7 @@ export default function DashboardLayout({
   return (
     <SessionProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Bannière d'avertissement d'abonnement */}
+        {/* Subscription warning banner */}
         {subscriptionWarning && subscriptionWarning.daysRemaining !== 0 && (
           <div
             className={`w-full py-2 sm:py-3 px-3 sm:px-4 text-center ${
@@ -183,16 +222,16 @@ export default function DashboardLayout({
           </div>
         )}
 
-        {/* Barre de navigation supérieure */}
+        {/* Navbar */}
         <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-30">
           <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
-              {/* Section gauche (Menu et Logo) */}
+              {/* Left section (Menu and Logo) */}
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="lg:hidden text-gray-600 hover:text-blue-600 focus:outline-none"
-                  aria-label="Basculer le menu"
+                  aria-label="Toggle menu"
                 >
                   <Menu className="h-5 sm:h-6 w-5 sm:w-6" />
                 </button>
@@ -210,11 +249,11 @@ export default function DashboardLayout({
                 )}
               </div>
 
-              {/* Section droite (Plan, Notifications, Profil) */}
+              {/* Right section (Plan, Notifications, Profile) */}
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {subscriptionWarning?.daysRemaining !== 0 && (
                   <>
-                    {/* Affichage du plan d'abonnement */}
+                    {/* Display subscription plan */}
                     <div className="flex items-center space-x-1 sm:space-x-2">
                       <CreditCard className="h-4 sm:h-5 w-4 sm:w-5 text-gray-500" />
                       <span className="text-xs sm:text-sm font-medium text-gray-700">
@@ -222,10 +261,10 @@ export default function DashboardLayout({
                       </span>
                       <span
                         className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold ${getPlanBadgeStyle(
-                          session?.user?.subscriptionType
+                          companyInfo?.subscriptionType
                         )}`}
                       >
-                        {getPlanText(session?.user?.subscriptionType)}
+                        {getPlanText(companyInfo?.subscriptionType)}
                       </span>
                     </div>
 

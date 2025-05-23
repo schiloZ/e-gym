@@ -7,13 +7,30 @@ import { formatDistanceToNow } from "date-fns";
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
+      { status: 401 }
+    );
   }
+
+  const companyId = session.user.companyId;
 
   try {
     const notifications = await prisma.notification.findMany({
-      where: { userId: session.user.id },
+      where: {
+        OR: [
+          { client: { companyId } }, // Notifications linked to clients in the company
+          { payment: { companyId } }, // Notifications linked to payments in the company
+        ],
+      },
       orderBy: { createdAt: "desc" },
       take: 5, // Limit to 5 recent notifications for the dropdown
       include: {

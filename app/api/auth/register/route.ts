@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   // Validate role
-  const validRoles = ["user", "manager", "admin", "superadmin"];
+  const validRoles = ["manager", "coach", "superadmin"];
   if (!validRoles.includes(role.toLowerCase())) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
           email,
           phone: phone || null,
           password: hashedPassword,
-          createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
+          createdAt: new Date(),
         },
       });
       return NextResponse.json({
@@ -90,38 +90,74 @@ export async function POST(request: Request) {
       });
     } else {
       // Handle company creation or linking
-      let companyId = null;
-      if (companyName) {
+      let companyId: string | null = null;
+
+      // If companyName is provided, create or find the company first
+      if (companyName && companyName.trim()) {
         // Check if a company with this name already exists
-        let company = await prisma.company.findFirst({
+        const existingCompany = await prisma.company.findFirst({
           where: { name: companyName },
         });
 
-        // If not, create a new company
-        if (!company) {
-          company = await prisma.company.create({
+        if (existingCompany) {
+          companyId = existingCompany.id;
+        } else {
+          // Set subscription limits based on subscriptionType
+          const effectiveSubscriptionType = subscriptionType || "free";
+          let maxClientRegistrations = 5; // Default for free
+          let maxPayments = 20; // Default for free
+          let effectiveStartDate = parsedStartDate || new Date();
+          let effectiveEndDate = parsedEndDate;
+
+          if (effectiveSubscriptionType === "free") {
+            maxClientRegistrations = 5;
+            maxPayments = 20;
+            // Set end date to 21 days from start date if not provided
+            if (!parsedEndDate) {
+              effectiveEndDate = new Date(effectiveStartDate);
+              effectiveEndDate.setDate(effectiveStartDate.getDate() + 21);
+            }
+          } else if (effectiveSubscriptionType === "premium") {
+            maxClientRegistrations = 50;
+            maxPayments = 100;
+          } else if (effectiveSubscriptionType === "enterprise") {
+            maxClientRegistrations = 300;
+            maxPayments = 1000;
+          }
+
+          // Create a new company with the limits and subscription details
+          const newCompany = await prisma.company.create({
             data: {
               name: companyName,
-              createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
+              location: location || null,
+              subscriptionType: effectiveSubscriptionType,
+              subscriptionStartDate: effectiveStartDate,
+              subscriptionEndDate: effectiveEndDate || null,
+              maxClientRegistrations,
+              maxPayments,
+              clientRegistrationCount: 0, // Initialize count
+              paymentCount: 0, // Initialize count
+              createdAt: new Date(),
             },
           });
+          companyId = newCompany.id;
         }
-        companyId = company.id;
+      } else {
+        return NextResponse.json(
+          { error: "companyName is required for manager or coach role" },
+          { status: 400 }
+        );
       }
 
-      // Create a User (including manager or admin roles)
+      // Create the user with the retrieved companyId
       const user = await prisma.user.create({
         data: {
           email,
           phone: phone || null,
           password: hashedPassword,
           role: role.toLowerCase(),
-          companyId: companyId, // Link to the company if created
-          location: location || null,
-          subscriptionType: subscriptionType || "free",
-          subscriptionStartDate: parsedStartDate || null,
-          subscriptionEndDate: parsedEndDate || null,
-          createdAt: new Date("2025-05-15T10:44:00.000Z"), // Current date/time
+          companyId: companyId, // Associate the companyId
+          createdAt: new Date(),
         },
       });
 

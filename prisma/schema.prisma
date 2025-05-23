@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -19,14 +18,26 @@ model SuperAdmin {
 }
 
 model Company {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  name        String    // The company name (previously User.companyName)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  users       User[]    // Relation to users associated with this company
-  clients     Client[]  // Relation to clients associated with this company
-  bills       Bill[]    // Relation to bills associated with this company
-  payments    Payment[] // Relation to payments associated with this company
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String    // The company name
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  users                 User[]    // Relation to users associated with this company
+  clients               Client[]  // Relation to clients associated with this company
+  bills                 Bill[]    // Relation to bills associated with this company
+  payments              Payment[] // Relation to payments associated with this company
+  notifications         Notification[] // Relation to notifications associated with this company
+  historics             Historic[]    // Relation to historic entries associated with this company
+  location              String?   // Optional location of the company
+  subscriptionType      String?   @default("free") // e.g., "free", "premium", "enterprise"
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+
+  // Tracking limits
+  clientRegistrationCount Int @default(0)
+  maxClientRegistrations  Int @default(5)
+  paymentCount            Int @default(0)
+  maxPayments             Int @default(20)
 }
 
 model User {
@@ -35,13 +46,9 @@ model User {
   emailVerified DateTime?
   phone         String?
   password      String
-  role          String    @default("user") // e.g., "user", "manager", "admin"
-  companyId     String?   @db.ObjectId     // Link to Company
-  company       Company?  @relation(fields: [companyId], references: [id])
-  location      String?   // Optional location of the user
-  subscriptionType String? @default("free") // e.g., "free", "premium", "enterprise"
-  subscriptionStartDate DateTime?
-  subscriptionEndDate DateTime?
+  role          String    @default("coach") // Options: "manager" or "coach"
+  companyId     String    @db.ObjectId     // Required link to Company (every user belongs to a company)
+  company       Company   @relation(fields: [companyId], references: [id])
   createdAt     DateTime  @default(now())
   clients       Client[]
   sessions      Session[]
@@ -50,12 +57,6 @@ model User {
   historics     Historic[]
   notifications Notification[]
   bills         Bill[]
-
-  // Tracking limits
-  clientRegistrationCount Int @default(0)
-  maxClientRegistrations  Int @default(5)
-  paymentCount            Int @default(0)
-  maxPayments             Int @default(20)
 }
 
 model Bill {
@@ -70,6 +71,7 @@ model Bill {
   user        User     @relation(fields: [userId], references: [id])
   companyId   String?  @db.ObjectId
   company     Company? @relation(fields: [companyId], references: [id])
+  historics   Historic[] @relation("HistoricBill")
 }
 
 model Client {
@@ -95,6 +97,8 @@ model Notification {
   createdAt   DateTime  @default(now())
   userId      String    @db.ObjectId
   user        User      @relation(fields: [userId], references: [id])
+  companyId   String?   @db.ObjectId     // Link to Company
+  company     Company?  @relation(fields: [companyId], references: [id])
   clientId    String?   @db.ObjectId
   client      Client?   @relation(fields: [clientId], references: [id])
   paymentId   String?   @db.ObjectId
@@ -134,12 +138,16 @@ model Historic {
   newData     Json?
   changedBy   String    @db.ObjectId
   user        User      @relation(fields: [changedBy], references: [id])
+  companyId   String?   @db.ObjectId     // Link to Company
+  company     Company?  @relation(fields: [companyId], references: [id])
   createdAt   DateTime  @default(now())
   description String?
   clientId    String?   @db.ObjectId
   client      Client?   @relation(fields: [clientId], references: [id])
   paymentId   String?   @db.ObjectId
   payment     Payment?  @relation(fields: [paymentId], references: [id])
+  billId      String?   @db.ObjectId
+  bill        Bill?     @relation("HistoricBill", fields: [billId], references: [id])
 }
 
 model Account {

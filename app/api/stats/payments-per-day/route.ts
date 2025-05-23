@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   try {
     const payments = await prisma.payment.findMany({
-      where: { userId: session.user.id },
+      where: { companyId: session.user.companyId },
       select: {
         date: true,
         amount: true,

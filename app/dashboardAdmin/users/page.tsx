@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Users,
+  Building,
   Loader2,
   AlertCircle,
   Calendar,
-  Building,
   MapPin,
   CreditCard,
-  Mail,
   Search,
   Filter,
   MoreHorizontal,
@@ -20,43 +18,41 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-type User = {
+type Company = {
   id: string;
-  email: string;
-  emailVerified: string | null;
-  phone: string | null;
-  role: string;
-  companyName: string | null;
+  name: string;
   location: string | null;
   subscriptionType: string | null;
   subscriptionStartDate: string | null;
   subscriptionEndDate: string | null;
+  clientRegistrationCount: number;
+  maxClientRegistrations: number;
+  paymentCount: number;
+  maxPayments: number;
   createdAt: string;
-  clients: { id: string; name: string }[];
-  payments: { id: string; amount: number; paymentDate: string }[];
 };
 
 export default function UsersPage() {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
 
-  // Fetch users from the API
+  // Fetch companies from the API
   useEffect(() => {
-    fetchUsers();
+    fetchCompanies();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchCompanies = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch("/api/company", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -69,13 +65,13 @@ export default function UsersPage() {
         } else if (response.status === 403) {
           throw new Error("Forbidden: Only superadmins can access this page.");
         } else {
-          throw new Error("Failed to fetch users.");
+          throw new Error("Failed to fetch companies.");
         }
       }
 
       const data = await response.json();
-      setUsers(data);
-      setFilteredUsers(data);
+      setCompanies(data);
+      setFilteredCompanies(data);
     } catch (err: any) {
       setError(err.message);
       toast.error(err.message, { duration: 4000 });
@@ -86,34 +82,29 @@ export default function UsersPage() {
 
   // Apply filters and search
   useEffect(() => {
-    let result = [...users];
+    let result = [...companies];
 
     // Apply search
     if (searchTerm) {
       result = result.filter(
-        (user) =>
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (user.companyName &&
-            user.companyName
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          (user.location &&
-            user.location.toLowerCase().includes(searchTerm.toLowerCase()))
+        (company) =>
+          company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (company.location &&
+            company.location.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
-    // Apply role filter
+    // Apply subscription type filter
     if (activeFilter) {
       if (activeFilter !== "all") {
         result = result.filter(
-          (user) =>
-            user.role === activeFilter || user.subscriptionType === activeFilter
+          (company) => company.subscriptionType === activeFilter
         );
       }
     }
 
-    setFilteredUsers(result);
-  }, [searchTerm, activeFilter, users]);
+    setFilteredCompanies(result);
+  }, [searchTerm, activeFilter, companies]);
 
   // Format dates for display
   const formatDate = (date: string | null) => {
@@ -125,31 +116,31 @@ export default function UsersPage() {
     });
   };
 
-  // Handle row click to navigate to user detail page
-  const handleRowClick = (userId: string) => {
-    router.push(`/dashboardAdmin/users/${userId}`);
+  // Handle row click to navigate to company detail page
+  const handleRowClick = (companyId: string) => {
+    router.push(`/dashboardAdmin/users/${companyId}`);
   };
 
-  const handleAddNewUser = () => {
-    router.push("/dashboardAdmin/users/new");
+  const handleAddNewCompany = () => {
+    router.push("/dashboardAdmin/new");
   };
 
-  const toggleDropdown = (userId: string) => {
-    if (showDropdown === userId) {
+  const toggleDropdown = (companyId: string) => {
+    if (showDropdown === companyId) {
       setShowDropdown(null);
     } else {
-      setShowDropdown(userId);
+      setShowDropdown(companyId);
     }
   };
 
   const handleExportData = () => {
-    toast.success("Exporting user data...");
+    toast.success("Exporting company data...");
     // Implementation for exporting data would go here
   };
 
   const handleRefresh = () => {
-    fetchUsers();
-    toast.success("User data refreshed");
+    fetchCompanies();
+    toast.success("Company data refreshed");
   };
 
   // Loading state
@@ -157,7 +148,7 @@ export default function UsersPage() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
         <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-        <span className="text-xl text-gray-700">Loading users...</span>
+        <span className="text-xl text-gray-700">Loading companies...</span>
       </div>
     );
   }
@@ -172,7 +163,7 @@ export default function UsersPage() {
             <h3 className="text-lg font-semibold text-red-800 mb-1">Error</h3>
             <p className="text-red-600">{error}</p>
             <button
-              onClick={fetchUsers}
+              onClick={fetchCompanies}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
             >
               Try Again
@@ -191,20 +182,20 @@ export default function UsersPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
               <div className="bg-blue-100 p-2 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+                <Building className="h-6 w-6 text-blue-600" />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                Manage Users
+                Manage Companies
               </h1>
             </div>
 
             <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3">
               <button
-                onClick={handleAddNewUser}
+                onClick={handleAddNewCompany}
                 className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <UserPlus className="h-5 w-5 mr-2" />
-                Add New User
+                Add New Company
               </button>
               <button
                 onClick={handleExportData}
@@ -231,7 +222,7 @@ export default function UsersPage() {
               </div>
               <input
                 type="text"
-                placeholder="Search users by email, company or location..."
+                placeholder="Search companies by name or location..."
                 className="bg-white border border-gray-200 rounded-lg py-2 pl-10 pr-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -247,37 +238,17 @@ export default function UsersPage() {
                     : "bg-white text-gray-600 border border-gray-200"
                 }`}
               >
-                All Users
+                All Companies
               </button>
               <button
-                onClick={() => setActiveFilter("superadmin")}
+                onClick={() => setActiveFilter("free")}
                 className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  activeFilter === "superadmin"
-                    ? "bg-purple-100 text-purple-800"
+                  activeFilter === "free"
+                    ? "bg-gray-200 text-gray-800"
                     : "bg-white text-gray-600 border border-gray-200"
                 }`}
               >
-                Superadmins
-              </button>
-              <button
-                onClick={() => setActiveFilter("manager")}
-                className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  activeFilter === "manager"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-white text-gray-600 border border-gray-200"
-                }`}
-              >
-                Managers
-              </button>
-              <button
-                onClick={() => setActiveFilter("user")}
-                className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  activeFilter === "user"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-white text-gray-600 border border-gray-200"
-                }`}
-              >
-                Users
+                Free
               </button>
               <button
                 onClick={() => setActiveFilter("premium")}
@@ -290,81 +261,81 @@ export default function UsersPage() {
                 Premium
               </button>
               <button
-                onClick={() => setActiveFilter("free")}
+                onClick={() => setActiveFilter("enterprise")}
                 className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
-                  activeFilter === "free"
-                    ? "bg-gray-200 text-gray-800"
+                  activeFilter === "enterprise"
+                    ? "bg-indigo-100 text-indigo-800"
                     : "bg-white text-gray-600 border border-gray-200"
                 }`}
               >
-                Free Users
+                Enterprise
               </button>
             </div>
           </div>
         </div>
 
-        {/* Users Count & Results */}
+        {/* Companies Count & Results */}
         <div className="mb-4 text-gray-600">
-          Showing <span className="font-medium">{filteredUsers.length}</span> of{" "}
-          <span className="font-medium">{users.length}</span> total users
+          Showing{" "}
+          <span className="font-medium">{filteredCompanies.length}</span> of{" "}
+          <span className="font-medium">{companies.length}</span> total
+          companies
         </div>
 
-        {/* Users Cards (Mobile View) */}
+        {/* Companies Cards (Mobile View) */}
         <div className="lg:hidden grid grid-cols-1 gap-4">
-          {filteredUsers.length === 0 ? (
+          {filteredCompanies.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-6 text-center text-gray-500">
-              No users found matching your search criteria.
+              No companies found matching your search criteria.
             </div>
           ) : (
-            filteredUsers.map((user) => (
+            filteredCompanies.map((company) => (
               <div
-                key={user.id}
+                key={company.id}
                 className="bg-white rounded-xl shadow-sm p-4 border border-gray-100"
-                onClick={() => handleRowClick(user.id)}
+                onClick={() => handleRowClick(company.id)}
               >
                 <div className="flex justify-between items-start">
                   <div className="mb-3">
                     <div className="text-lg font-medium text-gray-900">
-                      {user.email}
+                      {company.name}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
-                      Created {formatDate(user.createdAt)}
+                      Created {formatDate(company.createdAt)}
                     </div>
                   </div>
                   <div className="relative">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleDropdown(user.id);
+                        toggleDropdown(company.id);
                       }}
                       className="p-2 rounded-full hover:bg-gray-100"
                     >
                       <MoreHorizontal className="h-5 w-5 text-gray-500" />
                     </button>
 
-                    {showDropdown === user.id && (
+                    {showDropdown === company.id && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100">
                         <div
                           className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Handle edit action
                             router.push(
-                              `/dashboardAdmin/users/${user.id}/edit`
+                              `/dashboardAdmin/users/${company.id}/edit`
                             );
                           }}
                         >
-                          Edit User
+                          Edit Company
                         </div>
                         <div
                           className="py-2 px-4 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Handle delete action
                             toast.success("Delete functionality would go here");
                           }}
                         >
-                          Delete User
+                          Delete Company
                         </div>
                       </div>
                     )}
@@ -373,42 +344,35 @@ export default function UsersPage() {
 
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <div className="flex items-center space-x-2">
-                    <Building className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     <span className="text-sm text-gray-600 truncate">
-                      {user.companyName || "N/A"}
+                      {company.location || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    <CreditCard className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     <span className="text-sm text-gray-600 truncate">
-                      {user.location || "N/A"}
+                      {company.subscriptionType || "No subscription"}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-4">
-                  <span
-                    className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.role === "superadmin"
-                        ? "bg-purple-100 text-purple-800"
-                        : user.role === "manager"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-green-100 text-green-800"
-                    }`}
-                  >
-                    {user.role}
+                <div className="flex justify-between mt-4 text-sm text-gray-600">
+                  <span>
+                    Clients: {company.clientRegistrationCount}/
+                    {company.maxClientRegistrations}
                   </span>
+                  <span>
+                    Payments: {company.paymentCount}/{company.maxPayments}
+                  </span>
+                </div>
 
-                  <span
-                    className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.subscriptionType === "free"
-                        ? "bg-gray-100 text-gray-800"
-                        : user.subscriptionType === "premium"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-indigo-100 text-indigo-800"
-                    }`}
-                  >
-                    {user.subscriptionType || "No subscription"}
+                <div className="mt-2 text-sm text-gray-500">
+                  <span>
+                    Start: {formatDate(company.subscriptionStartDate)}
+                  </span>
+                  <span className="ml-2">
+                    End: {formatDate(company.subscriptionEndDate)}
                   </span>
                 </div>
               </div>
@@ -416,7 +380,7 @@ export default function UsersPage() {
           )}
         </div>
 
-        {/* Users Table (Desktop View) */}
+        {/* Companies Table (Desktop View) */}
         <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-700">
@@ -424,15 +388,8 @@ export default function UsersPage() {
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="px-6 py-4 font-medium text-gray-700">
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-gray-500" />
-                      Email
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 font-medium text-gray-700">Role</th>
-                  <th className="px-6 py-4 font-medium text-gray-700">
-                    <div className="flex items-center">
                       <Building className="h-4 w-4 mr-2 text-gray-500" />
-                      Company
+                      Name
                     </div>
                   </th>
                   <th className="px-6 py-4 font-medium text-gray-700">
@@ -448,6 +405,12 @@ export default function UsersPage() {
                     </div>
                   </th>
                   <th className="px-6 py-4 font-medium text-gray-700">
+                    Clients (Used/Max)
+                  </th>
+                  <th className="px-6 py-4 font-medium text-gray-700">
+                    Payments (Used/Max)
+                  </th>
+                  <th className="px-6 py-4 font-medium text-gray-700">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2 text-gray-500" />
                       Created At
@@ -459,96 +422,87 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.length === 0 ? (
+                {filteredCompanies.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
                       className="px-6 py-8 text-center text-gray-500"
                     >
-                      No users found matching your search criteria.
+                      No companies found matching your search criteria.
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
+                  filteredCompanies.map((company) => (
                     <tr
-                      key={user.id}
+                      key={company.id}
                       className="border-b border-gray-100 hover:bg-blue-50/50 cursor-pointer transition-colors"
-                      onClick={() => handleRowClick(user.id)}
+                      onClick={() => handleRowClick(company.id)}
                     >
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-900">
-                          {user.email}
+                          {company.name}
                         </div>
                       </td>
+                      <td className="px-6 py-4">{company.location || "N/A"}</td>
                       <td className="px-6 py-4">
                         <span
                           className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${
-                            user.role === "superadmin"
-                              ? "bg-purple-100 text-purple-800"
-                              : user.role === "manager"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">{user.companyName || "N/A"}</td>
-                      <td className="px-6 py-4">{user.location || "N/A"}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${
-                            user.subscriptionType === "free"
+                            company.subscriptionType === "free"
                               ? "bg-gray-100 text-gray-800"
-                              : user.subscriptionType === "premium"
+                              : company.subscriptionType === "premium"
                               ? "bg-yellow-100 text-yellow-800"
-                              : user.subscriptionType === "enterprise"
+                              : company.subscriptionType === "enterprise"
                               ? "bg-indigo-100 text-indigo-800"
                               : "bg-gray-100 text-gray-600"
                           }`}
                         >
-                          {user.subscriptionType || "No subscription"}
+                          {company.subscriptionType || "No subscription"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {formatDate(user.createdAt)}
+                        {company.clientRegistrationCount}/
+                        {company.maxClientRegistrations}
+                      </td>
+                      <td className="px-6 py-4">
+                        {company.paymentCount}/{company.maxPayments}
+                      </td>
+                      <td className="px-6 py-4">
+                        {formatDate(company.createdAt)}
                       </td>
                       <td className="px-6 py-4 text-right relative">
                         <button
                           className="p-2 rounded-full hover:bg-gray-100"
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleDropdown(user.id);
+                            toggleDropdown(company.id);
                           }}
                         >
                           <MoreHorizontal className="h-5 w-5 text-gray-500" />
                         </button>
 
-                        {showDropdown === user.id && (
+                        {showDropdown === company.id && (
                           <div className="absolute right-6 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-100">
                             <div
                               className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Handle edit action
                                 router.push(
-                                  `/dashboardAdmin/users/${user.id}/edit`
+                                  `/dashboardAdmin/users/${company.id}/edit`
                                 );
                               }}
                             >
-                              Edit User
+                              Edit Company
                             </div>
                             <div
                               className="py-2 px-4 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Handle delete action
                                 toast.success(
                                   "Delete functionality would go here"
                                 );
                               }}
                             >
-                              Delete User
+                              Delete Company
                             </div>
                           </div>
                         )}

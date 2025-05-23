@@ -372,7 +372,11 @@ export default function HistoricPage() {
                             : "Supprimer"}
                         </span>
                         <span className="text-sm sm:text-base font-semibold text-gray-800 bg-gray-100 px-2 sm:px-2.5 py-1 rounded-full">
-                          {entry.entityType}
+                          {entry.entityType === "BILL"
+                            ? "Facture"
+                            : entry.entityType === "PAYMENT"
+                            ? "Payement"
+                            : "Creation"}
                         </span>
                       </div>
                       <p className="text-sm sm:text-base text-gray-900 font-medium">

@@ -26,12 +26,13 @@ export const authOptions = {
             email: true,
             password: true,
             role: true,
-            subscriptionEndDate: true,
-            subscriptionType: true, // Add subscriptionType
-            clientRegistrationCount: true, // Add clientRegistrationCount
-            maxClientRegistrations: true, // Add maxClientRegistrations
-            paymentCount: true, // Add paymentCount
-            maxPayments: true, // Add maxPayments
+            companyId: true, // Fetch companyId
+            company: {
+              select: {
+                id: true,
+                name: true, // Fetch companyName
+              },
+            },
           },
         });
 
@@ -49,12 +50,8 @@ export const authOptions = {
             ...user,
             isSuperAdmin: false,
             needsRegistration: false,
-            subscriptionEndDate: user.subscriptionEndDate,
-            subscriptionType: user.subscriptionType, // Include subscriptionType
-            clientRegistrationCount: user.clientRegistrationCount, // Include clientRegistrationCount
-            maxClientRegistrations: user.maxClientRegistrations, // Include maxClientRegistrations
-            paymentCount: user.paymentCount, // Include paymentCount
-            maxPayments: user.maxPayments, // Include maxPayments
+            companyId: user.companyId, // Include companyId
+            companyName: user.company?.name || null, // Include companyName
           };
         } else if (
           superAdmin &&
@@ -66,12 +63,14 @@ export const authOptions = {
             role: "superadmin",
             isSuperAdmin: true,
             needsRegistration: true,
-            subscriptionEndDate: null, // Superadmins may not have subscriptions
-            subscriptionType: null, // Superadmins typically don't have a subscription
-            clientRegistrationCount: null, // Superadmins don't have limits
-            maxClientRegistrations: null, // Unlimited for superadmins
-            paymentCount: null, // Superadmins don't have limits
-            maxPayments: null, // Unlimited for superadmins
+            subscriptionEndDate: null,
+            subscriptionType: null,
+            clientRegistrationCount: null,
+            maxClientRegistrations: null,
+            paymentCount: null,
+            maxPayments: null,
+            companyId: null, // Superadmins may not have a company
+            companyName: null, // Superadmins may not have a company
           };
         } else {
           throw new Error("Invalid credentials");
@@ -86,12 +85,10 @@ export const authOptions = {
         token.role = user.role || "user";
         token.isSuperAdmin = user.isSuperAdmin || false;
         token.needsRegistration = user.needsRegistration || false;
-        token.subscriptionEndDate = user.subscriptionEndDate;
-        token.subscriptionType = user.subscriptionType; // Add to token
-        token.clientRegistrationCount = user.clientRegistrationCount; // Add to token
-        token.maxClientRegistrations = user.maxClientRegistrations; // Add to token
-        token.paymentCount = user.paymentCount; // Add to token
-        token.maxPayments = user.maxPayments; // Add to token
+        token.paymentCount = user.paymentCount;
+        token.maxPayments = user.maxPayments;
+        token.companyId = user.companyId || null; // Add companyId to token
+        token.companyName = user.companyName || null; // Add companyName to token
       }
       return token;
     },
@@ -101,12 +98,8 @@ export const authOptions = {
         session.user.role = token.role;
         session.user.isSuperAdmin = token.isSuperAdmin;
         session.user.needsRegistration = token.needsRegistration;
-        session.user.subscriptionEndDate = token.subscriptionEndDate;
-        session.user.subscriptionType = token.subscriptionType; // Add to session
-        session.user.clientRegistrationCount = token.clientRegistrationCount; // Add to session
-        session.user.maxClientRegistrations = token.maxClientRegistrations; // Add to session
-        session.user.paymentCount = token.paymentCount; // Add to session
-        session.user.maxPayments = token.maxPayments; // Add to session
+        session.user.companyId = token.companyId; // Add companyId to session
+        session.user.companyName = token.companyName; // Add companyName to session
       }
       return session;
     },

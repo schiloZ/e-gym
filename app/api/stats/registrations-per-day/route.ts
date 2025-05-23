@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   try {
     const registrations = await prisma.client.findMany({
-      where: { userId: session.user.id },
+      where: { companyId: session.user.companyId },
       select: { registrationDate: true },
     });
 

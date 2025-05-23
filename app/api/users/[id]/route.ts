@@ -37,10 +37,6 @@ export async function GET(
         subscriptionStartDate: true,
         subscriptionEndDate: true,
         createdAt: true,
-        clientRegistrationCount: true, // Include new field
-        maxClientRegistrations: true, // Include new field
-        paymentCount: true, // Include new field
-        maxPayments: true, // Include new field
         clients: {
           select: { id: true, name: true },
         },

@@ -16,16 +16,23 @@ export async function GET(
   // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  // Check if the user is authenticated and has a companyId
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
   const paymentId = params.id;
 
   // Validate paymentId as a MongoDB ObjectId
@@ -47,7 +54,7 @@ export async function GET(
         client: {
           include: { user: true }, // Include client and its user
         },
-        user: true, // Include the user to verify ownership
+        user: true, // Include the user for additional context if needed
       },
     });
 
@@ -56,16 +63,18 @@ export async function GET(
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    // Verify the payment belongs to the authenticated user
-    if (payment.userId !== userId) {
+    // Verify the payment belongs to the authenticated user's company
+    if (payment.companyId !== companyId) {
       console.log(
-        "Payment does not belong to user. Payment userId:",
-        payment.userId,
-        "Authenticated userId:",
-        userId
+        "Payment does not belong to company. Payment companyId:",
+        payment.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       return NextResponse.json(
-        { error: "Payment does not belong to the authenticated user" },
+        {
+          error: "Payment does not belong to the authenticated user's company",
+        },
         { status: 403 }
       );
     }
@@ -91,16 +100,23 @@ export async function DELETE(
   // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  // Check if the user is authenticated and has a companyId
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
   const paymentId = params.id;
 
   // Validate paymentId as a MongoDB ObjectId
@@ -125,16 +141,18 @@ export async function DELETE(
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    // Verify the payment belongs to the authenticated user
-    if (payment.userId !== userId) {
+    // Verify the payment belongs to the authenticated user's company
+    if (payment.companyId !== companyId) {
       console.log(
-        "Payment does not belong to user. Payment userId:",
-        payment.userId,
-        "Authenticated userId:",
-        userId
+        "Payment does not belong to company. Payment companyId:",
+        payment.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       return NextResponse.json(
-        { error: "Payment does not belong to the authenticated user" },
+        {
+          error: "Payment does not belong to the authenticated user's company",
+        },
         { status: 403 }
       );
     }
@@ -168,8 +186,13 @@ export async function PATCH(
 
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     await prisma.historic.create({
       data: {
         action: "UPDATE",
@@ -178,16 +201,20 @@ export async function PATCH(
         oldData: null,
         newData: null,
         changedBy: "unknown",
-        description: "Unauthorized attempt to update payment",
+        description:
+          "Unauthorized attempt to update payment: No session, user ID, or company ID",
       },
     });
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
   const userId = session.user.id;
+  const companyId = session.user.companyId;
   const paymentId = params.id;
 
   if (!ObjectId.isValid(paymentId)) {
@@ -353,12 +380,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
-    if (payment.userId !== userId) {
+    // Verify the payment belongs to the authenticated user's company
+    if (payment.companyId !== companyId) {
       console.log(
-        "Payment does not belong to user. Payment userId:",
-        payment.userId,
-        "Authenticated userId:",
-        userId
+        "Payment does not belong to company. Payment companyId:",
+        payment.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       await prisma.historic.create({
         data: {
@@ -368,11 +396,14 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
-          description: "Payment does not belong to the authenticated user",
+          description:
+            "Payment does not belong to the authenticated user's company",
         },
       });
       return NextResponse.json(
-        { error: "Payment does not belong to the authenticated user" },
+        {
+          error: "Payment does not belong to the authenticated user's company",
+        },
         { status: 403 }
       );
     }

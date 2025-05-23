@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 
-export async function GET(request: Request) {
+export async function GET(request) {
   // Step 1: Verify the session and user role
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.id) {
@@ -19,40 +19,29 @@ export async function GET(request: Request) {
     );
   }
 
-  // Step 3: Fetch all users from the database
   try {
-    const users = await prisma.user.findMany({
+    // Step 3: Fetch all companies from the database
+    const companies = await prisma.company.findMany({
       select: {
         id: true,
-        email: true,
-        emailVerified: true,
-        phone: true,
-        role: true,
+        name: true,
+        location: true,
+        subscriptionType: true,
+        subscriptionStartDate: true,
+        clientRegistrationCount: true,
+        paymentCount: true,
+        subscriptionEndDate: true,
+        maxClientRegistrations: true,
+        maxPayments: true,
         createdAt: true,
-        // Include related data if needed (optional)
-        clients: {
-          select: {
-            id: true,
-            name: true, // Adjust based on your Client model
-          },
-        },
-        payments: {
-          select: {
-            id: true,
-            amount: true, // Adjust based on your Payment model
-            paymentDate: true,
-          },
-        },
-        // Exclude sensitive fields like password
       },
     });
 
-    // Step 4: Return the users
-    return NextResponse.json(users, { status: 200 });
+    return NextResponse.json(companies, { status: 200 });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error("Error fetching companies:", error);
     return NextResponse.json(
-      { error: "Error fetching users" },
+      { error: "Failed to fetch companies" },
       { status: 500 }
     );
   }

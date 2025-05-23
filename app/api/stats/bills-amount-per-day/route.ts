@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   try {
     const billsPerDay = await prisma.bill.groupBy({
       by: ["date"],
-      where: { userId: session.user.id },
+      where: { companyId: session.user.companyId },
       _sum: { amount: true },
       orderBy: { date: "asc" },
     });
@@ -43,6 +43,7 @@ export async function GET(request: Request) {
         oldData: null,
         newData: null,
         changedBy: session.user.id,
+        companyId: session.user.companyId,
         description: `Error fetching bills amount per day: ${
           error.message || "Unknown error"
         }`,
@@ -54,51 +55,6 @@ export async function GET(request: Request) {
     );
   }
 }
-
-export async function GET_(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
-    await prisma.historic.create({
-      data: {
-        action: "READ",
-        entityType: "BILL",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: "unknown",
-        description: "Unauthorized attempt to fetch bills",
-      },
-    });
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const bills = await prisma.bill.findMany({
-      where: { userId: session.user.id },
-      orderBy: { date: "desc" },
-    });
-    return NextResponse.json(bills);
-  } catch (error: any) {
-    await prisma.historic.create({
-      data: {
-        action: "READ",
-        entityType: "BILL",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: session.user.id,
-        description: `Error fetching bills: ${
-          error.message || "Unknown error"
-        }`,
-      },
-    });
-    return NextResponse.json(
-      { error: "Error fetching bills" },
-      { status: 500 }
-    );
-  }
-}
-
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.id) {
@@ -156,6 +112,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: session.user.id,
+        companyId: session.user.companyId,
         description: "Failed to create bill: Description or amount invalid",
       },
     });

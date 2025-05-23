@@ -13,20 +13,60 @@ import {
   DollarSign,
   Loader2,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+    subscriptionEndDate: Date | null;
+    clientRegistrationCount: number;
+    maxClientRegistrations: number;
+    paymentCount: number;
+    maxPayments: number;
+  } | null>(null);
+  const [loadingCompany, setLoadingCompany] = useState(true);
 
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
       router.push("/");
+    } else {
+      const fetchCompanyInfo = async () => {
+        setLoadingCompany(true);
+        try {
+          const response = await fetch("/api/company/me", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch company details");
+          }
+
+          const data = await response.json();
+          setCompanyInfo({
+            ...data,
+            subscriptionEndDate: data.subscriptionEndDate
+              ? new Date(data.subscriptionEndDate)
+              : null,
+          });
+        } catch (err: any) {
+          toast.error(err.message, { duration: 4000 });
+        } finally {
+          setLoadingCompany(false);
+        }
+      };
+
+      fetchCompanyInfo();
     }
   }, [session, status, router]);
 
-  if (status === "loading") {
+  if (status === "loading" || loadingCompany) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
@@ -52,7 +92,7 @@ export default function ProfilePage() {
 
   // Calculate the percentage for progress bars
   const calculatePercentage = (current, max) => {
-    if (!max || max === "Illimité" || max === 0) return 100;
+    if (!max || max === 0) return 100;
     const percentage = (current / max) * 100;
     return Math.min(percentage, 100); // Ensure it doesn't exceed 100%
   };
@@ -64,19 +104,27 @@ export default function ProfilePage() {
     return "bg-red-500";
   };
 
-  const clientRegistrationCount = session?.user?.clientRegistrationCount || 0;
-  const maxClientRegistrations =
-    session?.user?.maxClientRegistrations || "Illimité";
-  const paymentCount = session?.user?.paymentCount || 0;
-  const maxPayments = session?.user?.maxPayments || "Illimité";
+  // Subscription type text mapping
+  const getSubscriptionText = (type: string | null) => {
+    switch (type) {
+      case "free":
+        return "Essai gratuit";
+      case "premium":
+        return "Pour Gbô";
+      case "enterprise":
+        return "Entreprise";
+      default:
+        return "Non abonné";
+    }
+  };
 
   const clientPercentage = calculatePercentage(
-    clientRegistrationCount,
-    maxClientRegistrations === "Illimité" ? 0 : maxClientRegistrations
+    companyInfo?.clientRegistrationCount || 0,
+    companyInfo?.maxClientRegistrations || 0
   );
   const paymentPercentage = calculatePercentage(
-    paymentCount,
-    maxPayments === "Illimité" ? 0 : maxPayments
+    companyInfo?.paymentCount || 0,
+    companyInfo?.maxPayments || 0
   );
 
   return (
@@ -176,13 +224,7 @@ export default function ProfilePage() {
                   Type d'abonnement :
                 </span>
                 <span className="ml-2 text-sm text-gray-900">
-                  {session?.user?.subscriptionType === "free"
-                    ? "Essai gratuit"
-                    : session?.user?.subscriptionType === "premium"
-                    ? "Pour Gbô"
-                    : session?.user?.subscriptionType === "enterprise"
-                    ? "Entreprise"
-                    : "Non abonné"}
+                  {getSubscriptionText(companyInfo?.subscriptionType)}
                 </span>
               </div>
 
@@ -200,7 +242,7 @@ export default function ProfilePage() {
                   Date de fin d'abonnement :
                 </span>
                 <span className="ml-2 text-sm text-gray-900">
-                  {formatDate(session?.user?.subscriptionEndDate)}
+                  {formatDate(companyInfo?.subscriptionEndDate)}
                 </span>
               </div>
             </div>
@@ -224,7 +266,8 @@ export default function ProfilePage() {
                     Inscriptions de clients :
                   </span>
                   <span className="ml-2 text-sm text-gray-900">
-                    {clientRegistrationCount} / {maxClientRegistrations}
+                    {companyInfo?.clientRegistrationCount || 0} /{" "}
+                    {companyInfo?.maxClientRegistrations || "Illimité"}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -239,7 +282,7 @@ export default function ProfilePage() {
                   ></div>
                 </div>
                 {clientPercentage >= 80 &&
-                  maxClientRegistrations !== "Illimité" && (
+                  companyInfo?.maxClientRegistrations !== 0 && (
                     <p className="text-xs text-red-600 mt-1">
                       Attention : Vous approchez de votre limite d'inscriptions
                       !
@@ -258,7 +301,8 @@ export default function ProfilePage() {
                     Paiements :
                   </span>
                   <span className="ml-2 text-sm text-gray-900">
-                    {paymentCount} / {maxPayments}
+                    {companyInfo?.paymentCount || 0} /{" "}
+                    {companyInfo?.maxPayments || "Illimité"}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -272,7 +316,7 @@ export default function ProfilePage() {
                     aria-valuemax="100"
                   ></div>
                 </div>
-                {paymentPercentage >= 80 && maxPayments !== "Illimité" && (
+                {paymentPercentage >= 80 && companyInfo?.maxPayments !== 0 && (
                   <p className="text-xs text-red-600 mt-1">
                     Attention : Vous approchez de votre limite de paiements !
                   </p>

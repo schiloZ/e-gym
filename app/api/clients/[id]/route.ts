@@ -13,16 +13,23 @@ export async function GET(
   // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  // Check if the user is authenticated and has a companyId
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
   const clientId = params.id;
 
   // Validate clientId as a MongoDB ObjectId
@@ -46,7 +53,7 @@ export async function GET(
             date: "desc", // Sort payments by most recent
           },
         },
-        user: true, // Include the user to verify ownership
+        user: true, // Include the user for additional context if needed
       },
     });
 
@@ -55,19 +62,20 @@ export async function GET(
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    // Verify the client belongs to the authenticated user
-    if (client.userId !== userId) {
+    // Verify the client belongs to the authenticated user's company
+    if (client.companyId !== companyId) {
       console.log(
-        "Client does not belong to user. Client userId:",
-        client.userId,
-        "Authenticated userId:",
-        userId
+        "Client does not belong to company. Client companyId:",
+        client.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       return NextResponse.json(
-        { error: "Client does not belong to the authenticated user" },
+        { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
       );
     }
+
     return NextResponse.json(client);
   } catch (error) {
     console.error("Error fetching client:", error);
@@ -87,16 +95,23 @@ export async function DELETE(
   // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  // Check if the user is authenticated and has a companyId
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
-  const userId = session.user.id;
+  const companyId = session.user.companyId;
   const clientId = params.id;
 
   // Validate clientId as a MongoDB ObjectId
@@ -121,16 +136,16 @@ export async function DELETE(
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    // Verify the client belongs to the authenticated user
-    if (client.userId !== userId) {
+    // Verify the client belongs to the authenticated user's company
+    if (client.companyId !== companyId) {
       console.log(
-        "Client does not belong to user. Client userId:",
-        client.userId,
-        "Authenticated userId:",
-        userId
+        "Client does not belong to company. Client companyId:",
+        client.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       return NextResponse.json(
-        { error: "Client does not belong to the authenticated user" },
+        { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
       );
     }
@@ -164,13 +179,18 @@ export async function PATCH(
 
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
-    console.log("Unauthorized: No session or user ID");
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
+    console.log("Unauthorized: No session, user ID, or company ID");
     await prisma.historic.create({
       data: {
         action: "UPDATE",
         entityType: "CLIENT",
-        entityId: params.clientId,
+        entityId: params.id,
         oldData: null,
         newData: null,
         changedBy: "unknown",
@@ -178,12 +198,15 @@ export async function PATCH(
       },
     });
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
   const userId = session.user.id;
+  const companyId = session.user.companyId;
   const clientId = params.id;
 
   if (!ObjectId.isValid(clientId)) {
@@ -196,6 +219,7 @@ export async function PATCH(
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session.user.companyId,
         description: "Invalid client ID format",
       },
     });
@@ -236,6 +260,7 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
+          companyId: session.user.companyId,
           description: "Invalid email format",
         },
       });
@@ -254,6 +279,7 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
+          companyId: session.user.companyId,
           description: "Invalid phone number format",
         },
       });
@@ -275,6 +301,7 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
+          companyId: session.user.companyId,
           description: "Invalid registration date format",
         },
       });
@@ -298,18 +325,20 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
+          companyId: session.user.companyId,
           description: "Client not found",
         },
       });
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    if (client.userId !== userId) {
+    // Verify the client belongs to the authenticated user's company
+    if (client.companyId !== companyId) {
       console.log(
-        "Client does not belong to user. Client userId:",
-        client.userId,
-        "Authenticated userId:",
-        userId
+        "Client does not belong to company. Client companyId:",
+        client.companyId,
+        "Authenticated user's companyId:",
+        companyId
       );
       await prisma.historic.create({
         data: {
@@ -319,11 +348,13 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
-          description: "Client does not belong to the authenticated user",
+          companyId: session.user.companyId,
+          description:
+            "Client does not belong to the authenticated user's company",
         },
       });
       return NextResponse.json(
-        { error: "Client does not belong to the authenticated user" },
+        { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
       );
     }
@@ -363,6 +394,7 @@ export async function PATCH(
         oldData,
         newData,
         changedBy: userId,
+        companyId: session.user.companyId,
         description: "Client updated successfully",
       },
     });
@@ -379,6 +411,7 @@ export async function PATCH(
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session.user.companyId,
         description: `Error updating client: ${
           error.message || "Unknown error"
         }`,

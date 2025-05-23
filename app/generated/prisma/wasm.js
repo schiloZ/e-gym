@@ -126,7 +126,15 @@ exports.Prisma.CompanyScalarFieldEnum = {
   id: 'id',
   name: 'name',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  location: 'location',
+  subscriptionType: 'subscriptionType',
+  subscriptionStartDate: 'subscriptionStartDate',
+  subscriptionEndDate: 'subscriptionEndDate',
+  clientRegistrationCount: 'clientRegistrationCount',
+  maxClientRegistrations: 'maxClientRegistrations',
+  paymentCount: 'paymentCount',
+  maxPayments: 'maxPayments'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -137,15 +145,7 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   role: 'role',
   companyId: 'companyId',
-  location: 'location',
-  subscriptionType: 'subscriptionType',
-  subscriptionStartDate: 'subscriptionStartDate',
-  subscriptionEndDate: 'subscriptionEndDate',
-  createdAt: 'createdAt',
-  clientRegistrationCount: 'clientRegistrationCount',
-  maxClientRegistrations: 'maxClientRegistrations',
-  paymentCount: 'paymentCount',
-  maxPayments: 'maxPayments'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.BillScalarFieldEnum = {
@@ -177,6 +177,7 @@ exports.Prisma.NotificationScalarFieldEnum = {
   isRead: 'isRead',
   createdAt: 'createdAt',
   userId: 'userId',
+  companyId: 'companyId',
   clientId: 'clientId',
   paymentId: 'paymentId'
 };
@@ -208,10 +209,12 @@ exports.Prisma.HistoricScalarFieldEnum = {
   oldData: 'oldData',
   newData: 'newData',
   changedBy: 'changedBy',
+  companyId: 'companyId',
   createdAt: 'createdAt',
   description: 'description',
   clientId: 'clientId',
-  paymentId: 'paymentId'
+  paymentId: 'paymentId',
+  billId: 'billId'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {

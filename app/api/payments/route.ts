@@ -7,7 +7,12 @@ import { ObjectId } from "mongodb"; // For ObjectId validation
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || !session.user.id) {
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
     await prisma.historic.create({
       data: {
         action: "CREATE",
@@ -16,16 +21,21 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: "unknown",
-        description: "Unauthorized attempt to create a payment",
+        companyId: session?.user?.companyId,
+        description:
+          "Unauthorized attempt to create a payment: No session, user ID, or company ID",
       },
     });
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
   const userId = session.user.id;
+  const companyId = session.user.companyId;
 
   const {
     clientEmail,
@@ -49,6 +59,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session?.user?.companyId,
         description: "Client email and amount are required",
       },
     });
@@ -68,6 +79,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session?.user?.companyId,
         description: "Amount must be a positive number",
       },
     });
@@ -86,6 +98,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session?.user?.companyId,
         description: "Start date, end date, and next payment date are required",
       },
     });
@@ -100,11 +113,35 @@ export async function POST(request: Request) {
   });
 
   if (!user) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        companyId: session?.user?.companyId,
+        description: "User not found",
+      },
+    });
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   // Check payment limit
   if (user.paymentCount >= user.maxPayments) {
+    await prisma.historic.create({
+      data: {
+        action: "CREATE",
+        entityType: "PAYMENT",
+        entityId: "unknown",
+        oldData: null,
+        newData: null,
+        changedBy: userId,
+        companyId: session?.user?.companyId,
+        description: `Limit of ${user.maxPayments} payments reached for ${user.subscriptionType} plan`,
+      },
+    });
     return NextResponse.json(
       {
         error: `Limit of ${user.maxPayments} payments reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
@@ -126,12 +163,13 @@ export async function POST(request: Request) {
           oldData: null,
           newData: null,
           changedBy: userId,
+          companyId: session?.user?.companyId,
           description: "Client not found",
         },
       });
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
-    if (client.userId !== userId) {
+    if (client.companyId !== companyId) {
       await prisma.historic.create({
         data: {
           action: "CREATE",
@@ -140,16 +178,17 @@ export async function POST(request: Request) {
           oldData: null,
           newData: null,
           changedBy: userId,
-          description: "Client does not belong to the authenticated user",
+          description:
+            "Client does not belong to the authenticated user's company",
         },
       });
       return NextResponse.json(
-        { error: "Client does not belong to the authenticated user" },
+        { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
       );
     }
 
-    const paymentData: any = {
+    const paymentData = {
       amount: parsedAmount,
       subscription: subscription || "Monthly",
       method: method || "Cash",
@@ -158,12 +197,15 @@ export async function POST(request: Request) {
       endDate: new Date(endDate),
       nextPaymentDate: new Date(nextPaymentDate),
       paymentStatus: paymentStatus || "Unpaid",
-      date: new Date(), // Current date: 03:37 PM GMT, May 14, 2025
+      date: new Date(), // Current date: 11:12 AM GMT, May 16, 2025
       client: {
         connect: { id: client.id },
       },
       user: {
         connect: { id: userId },
+      },
+      company: {
+        connect: { id: companyId },
       },
     };
 
@@ -175,9 +217,9 @@ export async function POST(request: Request) {
       data: paymentData,
     });
 
-    // Increment payment count
-    await prisma.user.update({
-      where: { id: userId },
+    // Increment client registration count for the company
+    await prisma.company.update({
+      where: { id: session.user.companyId },
       data: { paymentCount: { increment: 1 } },
     });
 
@@ -203,6 +245,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData,
         changedBy: userId,
+        companyId: session?.user?.companyId,
         description: "Payment created successfully",
       },
     });
@@ -218,7 +261,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Payment recorded", payment });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Payment creation error:", error);
     await prisma.historic.create({
       data: {
@@ -228,6 +271,7 @@ export async function POST(request: Request) {
         oldData: null,
         newData: null,
         changedBy: userId,
+        companyId: session?.user?.companyId,
         description: `Error creating payment: ${
           error.message || "Unknown error"
         }`,
@@ -244,15 +288,23 @@ export async function GET(request: Request) {
   // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated
-  if (!session || !session.user || !session.user.id) {
+  // Check if the user is authenticated and has a companyId
+  if (
+    !session ||
+    !session.user ||
+    !session.user.id ||
+    !session.user.companyId
+  ) {
     return NextResponse.json(
-      { error: "Unauthorized: User not authenticated" },
+      {
+        error: "Unauthorized: User not authenticated or no company associated",
+      },
       { status: 401 }
     );
   }
 
   const userId = session.user.id;
+  const companyId = session.user.companyId;
 
   // Validate userId as a MongoDB ObjectId
   if (!ObjectId.isValid(userId)) {
@@ -265,7 +317,7 @@ export async function GET(request: Request) {
   try {
     const payments = await prisma.payment.findMany({
       where: {
-        userId, // Only fetch payments for the authenticated user
+        companyId, // Fetch payments for the authenticated user's company
       },
       include: {
         client: {
