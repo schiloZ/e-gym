@@ -6550,8 +6550,26 @@ export namespace Prisma {
 
   export type AggregateClient = {
     _count: ClientCountAggregateOutputType | null
+    _avg: ClientAvgAggregateOutputType | null
+    _sum: ClientSumAggregateOutputType | null
     _min: ClientMinAggregateOutputType | null
     _max: ClientMaxAggregateOutputType | null
+  }
+
+  export type ClientAvgAggregateOutputType = {
+    height: number | null
+    weight: number | null
+    age: number | null
+    targetWeight: number | null
+    targetBodyFat: number | null
+  }
+
+  export type ClientSumAggregateOutputType = {
+    height: number | null
+    weight: number | null
+    age: number | null
+    targetWeight: number | null
+    targetBodyFat: number | null
   }
 
   export type ClientMinAggregateOutputType = {
@@ -6560,8 +6578,21 @@ export namespace Prisma {
     phone: string | null
     email: string | null
     registrationDate: Date | null
+    imagePath: string | null
     userId: string | null
     companyId: string | null
+    height: number | null
+    weight: number | null
+    age: number | null
+    medicalConditions: string | null
+    allergies: string | null
+    injuries: string | null
+    medications: string | null
+    bloodPressure: string | null
+    targetWeight: number | null
+    fitnessGoal: string | null
+    targetBodyFat: number | null
+    goalMilestone: Date | null
   }
 
   export type ClientMaxAggregateOutputType = {
@@ -6570,8 +6601,21 @@ export namespace Prisma {
     phone: string | null
     email: string | null
     registrationDate: Date | null
+    imagePath: string | null
     userId: string | null
     companyId: string | null
+    height: number | null
+    weight: number | null
+    age: number | null
+    medicalConditions: string | null
+    allergies: string | null
+    injuries: string | null
+    medications: string | null
+    bloodPressure: string | null
+    targetWeight: number | null
+    fitnessGoal: string | null
+    targetBodyFat: number | null
+    goalMilestone: Date | null
   }
 
   export type ClientCountAggregateOutputType = {
@@ -6580,11 +6624,40 @@ export namespace Prisma {
     phone: number
     email: number
     registrationDate: number
+    imagePath: number
     userId: number
     companyId: number
+    height: number
+    weight: number
+    age: number
+    medicalConditions: number
+    allergies: number
+    injuries: number
+    medications: number
+    bloodPressure: number
+    targetWeight: number
+    fitnessGoal: number
+    targetBodyFat: number
+    goalMilestone: number
     _all: number
   }
 
+
+  export type ClientAvgAggregateInputType = {
+    height?: true
+    weight?: true
+    age?: true
+    targetWeight?: true
+    targetBodyFat?: true
+  }
+
+  export type ClientSumAggregateInputType = {
+    height?: true
+    weight?: true
+    age?: true
+    targetWeight?: true
+    targetBodyFat?: true
+  }
 
   export type ClientMinAggregateInputType = {
     id?: true
@@ -6592,8 +6665,21 @@ export namespace Prisma {
     phone?: true
     email?: true
     registrationDate?: true
+    imagePath?: true
     userId?: true
     companyId?: true
+    height?: true
+    weight?: true
+    age?: true
+    medicalConditions?: true
+    allergies?: true
+    injuries?: true
+    medications?: true
+    bloodPressure?: true
+    targetWeight?: true
+    fitnessGoal?: true
+    targetBodyFat?: true
+    goalMilestone?: true
   }
 
   export type ClientMaxAggregateInputType = {
@@ -6602,8 +6688,21 @@ export namespace Prisma {
     phone?: true
     email?: true
     registrationDate?: true
+    imagePath?: true
     userId?: true
     companyId?: true
+    height?: true
+    weight?: true
+    age?: true
+    medicalConditions?: true
+    allergies?: true
+    injuries?: true
+    medications?: true
+    bloodPressure?: true
+    targetWeight?: true
+    fitnessGoal?: true
+    targetBodyFat?: true
+    goalMilestone?: true
   }
 
   export type ClientCountAggregateInputType = {
@@ -6612,8 +6711,21 @@ export namespace Prisma {
     phone?: true
     email?: true
     registrationDate?: true
+    imagePath?: true
     userId?: true
     companyId?: true
+    height?: true
+    weight?: true
+    age?: true
+    medicalConditions?: true
+    allergies?: true
+    injuries?: true
+    medications?: true
+    bloodPressure?: true
+    targetWeight?: true
+    fitnessGoal?: true
+    targetBodyFat?: true
+    goalMilestone?: true
     _all?: true
   }
 
@@ -6655,6 +6767,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ClientAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ClientSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ClientMinAggregateInputType
@@ -6685,6 +6809,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ClientCountAggregateInputType | true
+    _avg?: ClientAvgAggregateInputType
+    _sum?: ClientSumAggregateInputType
     _min?: ClientMinAggregateInputType
     _max?: ClientMaxAggregateInputType
   }
@@ -6695,9 +6821,24 @@ export namespace Prisma {
     phone: string | null
     email: string | null
     registrationDate: Date
+    imagePath: string | null
     userId: string
     companyId: string | null
+    height: number | null
+    weight: number | null
+    age: number | null
+    medicalConditions: string | null
+    allergies: string | null
+    injuries: string | null
+    medications: string | null
+    bloodPressure: string | null
+    targetWeight: number | null
+    fitnessGoal: string | null
+    targetBodyFat: number | null
+    goalMilestone: Date | null
     _count: ClientCountAggregateOutputType | null
+    _avg: ClientAvgAggregateOutputType | null
+    _sum: ClientSumAggregateOutputType | null
     _min: ClientMinAggregateOutputType | null
     _max: ClientMaxAggregateOutputType | null
   }
@@ -6722,8 +6863,21 @@ export namespace Prisma {
     phone?: boolean
     email?: boolean
     registrationDate?: boolean
+    imagePath?: boolean
     userId?: boolean
     companyId?: boolean
+    height?: boolean
+    weight?: boolean
+    age?: boolean
+    medicalConditions?: boolean
+    allergies?: boolean
+    injuries?: boolean
+    medications?: boolean
+    bloodPressure?: boolean
+    targetWeight?: boolean
+    fitnessGoal?: boolean
+    targetBodyFat?: boolean
+    goalMilestone?: boolean
     payments?: boolean | Client$paymentsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
     company?: boolean | Client$companyArgs<ExtArgs>
@@ -6740,11 +6894,24 @@ export namespace Prisma {
     phone?: boolean
     email?: boolean
     registrationDate?: boolean
+    imagePath?: boolean
     userId?: boolean
     companyId?: boolean
+    height?: boolean
+    weight?: boolean
+    age?: boolean
+    medicalConditions?: boolean
+    allergies?: boolean
+    injuries?: boolean
+    medications?: boolean
+    bloodPressure?: boolean
+    targetWeight?: boolean
+    fitnessGoal?: boolean
+    targetBodyFat?: boolean
+    goalMilestone?: boolean
   }
 
-  export type ClientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "phone" | "email" | "registrationDate" | "userId" | "companyId", ExtArgs["result"]["client"]>
+  export type ClientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "phone" | "email" | "registrationDate" | "imagePath" | "userId" | "companyId" | "height" | "weight" | "age" | "medicalConditions" | "allergies" | "injuries" | "medications" | "bloodPressure" | "targetWeight" | "fitnessGoal" | "targetBodyFat" | "goalMilestone", ExtArgs["result"]["client"]>
   export type ClientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Client$paymentsArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -6769,8 +6936,21 @@ export namespace Prisma {
       phone: string | null
       email: string | null
       registrationDate: Date
+      imagePath: string | null
       userId: string
       companyId: string | null
+      height: number | null
+      weight: number | null
+      age: number | null
+      medicalConditions: string | null
+      allergies: string | null
+      injuries: string | null
+      medications: string | null
+      bloodPressure: string | null
+      targetWeight: number | null
+      fitnessGoal: string | null
+      targetBodyFat: number | null
+      goalMilestone: Date | null
     }, ExtArgs["result"]["client"]>
     composites: {}
   }
@@ -7173,8 +7353,21 @@ export namespace Prisma {
     readonly phone: FieldRef<"Client", 'String'>
     readonly email: FieldRef<"Client", 'String'>
     readonly registrationDate: FieldRef<"Client", 'DateTime'>
+    readonly imagePath: FieldRef<"Client", 'String'>
     readonly userId: FieldRef<"Client", 'String'>
     readonly companyId: FieldRef<"Client", 'String'>
+    readonly height: FieldRef<"Client", 'Float'>
+    readonly weight: FieldRef<"Client", 'Float'>
+    readonly age: FieldRef<"Client", 'Int'>
+    readonly medicalConditions: FieldRef<"Client", 'String'>
+    readonly allergies: FieldRef<"Client", 'String'>
+    readonly injuries: FieldRef<"Client", 'String'>
+    readonly medications: FieldRef<"Client", 'String'>
+    readonly bloodPressure: FieldRef<"Client", 'String'>
+    readonly targetWeight: FieldRef<"Client", 'Float'>
+    readonly fitnessGoal: FieldRef<"Client", 'String'>
+    readonly targetBodyFat: FieldRef<"Client", 'Float'>
+    readonly goalMilestone: FieldRef<"Client", 'DateTime'>
   }
     
 
@@ -10185,7 +10378,7 @@ export namespace Prisma {
     clientId?: boolean
     paymentId?: boolean
     billId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Historic$userArgs<ExtArgs>
     company?: boolean | Historic$companyArgs<ExtArgs>
     client?: boolean | Historic$clientArgs<ExtArgs>
     payment?: boolean | Historic$paymentArgs<ExtArgs>
@@ -10212,7 +10405,7 @@ export namespace Prisma {
 
   export type HistoricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "action" | "entityType" | "entityId" | "oldData" | "newData" | "changedBy" | "companyId" | "createdAt" | "description" | "clientId" | "paymentId" | "billId", ExtArgs["result"]["historic"]>
   export type HistoricInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Historic$userArgs<ExtArgs>
     company?: boolean | Historic$companyArgs<ExtArgs>
     client?: boolean | Historic$clientArgs<ExtArgs>
     payment?: boolean | Historic$paymentArgs<ExtArgs>
@@ -10222,7 +10415,7 @@ export namespace Prisma {
   export type $HistoricPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Historic"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
       company: Prisma.$CompanyPayload<ExtArgs> | null
       client: Prisma.$ClientPayload<ExtArgs> | null
       payment: Prisma.$PaymentPayload<ExtArgs> | null
@@ -10605,7 +10798,7 @@ export namespace Prisma {
    */
   export interface Prisma__HistoricClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends Historic$userArgs<ExtArgs> = {}>(args?: Subset<T, Historic$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     company<T extends Historic$companyArgs<ExtArgs> = {}>(args?: Subset<T, Historic$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     client<T extends Historic$clientArgs<ExtArgs> = {}>(args?: Subset<T, Historic$clientArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     payment<T extends Historic$paymentArgs<ExtArgs> = {}>(args?: Subset<T, Historic$paymentArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -11019,6 +11212,25 @@ export namespace Prisma {
      * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
      */
     options?: InputJsonValue
+  }
+
+  /**
+   * Historic.user
+   */
+  export type Historic$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -14164,8 +14376,21 @@ export namespace Prisma {
     phone: 'phone',
     email: 'email',
     registrationDate: 'registrationDate',
+    imagePath: 'imagePath',
     userId: 'userId',
-    companyId: 'companyId'
+    companyId: 'companyId',
+    height: 'height',
+    weight: 'weight',
+    age: 'age',
+    medicalConditions: 'medicalConditions',
+    allergies: 'allergies',
+    injuries: 'injuries',
+    medications: 'medications',
+    bloodPressure: 'bloodPressure',
+    targetWeight: 'targetWeight',
+    fitnessGoal: 'fitnessGoal',
+    targetBodyFat: 'targetBodyFat',
+    goalMilestone: 'goalMilestone'
   };
 
   export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
@@ -14329,20 +14554,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -14353,6 +14564,20 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
   /**
    * Deep Input Types
@@ -14706,8 +14931,21 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Client"> | string | null
     email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
+    imagePath?: StringNullableFilter<"Client"> | string | null
     userId?: StringFilter<"Client"> | string
     companyId?: StringNullableFilter<"Client"> | string | null
+    height?: FloatNullableFilter<"Client"> | number | null
+    weight?: FloatNullableFilter<"Client"> | number | null
+    age?: IntNullableFilter<"Client"> | number | null
+    medicalConditions?: StringNullableFilter<"Client"> | string | null
+    allergies?: StringNullableFilter<"Client"> | string | null
+    injuries?: StringNullableFilter<"Client"> | string | null
+    medications?: StringNullableFilter<"Client"> | string | null
+    bloodPressure?: StringNullableFilter<"Client"> | string | null
+    targetWeight?: FloatNullableFilter<"Client"> | number | null
+    fitnessGoal?: StringNullableFilter<"Client"> | string | null
+    targetBodyFat?: FloatNullableFilter<"Client"> | number | null
+    goalMilestone?: DateTimeNullableFilter<"Client"> | Date | string | null
     payments?: PaymentListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
@@ -14721,8 +14959,21 @@ export namespace Prisma {
     phone?: SortOrder
     email?: SortOrder
     registrationDate?: SortOrder
+    imagePath?: SortOrder
     userId?: SortOrder
     companyId?: SortOrder
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    medicalConditions?: SortOrder
+    allergies?: SortOrder
+    injuries?: SortOrder
+    medications?: SortOrder
+    bloodPressure?: SortOrder
+    targetWeight?: SortOrder
+    fitnessGoal?: SortOrder
+    targetBodyFat?: SortOrder
+    goalMilestone?: SortOrder
     payments?: PaymentOrderByRelationAggregateInput
     user?: UserOrderByWithRelationInput
     company?: CompanyOrderByWithRelationInput
@@ -14739,8 +14990,21 @@ export namespace Prisma {
     name?: StringFilter<"Client"> | string
     phone?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
+    imagePath?: StringNullableFilter<"Client"> | string | null
     userId?: StringFilter<"Client"> | string
     companyId?: StringNullableFilter<"Client"> | string | null
+    height?: FloatNullableFilter<"Client"> | number | null
+    weight?: FloatNullableFilter<"Client"> | number | null
+    age?: IntNullableFilter<"Client"> | number | null
+    medicalConditions?: StringNullableFilter<"Client"> | string | null
+    allergies?: StringNullableFilter<"Client"> | string | null
+    injuries?: StringNullableFilter<"Client"> | string | null
+    medications?: StringNullableFilter<"Client"> | string | null
+    bloodPressure?: StringNullableFilter<"Client"> | string | null
+    targetWeight?: FloatNullableFilter<"Client"> | number | null
+    fitnessGoal?: StringNullableFilter<"Client"> | string | null
+    targetBodyFat?: FloatNullableFilter<"Client"> | number | null
+    goalMilestone?: DateTimeNullableFilter<"Client"> | Date | string | null
     payments?: PaymentListRelationFilter
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
@@ -14754,11 +15018,26 @@ export namespace Prisma {
     phone?: SortOrder
     email?: SortOrder
     registrationDate?: SortOrder
+    imagePath?: SortOrder
     userId?: SortOrder
     companyId?: SortOrder
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    medicalConditions?: SortOrder
+    allergies?: SortOrder
+    injuries?: SortOrder
+    medications?: SortOrder
+    bloodPressure?: SortOrder
+    targetWeight?: SortOrder
+    fitnessGoal?: SortOrder
+    targetBodyFat?: SortOrder
+    goalMilestone?: SortOrder
     _count?: ClientCountOrderByAggregateInput
+    _avg?: ClientAvgOrderByAggregateInput
     _max?: ClientMaxOrderByAggregateInput
     _min?: ClientMinOrderByAggregateInput
+    _sum?: ClientSumOrderByAggregateInput
   }
 
   export type ClientScalarWhereWithAggregatesInput = {
@@ -14770,8 +15049,21 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"Client"> | string | null
     email?: StringNullableWithAggregatesFilter<"Client"> | string | null
     registrationDate?: DateTimeWithAggregatesFilter<"Client"> | Date | string
+    imagePath?: StringNullableWithAggregatesFilter<"Client"> | string | null
     userId?: StringWithAggregatesFilter<"Client"> | string
     companyId?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    height?: FloatNullableWithAggregatesFilter<"Client"> | number | null
+    weight?: FloatNullableWithAggregatesFilter<"Client"> | number | null
+    age?: IntNullableWithAggregatesFilter<"Client"> | number | null
+    medicalConditions?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    allergies?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    injuries?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    medications?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    bloodPressure?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    targetWeight?: FloatNullableWithAggregatesFilter<"Client"> | number | null
+    fitnessGoal?: StringNullableWithAggregatesFilter<"Client"> | string | null
+    targetBodyFat?: FloatNullableWithAggregatesFilter<"Client"> | number | null
+    goalMilestone?: DateTimeNullableWithAggregatesFilter<"Client"> | Date | string | null
   }
 
   export type NotificationWhereInput = {
@@ -14999,7 +15291,7 @@ export namespace Prisma {
     clientId?: StringNullableFilter<"Historic"> | string | null
     paymentId?: StringNullableFilter<"Historic"> | string | null
     billId?: StringNullableFilter<"Historic"> | string | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
@@ -15044,7 +15336,7 @@ export namespace Prisma {
     clientId?: StringNullableFilter<"Historic"> | string | null
     paymentId?: StringNullableFilter<"Historic"> | string | null
     billId?: StringNullableFilter<"Historic"> | string | null
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     payment?: XOR<PaymentNullableScalarRelationFilter, PaymentWhereInput> | null
@@ -15652,6 +15944,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
     user: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
@@ -15665,8 +15970,21 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
     historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
@@ -15677,6 +15995,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
@@ -15689,8 +16020,21 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
     historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
@@ -15702,8 +16046,21 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
   }
 
   export type ClientUpdateManyMutationInput = {
@@ -15711,6 +16068,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ClientUncheckedUpdateManyInput = {
@@ -15718,8 +16088,21 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type NotificationCreateInput = {
@@ -15941,7 +16324,7 @@ export namespace Prisma {
     newData?: InputJsonValue | null
     createdAt?: Date | string
     description?: string | null
-    user: UserCreateNestedOneWithoutHistoricsInput
+    user?: UserCreateNestedOneWithoutHistoricsInput
     company?: CompanyCreateNestedOneWithoutHistoricsInput
     client?: ClientCreateNestedOneWithoutHistoricsInput
     payment?: PaymentCreateNestedOneWithoutHistoricsInput
@@ -15972,7 +16355,7 @@ export namespace Prisma {
     newData?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    user?: UserUpdateOneWithoutHistoricsNestedInput
     company?: CompanyUpdateOneWithoutHistoricsNestedInput
     client?: ClientUpdateOneWithoutHistoricsNestedInput
     payment?: PaymentUpdateOneWithoutHistoricsNestedInput
@@ -16629,14 +17012,59 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    isSet?: boolean
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+    isSet?: boolean
+  }
+
   export type ClientCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     phone?: SortOrder
     email?: SortOrder
     registrationDate?: SortOrder
+    imagePath?: SortOrder
     userId?: SortOrder
     companyId?: SortOrder
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    medicalConditions?: SortOrder
+    allergies?: SortOrder
+    injuries?: SortOrder
+    medications?: SortOrder
+    bloodPressure?: SortOrder
+    targetWeight?: SortOrder
+    fitnessGoal?: SortOrder
+    targetBodyFat?: SortOrder
+    goalMilestone?: SortOrder
+  }
+
+  export type ClientAvgOrderByAggregateInput = {
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    targetWeight?: SortOrder
+    targetBodyFat?: SortOrder
   }
 
   export type ClientMaxOrderByAggregateInput = {
@@ -16645,8 +17073,21 @@ export namespace Prisma {
     phone?: SortOrder
     email?: SortOrder
     registrationDate?: SortOrder
+    imagePath?: SortOrder
     userId?: SortOrder
     companyId?: SortOrder
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    medicalConditions?: SortOrder
+    allergies?: SortOrder
+    injuries?: SortOrder
+    medications?: SortOrder
+    bloodPressure?: SortOrder
+    targetWeight?: SortOrder
+    fitnessGoal?: SortOrder
+    targetBodyFat?: SortOrder
+    goalMilestone?: SortOrder
   }
 
   export type ClientMinOrderByAggregateInput = {
@@ -16655,8 +17096,63 @@ export namespace Prisma {
     phone?: SortOrder
     email?: SortOrder
     registrationDate?: SortOrder
+    imagePath?: SortOrder
     userId?: SortOrder
     companyId?: SortOrder
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    medicalConditions?: SortOrder
+    allergies?: SortOrder
+    injuries?: SortOrder
+    medications?: SortOrder
+    bloodPressure?: SortOrder
+    targetWeight?: SortOrder
+    fitnessGoal?: SortOrder
+    targetBodyFat?: SortOrder
+    goalMilestone?: SortOrder
+  }
+
+  export type ClientSumOrderByAggregateInput = {
+    height?: SortOrder
+    weight?: SortOrder
+    age?: SortOrder
+    targetWeight?: SortOrder
+    targetBodyFat?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -16800,6 +17296,11 @@ export namespace Prisma {
     isSet?: boolean
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type BillNullableScalarRelationFilter = {
     is?: BillWhereInput | null
     isNot?: BillWhereInput | null
@@ -16864,18 +17365,6 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-    isSet?: boolean
-  }
-
   export type AccountProviderProviderAccountIdCompoundUniqueInput = {
     provider: string
     providerAccountId: string
@@ -16932,23 +17421,6 @@ export namespace Prisma {
 
   export type AccountSumOrderByAggregateInput = {
     expires_at?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-    isSet?: boolean
   }
 
   export type SessionCountOrderByAggregateInput = {
@@ -17710,6 +18182,24 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+    unset?: boolean
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+    unset?: boolean
+  }
+
   export type PaymentUpdateManyWithoutClientNestedInput = {
     create?: XOR<PaymentCreateWithoutClientInput, PaymentUncheckedCreateWithoutClientInput> | PaymentCreateWithoutClientInput[] | PaymentUncheckedCreateWithoutClientInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutClientInput | PaymentCreateOrConnectWithoutClientInput[]
@@ -18036,10 +18526,12 @@ export namespace Prisma {
     connect?: BillWhereUniqueInput
   }
 
-  export type UserUpdateOneRequiredWithoutHistoricsNestedInput = {
+  export type UserUpdateOneWithoutHistoricsNestedInput = {
     create?: XOR<UserCreateWithoutHistoricsInput, UserUncheckedCreateWithoutHistoricsInput>
     connectOrCreate?: UserCreateOrConnectWithoutHistoricsInput
     upsert?: UserUpsertWithoutHistoricsInput
+    disconnect?: boolean
+    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHistoricsInput, UserUpdateWithoutHistoricsInput>, UserUncheckedUpdateWithoutHistoricsInput>
   }
@@ -18088,15 +18580,6 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutAccountsInput, UserUncheckedCreateWithoutAccountsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAccountsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-    unset?: boolean
   }
 
   export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
@@ -18287,6 +18770,52 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    isSet?: boolean
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -18309,35 +18838,6 @@ export namespace Prisma {
   export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    isSet?: boolean
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-    isSet?: boolean
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
     isSet?: boolean
   }
 
@@ -18390,6 +18890,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
     user: UserCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
@@ -18402,7 +18915,20 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
     historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
@@ -18539,7 +19065,7 @@ export namespace Prisma {
     newData?: InputJsonValue | null
     createdAt?: Date | string
     description?: string | null
-    user: UserCreateNestedOneWithoutHistoricsInput
+    user?: UserCreateNestedOneWithoutHistoricsInput
     client?: ClientCreateNestedOneWithoutHistoricsInput
     payment?: PaymentCreateNestedOneWithoutHistoricsInput
     bill?: BillCreateNestedOneWithoutHistoricsInput
@@ -18624,8 +19150,21 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Client"> | string | null
     email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
+    imagePath?: StringNullableFilter<"Client"> | string | null
     userId?: StringFilter<"Client"> | string
     companyId?: StringNullableFilter<"Client"> | string | null
+    height?: FloatNullableFilter<"Client"> | number | null
+    weight?: FloatNullableFilter<"Client"> | number | null
+    age?: IntNullableFilter<"Client"> | number | null
+    medicalConditions?: StringNullableFilter<"Client"> | string | null
+    allergies?: StringNullableFilter<"Client"> | string | null
+    injuries?: StringNullableFilter<"Client"> | string | null
+    medications?: StringNullableFilter<"Client"> | string | null
+    bloodPressure?: StringNullableFilter<"Client"> | string | null
+    targetWeight?: FloatNullableFilter<"Client"> | number | null
+    fitnessGoal?: StringNullableFilter<"Client"> | string | null
+    targetBodyFat?: FloatNullableFilter<"Client"> | number | null
+    goalMilestone?: DateTimeNullableFilter<"Client"> | Date | string | null
   }
 
   export type BillUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -18814,6 +19353,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
@@ -18826,7 +19378,20 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
     historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
@@ -19333,7 +19898,7 @@ export namespace Prisma {
     newData?: InputJsonValue | null
     createdAt?: Date | string
     description?: string | null
-    user: UserCreateNestedOneWithoutHistoricsInput
+    user?: UserCreateNestedOneWithoutHistoricsInput
     company?: CompanyCreateNestedOneWithoutHistoricsInput
     client?: ClientCreateNestedOneWithoutHistoricsInput
     payment?: PaymentCreateNestedOneWithoutHistoricsInput
@@ -19613,7 +20178,7 @@ export namespace Prisma {
     newData?: InputJsonValue | null
     createdAt?: Date | string
     description?: string | null
-    user: UserCreateNestedOneWithoutHistoricsInput
+    user?: UserCreateNestedOneWithoutHistoricsInput
     company?: CompanyCreateNestedOneWithoutHistoricsInput
     payment?: PaymentCreateNestedOneWithoutHistoricsInput
     bill?: BillCreateNestedOneWithoutHistoricsInput
@@ -19904,6 +20469,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
     user: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
@@ -19916,8 +20494,21 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
     historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
   }
@@ -20080,6 +20671,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
@@ -20091,8 +20695,21 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
     historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -20152,6 +20769,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     user: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
@@ -20164,8 +20794,21 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     historics?: HistoricUncheckedCreateNestedManyWithoutClientInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
   }
@@ -20268,7 +20911,7 @@ export namespace Prisma {
     newData?: InputJsonValue | null
     createdAt?: Date | string
     description?: string | null
-    user: UserCreateNestedOneWithoutHistoricsInput
+    user?: UserCreateNestedOneWithoutHistoricsInput
     company?: CompanyCreateNestedOneWithoutHistoricsInput
     client?: ClientCreateNestedOneWithoutHistoricsInput
     bill?: BillCreateNestedOneWithoutHistoricsInput
@@ -20345,6 +20988,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
@@ -20356,8 +21012,21 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -20576,6 +21245,19 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
     user: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
@@ -20588,8 +21270,21 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
     payments?: PaymentUncheckedCreateNestedManyWithoutClientInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutClientInput
   }
@@ -20781,6 +21476,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
@@ -20792,8 +21500,21 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
   }
@@ -21060,7 +21781,20 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     userId: string
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
   }
 
   export type BillCreateManyCompanyInput = {
@@ -21164,6 +21898,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
     user?: UserUpdateOneRequiredWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
@@ -21175,7 +21922,20 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
     historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
@@ -21186,7 +21946,20 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BillUpdateWithoutCompanyInput = {
@@ -21314,7 +22087,7 @@ export namespace Prisma {
     newData?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    user?: UserUpdateOneWithoutHistoricsNestedInput
     client?: ClientUpdateOneWithoutHistoricsNestedInput
     payment?: PaymentUpdateOneWithoutHistoricsNestedInput
     bill?: BillUpdateOneWithoutHistoricsNestedInput
@@ -21354,7 +22127,20 @@ export namespace Prisma {
     phone?: string | null
     email?: string | null
     registrationDate?: Date | string
+    imagePath?: string | null
     companyId?: string | null
+    height?: number | null
+    weight?: number | null
+    age?: number | null
+    medicalConditions?: string | null
+    allergies?: string | null
+    injuries?: string | null
+    medications?: string | null
+    bloodPressure?: string | null
+    targetWeight?: number | null
+    fitnessGoal?: string | null
+    targetBodyFat?: number | null
+    goalMilestone?: Date | string | null
   }
 
   export type SessionCreateManyUserInput = {
@@ -21437,6 +22223,19 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
@@ -21448,7 +22247,20 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUncheckedUpdateManyWithoutClientNestedInput
     historics?: HistoricUncheckedUpdateManyWithoutClientNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutClientNestedInput
@@ -21459,7 +22271,20 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    imagePath?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
+    height?: NullableFloatFieldUpdateOperationsInput | number | null
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    age?: NullableIntFieldUpdateOperationsInput | number | null
+    medicalConditions?: NullableStringFieldUpdateOperationsInput | string | null
+    allergies?: NullableStringFieldUpdateOperationsInput | string | null
+    injuries?: NullableStringFieldUpdateOperationsInput | string | null
+    medications?: NullableStringFieldUpdateOperationsInput | string | null
+    bloodPressure?: NullableStringFieldUpdateOperationsInput | string | null
+    targetWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
+    targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
+    goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type SessionUpdateWithoutUserInput = {
@@ -21698,7 +22523,7 @@ export namespace Prisma {
     newData?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    user?: UserUpdateOneWithoutHistoricsNestedInput
     company?: CompanyUpdateOneWithoutHistoricsNestedInput
     client?: ClientUpdateOneWithoutHistoricsNestedInput
     payment?: PaymentUpdateOneWithoutHistoricsNestedInput
@@ -21839,7 +22664,7 @@ export namespace Prisma {
     newData?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    user?: UserUpdateOneWithoutHistoricsNestedInput
     company?: CompanyUpdateOneWithoutHistoricsNestedInput
     payment?: PaymentUpdateOneWithoutHistoricsNestedInput
     bill?: BillUpdateOneWithoutHistoricsNestedInput
@@ -21937,7 +22762,7 @@ export namespace Prisma {
     newData?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    user?: UserUpdateOneRequiredWithoutHistoricsNestedInput
+    user?: UserUpdateOneWithoutHistoricsNestedInput
     company?: CompanyUpdateOneWithoutHistoricsNestedInput
     client?: ClientUpdateOneWithoutHistoricsNestedInput
     bill?: BillUpdateOneWithoutHistoricsNestedInput

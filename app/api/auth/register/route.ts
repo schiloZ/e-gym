@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { Resend } from "resend";
+// import twilio from "twilio";
+
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// // Initialize Twilio client with credentials from environment variables
+// const twilioClient = twilio(
+//   process.env.TWILIO_ACCOUNT_SID,
+//   process.env.TWILIO_AUTH_TOKEN
+// );
 
 export async function POST(request: Request) {
   const {
@@ -41,6 +52,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
+  // Validate phone number if provided
+  if (phone && !/^\+?[1-9]\d{1,14}$/.test(phone)) {
+    return NextResponse.json(
+      { error: "Please enter a valid phone number (e.g., +1234567890)" },
+      { status: 400 }
+    );
+  }
+
   // Validate subscription dates if provided
   let parsedStartDate = null;
   let parsedEndDate = null;
@@ -61,7 +80,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // Ensure end date is after start date if both are provided
     if (parsedStartDate && parsedEndDate <= parsedStartDate) {
       return NextResponse.json(
         { error: "Subscription end date must be after start date" },
@@ -74,6 +92,9 @@ export async function POST(request: Request) {
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   try {
+    let userData;
+    let companyData;
+
     if (role.toLowerCase() === "superadmin") {
       // Create a SuperAdmin
       const superAdmin = await prisma.superAdmin.create({
@@ -84,35 +105,29 @@ export async function POST(request: Request) {
           createdAt: new Date(),
         },
       });
-      return NextResponse.json({
-        message: "SuperAdmin registered",
-        superAdmin,
-      });
+      userData = superAdmin;
     } else {
       // Handle company creation or linking
       let companyId: string | null = null;
 
-      // If companyName is provided, create or find the company first
       if (companyName && companyName.trim()) {
-        // Check if a company with this name already exists
         const existingCompany = await prisma.company.findFirst({
           where: { name: companyName },
         });
 
         if (existingCompany) {
           companyId = existingCompany.id;
+          companyData = existingCompany;
         } else {
-          // Set subscription limits based on subscriptionType
           const effectiveSubscriptionType = subscriptionType || "free";
-          let maxClientRegistrations = 5; // Default for free
-          let maxPayments = 20; // Default for free
+          let maxClientRegistrations = 5;
+          let maxPayments = 20;
           let effectiveStartDate = parsedStartDate || new Date();
           let effectiveEndDate = parsedEndDate;
 
           if (effectiveSubscriptionType === "free") {
             maxClientRegistrations = 5;
             maxPayments = 20;
-            // Set end date to 21 days from start date if not provided
             if (!parsedEndDate) {
               effectiveEndDate = new Date(effectiveStartDate);
               effectiveEndDate.setDate(effectiveStartDate.getDate() + 21);
@@ -125,7 +140,6 @@ export async function POST(request: Request) {
             maxPayments = 1000;
           }
 
-          // Create a new company with the limits and subscription details
           const newCompany = await prisma.company.create({
             data: {
               name: companyName,
@@ -135,12 +149,13 @@ export async function POST(request: Request) {
               subscriptionEndDate: effectiveEndDate || null,
               maxClientRegistrations,
               maxPayments,
-              clientRegistrationCount: 0, // Initialize count
-              paymentCount: 0, // Initialize count
+              clientRegistrationCount: 0,
+              paymentCount: 0,
               createdAt: new Date(),
             },
           });
           companyId = newCompany.id;
+          companyData = newCompany;
         }
       } else {
         return NextResponse.json(
@@ -149,20 +164,123 @@ export async function POST(request: Request) {
         );
       }
 
-      // Create the user with the retrieved companyId
       const user = await prisma.user.create({
         data: {
           email,
           phone: phone || null,
           password: hashedPassword,
           role: role.toLowerCase(),
-          companyId: companyId, // Associate the companyId
+          companyId: companyId,
           createdAt: new Date(),
         },
       });
-
-      return NextResponse.json({ message: "User registered", user });
+      userData = user;
     }
+
+    // Send the receipt email
+    try {
+      const emailContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h2 style="color: #1a73e8; text-align: center;">Welcome to E-Gym!</h2>
+          <p style="color: #333; font-size: 16px;">Dear ${email},</p>
+          <p style="color: #333; font-size: 16px;">Your account has been successfully created on ${new Date().toLocaleString()}. Below are your account details:</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr style="background-color: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Email</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Phone</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${phone || "Not provided"}</td>
+            </tr>
+            <tr style="background-color: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Role</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${role.charAt(0).toUpperCase() + role.slice(1)}</td>
+            </tr>
+            ${
+              role.toLowerCase() !== "superadmin"
+                ? `
+            <tr>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Company Name</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyName}</td>
+            </tr>
+            <tr style="background-color: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Subscription Type</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.subscriptionType.charAt(0).toUpperCase() + companyData.subscriptionType.slice(1)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Subscription Start Date</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.subscriptionStartDate.toLocaleDateString()}</td>
+            </tr>
+            <tr style="background-color: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Subscription End Date</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.subscriptionEndDate ? companyData.subscriptionEndDate.toLocaleDateString() : "Not set"}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Max Client Registrations</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.maxClientRegistrations}</td>
+            </tr>
+            <tr style="background-color: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Max Payments</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.maxPayments}</td>
+            </tr>
+            `
+                : ""
+            }
+          </table>
+
+          <p style="color: #333; font-size: 16px;">You can now log in to your account and start managing your gym. Visit our website to get started:</p>
+          <p style="text-align: center;">
+            <a href="${
+              process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+            }/login" style="display: inline-block; padding: 10px 20px; background-color: #1a73e8; color: #fff; text-decoration: none; border-radius: 5px;">Log In Now</a>
+          </p>
+
+          <p style="color: #333; font-size: 16px;">If you have any questions, feel free to contact our support team.</p>
+          <p style="color: #333; font-size: 16px;">Best regards,<br />The E-Gym Team</p>
+          
+          <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+          <p style="color: #666; font-size: 12px; text-align: center;">E-Gym © ${new Date().getFullYear()}. All rights reserved.</p>
+        </div>
+      `;
+
+      const emailResponse = await resend.emails.send({
+        from: "onboarding@resend.dev", // Use Resend's test email for local development
+        to: email,
+        subject: "Welcome to E-Gym - Your Account Receipt",
+        html: emailContent,
+      });
+
+      console.log("Email sent successfully:", emailResponse);
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+    }
+
+    // Send SMS notification if phone number is provided
+    // if (phone) {
+    //   try {
+    //     const smsMessage = `Welcome to E-Gym! Your account as a ${role} has been created on ${new Date().toLocaleString()}. Log in at ${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/login.`;
+
+    //     const smsResponse = await twilioClient.messages.create({
+    //       body: smsMessage,
+    //       from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number
+    //       to: phone, // User's phone number
+    //     });
+
+    //     console.log("SMS sent successfully:", smsResponse.sid);
+    //   } catch (smsError) {
+    //     console.error("Error sending SMS:", smsError);
+    //   }
+    // }
+
+    return NextResponse.json({
+      message:
+        role.toLowerCase() === "superadmin"
+          ? "SuperAdmin registered"
+          : "User registered",
+      user: userData,
+    });
   } catch (error) {
     console.error("Error during registration:", error);
     return NextResponse.json(

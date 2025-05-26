@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image"; // Import Image for optimized image rendering
 import {
   User,
   ArrowLeft,
@@ -11,6 +12,11 @@ import {
   Calendar,
   AlertCircle,
   Eye,
+  Heart,
+  Target,
+  Ruler,
+  Scale,
+  CalendarDays,
 } from "lucide-react";
 
 export default function ClientDetailPage() {
@@ -101,21 +107,39 @@ export default function ClientDetailPage() {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6">
       {/* En-tête */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center">
+        <div className="flex items-start gap-4">
           <Link
             href="/dashboard/clients"
             className="mr-2 sm:mr-3 text-blue-600 hover:text-blue-800"
           >
             <ArrowLeft className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6" />
           </Link>
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center text-gray-800">
-              <User className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6 mr-2 text-blue-600" />
-              {client.name}
-            </h1>
-            <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-              Détails du client et statut de paiement
-            </p>
+          <div className="flex items-center gap-4">
+            {/* Display Client Image */}
+            {client.imagePath ? (
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-blue-500 shadow-md">
+                <Image
+                  src={client.imagePath}
+                  alt={`${client.name}'s profile picture`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  priority // Load the image with high priority for better UX
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-300">
+                <User className="h-8 sm:h-10 md:h-12 w-8 sm:w-10 md:w-12" />
+              </div>
+            )}
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                {client.name}
+              </h1>
+              <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
+                Détails du client, fiche médicale et statut de paiement
+              </p>
+            </div>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -166,6 +190,149 @@ export default function ClientDetailPage() {
         </div>
       </div>
 
+      {/* Fiche Médicale */}
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 sm:p-6 md:p-8 rounded-xl shadow-md">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+          <Heart className="h-5 sm:h-6 md:h-7 w-5 sm:w-6 md:w-7 mr-2 text-blue-600" />
+          Fiche Médicale et Objectifs
+        </h2>
+
+        {/* Informations Médicales */}
+        <div className="mb-6">
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-4">
+            Informations Médicales
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Ruler className="h-4 w-4 text-blue-500" />
+                Taille
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.height ? `${client.height} cm` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Scale className="h-4 w-4 text-blue-500" />
+                Poids
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.weight ? `${client.weight} kg` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <CalendarDays className="h-4 w-4 text-blue-500" />
+                Âge
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.age ? `${client.age} ans` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Heart className="h-4 w-4 text-blue-500" />
+                Pression artérielle
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.bloodPressure || "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4 text-blue-500" />
+                Conditions médicales
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.medicalConditions || "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4 text-blue-500" />
+                Allergies
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.allergies || "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4 text-blue-500" />
+                Blessures
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.injuries || "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <AlertCircle className="h-4 w-4 text-blue-500" />
+                Médicaments
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.medications || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Objectifs Physiques */}
+        <div>
+          <h3 className="text-base sm:text-lg font-medium text-gray-700 mb-4">
+            Objectifs Physiques
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Target className="h-4 w-4 text-blue-500" />
+                Poids cible
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.targetWeight ? `${client.targetWeight} kg` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Target className="h-4 w-4 text-blue-500" />
+                Pourcentage de graisse corporelle cible
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.targetBodyFat ? `${client.targetBodyFat}%` : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Target className="h-4 w-4 text-blue-500" />
+                Objectif physique
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.fitnessGoal
+                  ? {
+                      "weight loss": "Perte de poids",
+                      "muscle gain": "Gain musculaire",
+                      endurance: "Endurance",
+                      "general fitness": "Condition physique générale",
+                    }[client.fitnessGoal] || client.fitnessGoal
+                  : "N/A"}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
+              <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                Date de l'objectif
+              </p>
+              <p className="text-sm sm:text-base font-medium text-gray-800">
+                {client.goalMilestone
+                  ? new Date(client.goalMilestone).toLocaleDateString("fr-FR")
+                  : "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Liste des paiements */}
       <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-md">
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-4">
@@ -209,15 +376,15 @@ export default function ClientDetailPage() {
                         payment.paymentStatus === "Paid"
                           ? "text-green-600"
                           : payment.paymentStatus === "Unpaid"
-                          ? "text-yellow-600"
-                          : "text-red-600"
+                            ? "text-yellow-600"
+                            : "text-red-600"
                       }
                     >
                       {payment.paymentStatus === "Paid"
                         ? "Payé"
                         : payment.paymentStatus === "Unpaid"
-                        ? "Non payé"
-                        : payment.paymentStatus || "N/A"}
+                          ? "Non payé"
+                          : payment.paymentStatus || "N/A"}
                     </span>
                   </p>
                   {payment.nextPaymentDate && (

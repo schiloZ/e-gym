@@ -230,8 +230,26 @@ export async function PATCH(
   }
 
   try {
-    const { name, email, phone, registrationDate } = await request.json();
+    const {
+      name,
+      email,
+      phone,
+      registrationDate,
+      height,
+      weight,
+      age,
+      medicalConditions,
+      allergies,
+      injuries,
+      medications,
+      bloodPressure,
+      targetWeight,
+      fitnessGoal,
+      targetBodyFat,
+      goalMilestone,
+    } = await request.json();
 
+    // Validation
     if (!name || !email) {
       await prisma.historic.create({
         data: {
@@ -311,6 +329,83 @@ export async function PATCH(
       );
     }
 
+    // Validate medical and goal fields
+    if (height && (height <= 0 || height > 300)) {
+      return NextResponse.json(
+        { error: "Height must be between 0 and 300 cm" },
+        { status: 400 }
+      );
+    }
+    if (weight && (weight <= 0 || weight > 500)) {
+      return NextResponse.json(
+        { error: "Weight must be between 0 and 500 kg" },
+        { status: 400 }
+      );
+    }
+    if (age && (age < 0 || age > 150)) {
+      return NextResponse.json(
+        { error: "Age must be between 0 and 150" },
+        { status: 400 }
+      );
+    }
+    if (bloodPressure && !/^\d{2,3}\/\d{2,3}$/.test(bloodPressure)) {
+      return NextResponse.json(
+        {
+          error:
+            "Blood pressure must be in the format 'systolic/diastolic' (e.g., '120/80')",
+        },
+        { status: 400 }
+      );
+    }
+    if (targetWeight && (targetWeight <= 0 || targetWeight > 500)) {
+      return NextResponse.json(
+        { error: "Target weight must be between 0 and 500 kg" },
+        { status: 400 }
+      );
+    }
+    if (targetBodyFat && (targetBodyFat < 0 || targetBodyFat > 100)) {
+      return NextResponse.json(
+        { error: "Target body fat percentage must be between 0 and 100" },
+        { status: 400 }
+      );
+    }
+    if (
+      fitnessGoal &&
+      !["weight loss", "muscle gain", "endurance", "general fitness"].includes(
+        fitnessGoal.toLowerCase()
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Fitness goal must be one of: 'weight loss', 'muscle gain', 'endurance', 'general fitness'",
+        },
+        { status: 400 }
+      );
+    }
+
+    let parsedGoalMilestone = goalMilestone
+      ? new Date(goalMilestone)
+      : undefined;
+    if (goalMilestone && isNaN(parsedGoalMilestone.getTime())) {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "CLIENT",
+          entityId: clientId,
+          oldData: null,
+          newData: null,
+          changedBy: userId,
+          companyId: session.user.companyId,
+          description: "Invalid goal milestone date format",
+        },
+      });
+      return NextResponse.json(
+        { error: "Invalid goal milestone date format" },
+        { status: 400 }
+      );
+    }
+
     const client = await prisma.client.findUnique({
       where: { id: clientId },
     });
@@ -364,6 +459,20 @@ export async function PATCH(
       email: client.email,
       phone: client.phone,
       registrationDate: client.registrationDate.toISOString(),
+      height: client.height,
+      weight: client.weight,
+      age: client.age,
+      medicalConditions: client.medicalConditions,
+      allergies: client.allergies,
+      injuries: client.injuries,
+      medications: client.medications,
+      bloodPressure: client.bloodPressure,
+      targetWeight: client.targetWeight,
+      fitnessGoal: client.fitnessGoal,
+      targetBodyFat: client.targetBodyFat,
+      goalMilestone: client.goalMilestone
+        ? client.goalMilestone.toISOString()
+        : null,
     };
 
     const updatedClient = await prisma.client.update({
@@ -373,6 +482,18 @@ export async function PATCH(
         email,
         phone,
         registrationDate: parsedRegistrationDate || client.registrationDate,
+        height,
+        weight,
+        age,
+        medicalConditions,
+        allergies,
+        injuries,
+        medications,
+        bloodPressure,
+        targetWeight,
+        fitnessGoal,
+        targetBodyFat,
+        goalMilestone: parsedGoalMilestone || client.goalMilestone,
       },
     });
 
@@ -383,6 +504,22 @@ export async function PATCH(
       registrationDate: parsedRegistrationDate
         ? parsedRegistrationDate.toISOString()
         : client.registrationDate.toISOString(),
+      height,
+      weight,
+      age,
+      medicalConditions,
+      allergies,
+      injuries,
+      medications,
+      bloodPressure,
+      targetWeight,
+      fitnessGoal,
+      targetBodyFat,
+      goalMilestone: parsedGoalMilestone
+        ? parsedGoalMilestone.toISOString()
+        : client.goalMilestone
+          ? client.goalMilestone.toISOString()
+          : null,
     };
 
     await prisma.historic.create({

@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
-// GET: Fetch a specific user by ID
+// GET: Fetch a specific user by ID with associated company details
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -32,11 +33,20 @@ export async function GET(
         emailVerified: true,
         phone: true,
         role: true,
-        location: true,
-        subscriptionType: true,
-        subscriptionStartDate: true,
-        subscriptionEndDate: true,
         createdAt: true,
+        company: {
+          select: {
+            id: true,
+            name: true,
+            subscriptionType: true,
+            subscriptionStartDate: true,
+            subscriptionEndDate: true,
+            clientRegistrationCount: true,
+            maxClientRegistrations: true,
+            paymentCount: true,
+            maxPayments: true,
+          },
+        },
         clients: {
           select: { id: true, name: true },
         },
@@ -57,7 +67,7 @@ export async function GET(
   }
 }
 
-// PATCH: Update a specific user by ID
+// PATCH: Update a specific user by ID (including password and company details)
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
@@ -78,31 +88,49 @@ export async function PATCH(
   const id = params.id;
   const body = await request.json();
 
-  // Validate required fields
-  const allowedFields = [
-    "email",
-    "phone",
-    "role",
-    "location",
+  // Validate and separate user and company updates
+  const userUpdates: any = {};
+  const companyUpdates: any = {};
+  const allowedUserFields = ["email", "phone", "role", "password"];
+  const allowedCompanyFields = [
     "subscriptionType",
     "subscriptionStartDate",
     "subscriptionEndDate",
-    "clientRegistrationCount", // Allow updating count
-    "maxClientRegistrations", // Allow updating max
-    "paymentCount", // Allow updating count
-    "maxPayments", // Allow updating max
+    "clientRegistrationCount",
+    "maxClientRegistrations",
+    "paymentCount",
+    "maxPayments",
   ];
 
-  const updates: any = {};
-  for (const field of allowedFields) {
+  // Process user fields
+  for (const field of allowedUserFields) {
+    if (body[field] !== undefined) {
+      if (field === "password") {
+        // Hash the password if provided
+        const saltRounds = 10;
+        userUpdates[field] = await bcrypt.hash(body[field], saltRounds);
+      } else {
+        userUpdates[field] = body[field];
+      }
+    }
+  }
+
+  // Process company fields
+  for (const field of allowedCompanyFields) {
     if (body[field] !== undefined) {
       if (
         field === "subscriptionStartDate" ||
         field === "subscriptionEndDate"
       ) {
-        // Convert YYYY-MM-DD to ISO-8601 DateTime if a date is provided
         if (body[field]) {
-          updates[field] = new Date(body[field]).toISOString();
+          const date = new Date(body[field]);
+          if (isNaN(date.getTime())) {
+            return NextResponse.json(
+              { error: `${field} must be a valid date` },
+              { status: 400 }
+            );
+          }
+          companyUpdates[field] = date.toISOString();
         }
       } else if (
         [
@@ -112,7 +140,6 @@ export async function PATCH(
           "maxPayments",
         ].includes(field)
       ) {
-        // Ensure counts and max values are integers and non-negative
         const value = parseInt(body[field], 10);
         if (isNaN(value) || value < 0) {
           return NextResponse.json(
@@ -120,27 +147,27 @@ export async function PATCH(
             { status: 400 }
           );
         }
-        updates[field] = value;
+        companyUpdates[field] = value;
       } else {
-        updates[field] = body[field];
+        companyUpdates[field] = body[field];
       }
     }
   }
 
   // If subscriptionType is updated, adjust max limits accordingly
-  if (updates.subscriptionType) {
-    switch (updates.subscriptionType) {
+  if (companyUpdates.subscriptionType) {
+    switch (companyUpdates.subscriptionType) {
       case "free":
-        updates.maxClientRegistrations = 5;
-        updates.maxPayments = 21;
+        companyUpdates.maxClientRegistrations = 5;
+        companyUpdates.maxPayments = 20;
         break;
       case "premium":
-        updates.maxClientRegistrations = 10;
-        updates.maxPayments = 30;
+        companyUpdates.maxClientRegistrations = 10;
+        companyUpdates.maxPayments = 30;
         break;
       case "enterprise":
-        updates.maxClientRegistrations = 100;
-        updates.maxPayments = 50; // Adjustable based on enterprise plan
+        companyUpdates.maxClientRegistrations = 100;
+        companyUpdates.maxPayments = 50;
         break;
       default:
         return NextResponse.json(
@@ -150,18 +177,34 @@ export async function PATCH(
     }
   }
 
-  // Validate counts against max limits
-  const currentUser = await prisma.user.findUnique({ where: { id } });
+  // Fetch current user and company for validation
+  const currentUser = await prisma.user.findUnique({
+    where: { id },
+    include: { company: true },
+  });
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  // Validate counts against max limits
+  const currentCompany = currentUser.company;
+  if (!currentCompany) {
+    return NextResponse.json(
+      { error: "User is not associated with a company" },
+      { status: 400 }
+    );
+  }
+
   const newClientCount =
-    updates.clientRegistrationCount ?? currentUser.clientRegistrationCount;
+    companyUpdates.clientRegistrationCount ??
+    currentCompany.clientRegistrationCount;
   const newMaxClients =
-    updates.maxClientRegistrations ?? currentUser.maxClientRegistrations;
-  const newPaymentCount = updates.paymentCount ?? currentUser.paymentCount;
-  const newMaxPayments = updates.maxPayments ?? currentUser.maxPayments;
+    companyUpdates.maxClientRegistrations ??
+    currentCompany.maxClientRegistrations;
+  const newPaymentCount =
+    companyUpdates.paymentCount ?? currentCompany.paymentCount;
+  const newMaxPayments =
+    companyUpdates.maxPayments ?? currentCompany.maxPayments;
 
   if (newClientCount > newMaxClients) {
     return NextResponse.json(
@@ -181,67 +224,74 @@ export async function PATCH(
     );
   }
 
-  // Handle password separately if provided (you might want to hash it)
-  if (body.password) {
-    return NextResponse.json(
-      { error: "Password updates not implemented in this example" },
-      { status: 400 }
-    );
-  }
-
   try {
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    // Begin transaction to update user and company atomically
+    const [updatedUser] = await prisma.$transaction([
+      // Update user if there are changes
+      prisma.user.update({
+        where: { id },
+        data: userUpdates,
+        select: {
+          id: true,
+          email: true,
+          emailVerified: true,
+          phone: true,
+          role: true,
+          createdAt: true,
+        },
+      }),
+      // Update company if there are changes
+      ...(Object.keys(companyUpdates).length > 0
+        ? [
+            prisma.company.update({
+              where: { id: currentUser.companyId },
+              data: companyUpdates,
+            }),
+          ]
+        : []),
+      // Log the update in Historic
+      prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "USER",
+          entityId: id,
+          oldData: JSON.parse(
+            JSON.stringify({ ...currentUser, company: currentCompany })
+          ),
+          newData: JSON.parse(
+            JSON.stringify({
+              ...currentUser,
+              ...userUpdates,
+              company: { ...currentCompany, ...companyUpdates },
+            })
+          ),
+          changedBy: session.user.id,
+          companyId: currentUser.companyId,
+          description: `User ${currentUser.email} updated by superadmin`,
+        },
+      }),
+    ]);
 
-    // Prevent email conflicts
-    if (updates.email && updates.email !== user.email) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email: updates.email },
-      });
-      if (existingUser) {
-        return NextResponse.json(
-          { error: "Email already in use" },
-          { status: 409 }
-        );
-      }
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: updates,
+    // Fetch updated company details for response
+    const updatedCompany = await prisma.company.findUnique({
+      where: { id: currentUser.companyId },
       select: {
         id: true,
-        email: true,
-        phone: true,
-        role: true,
-        location: true,
+        name: true,
         subscriptionType: true,
         subscriptionStartDate: true,
         subscriptionEndDate: true,
-        createdAt: true,
-        clientRegistrationCount: true, // Include in response
-        maxClientRegistrations: true, // Include in response
-        paymentCount: true, // Include in response
-        maxPayments: true, // Include in response
+        clientRegistrationCount: true,
+        maxClientRegistrations: true,
+        paymentCount: true,
+        maxPayments: true,
       },
     });
 
-    // Log the update in Historic
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "USER",
-        entityId: id,
-        oldData: JSON.parse(JSON.stringify(user)),
-        newData: JSON.parse(JSON.stringify(updatedUser)),
-        changedBy: session.user.id,
-        description: `User ${user.email} updated by superadmin`,
-      },
-    });
-
-    return NextResponse.json(updatedUser, { status: 200 });
+    return NextResponse.json(
+      { ...updatedUser, company: updatedCompany },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Error updating user" }, { status: 500 });
@@ -271,34 +321,42 @@ export async function DELETE(
   try {
     const user = await prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        clientRegistrationCount: true, // Include for logging
-        maxClientRegistrations: true, // Include for logging
-        paymentCount: true, // Include for logging
-        maxPayments: true, // Include for logging
+      include: {
+        company: {
+          select: {
+            id: true,
+            subscriptionType: true,
+            subscriptionStartDate: true,
+            subscriptionEndDate: true,
+            clientRegistrationCount: true,
+            maxClientRegistrations: true,
+            paymentCount: true,
+            maxPayments: true,
+          },
+        },
       },
     });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Delete related records (cascade delete should be handled by Prisma if configured)
-    await prisma.user.delete({ where: { id } });
-
-    // Log the deletion in Historic
-    await prisma.historic.create({
-      data: {
-        action: "DELETE",
-        entityType: "USER",
-        entityId: id,
-        oldData: JSON.parse(JSON.stringify(user)),
-        newData: null,
-        changedBy: session.user.id,
-        description: `User ${user.email} deleted by superadmin`,
-      },
-    });
+    // Delete the user (cascade delete should handle related records if configured in Prisma)
+    await prisma.$transaction([
+      prisma.user.delete({ where: { id } }),
+      // Log the deletion in Historic
+      prisma.historic.create({
+        data: {
+          action: "DELETE",
+          entityType: "USER",
+          entityId: id,
+          oldData: JSON.parse(JSON.stringify(user)),
+          newData: null,
+          changedBy: session.user.id,
+          companyId: user.companyId,
+          description: `User ${user.email} deleted by superadmin`,
+        },
+      }),
+    ]);
 
     return NextResponse.json(
       { message: "User deleted successfully" },

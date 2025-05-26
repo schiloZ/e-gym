@@ -132,6 +132,7 @@ export default function StatsPage() {
 
   const getActiveSubscriptions = () => {
     const subscriptions = stats.activeSubscriptionsPerDay;
+    console.log("subscriptions", subscriptions);
     return subscriptions.length > 0
       ? subscriptions[subscriptions.length - 1].count
       : 0;

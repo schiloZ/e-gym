@@ -80,6 +80,7 @@ model Client {
   phone            String?
   email            String?        @unique
   registrationDate DateTime       @default(now())
+  imagePath        String? // Optional Cloudflare image URL (e.g., "https://images.cloudflare.com/client-id/image-id")
   payments         Payment[]
   userId           String         @db.ObjectId
   user             User           @relation(fields: [userId], references: [id])
@@ -87,6 +88,22 @@ model Client {
   company          Company?       @relation(fields: [companyId], references: [id])
   historics        Historic[]
   notifications    Notification[]
+
+  // Medical Information
+  height            Float? // Height in centimeters (e.g., 175.5)
+  weight            Float? // Weight in kilograms (e.g., 70.2)
+  age               Int? // Age in years
+  medicalConditions String? // JSON string or comma-separated (e.g., "diabetes,asthma")
+  allergies         String? // JSON string or comma-separated (e.g., "peanuts,dust")
+  injuries          String? // JSON string or comma-separated (e.g., "knee surgery 2023")
+  medications       String? // JSON string or comma-separated (e.g., "metformin")
+  bloodPressure     String? // Format: "systolic/diastolic" (e.g., "120/80")
+
+  // Body Goals
+  targetWeight  Float? // Target weight in kilograms (e.g., 65.0)
+  fitnessGoal   String? // E.g., "weight loss", "muscle gain"
+  targetBodyFat Float? // Target body fat percentage (e.g., 15.0)
+  goalMilestone DateTime? // Date to achieve the goal (e.g., "2025-07-01")
 }
 
 model Notification {
@@ -137,7 +154,7 @@ model Historic {
   oldData     Json?
   newData     Json?
   changedBy   String   @db.ObjectId
-  user        User     @relation(fields: [changedBy], references: [id])
+  user        User?    @relation(fields: [changedBy], references: [id])
   companyId   String?  @db.ObjectId // Link to Company
   company     Company? @relation(fields: [companyId], references: [id])
   createdAt   DateTime @default(now())

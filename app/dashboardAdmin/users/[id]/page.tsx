@@ -389,7 +389,7 @@ export default function CompanyDetailPage() {
                 {company.users.map((user) => (
                   <Link
                     key={user.id}
-                    href={`/dashboardAdmin/users/${user.id}`}
+                    href={`/dashboardAdmin/users/${user.id}/people`}
                     className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center space-x-3">

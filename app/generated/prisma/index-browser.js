@@ -166,8 +166,21 @@ exports.Prisma.ClientScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   registrationDate: 'registrationDate',
+  imagePath: 'imagePath',
   userId: 'userId',
-  companyId: 'companyId'
+  companyId: 'companyId',
+  height: 'height',
+  weight: 'weight',
+  age: 'age',
+  medicalConditions: 'medicalConditions',
+  allergies: 'allergies',
+  injuries: 'injuries',
+  medications: 'medications',
+  bloodPressure: 'bloodPressure',
+  targetWeight: 'targetWeight',
+  fitnessGoal: 'fitnessGoal',
+  targetBodyFat: 'targetBodyFat',
+  goalMilestone: 'goalMilestone'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {

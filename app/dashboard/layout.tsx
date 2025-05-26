@@ -50,6 +50,11 @@ export default function DashboardLayout({
     daysRemaining?: number;
   } | null>(null);
 
+  useEffect(() => {
+    if (session?.user?.role !== "manager") {
+      router.push("/dashboard/clients");
+    }
+  }, [session, router]);
   // Fetch company details from the API
   useEffect(() => {
     const fetchCompanyInfo = async () => {
@@ -85,7 +90,7 @@ export default function DashboardLayout({
   useEffect(() => {
     if (companyInfo?.subscriptionEndDate) {
       const endDate = companyInfo.subscriptionEndDate;
-      const today = new Date(); // Current date and time: 04:02 PM GMT, May 22, 2025
+      const today = new Date(); // Current date and time: 03:52 PM GMT, May 23, 2025
       const daysRemaining = differenceInDays(endDate, today);
 
       if (daysRemaining <= 0) {
@@ -181,6 +186,9 @@ export default function DashboardLayout({
     }
   };
 
+  // Check if the user has the "manager" role (if not, they are a coach)
+  const isManager = session.user?.role === "manager";
+
   return (
     <SessionProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -268,68 +276,70 @@ export default function DashboardLayout({
                       </span>
                     </div>
 
-                    <div className="relative">
-                      <button
-                        onClick={() => {
-                          setIsNotificationOpen(!isNotificationOpen);
-                          setIsProfileOpen(false);
-                        }}
-                        className="text-gray-600 hover:text-blue-600 p-1 sm:p-2 rounded-full hover:bg-gray-100 focus:outline-none relative"
-                      >
-                        <Bell className="h-4 sm:h-5 w-4 sm:w-5" />
-                        <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-3 sm:h-4 w-3 sm:w-4 flex items-center justify-center">
-                          {notifications.filter((n) => !n.isRead).length || 0}
-                        </span>
-                      </button>
+                    {isManager && (
+                      <div className="relative">
+                        <button
+                          onClick={() => {
+                            setIsNotificationOpen(!isNotificationOpen);
+                            setIsProfileOpen(false);
+                          }}
+                          className="text-gray-600 hover:text-blue-600 p-1 sm:p-2 rounded-full hover:bg-gray-100 focus:outline-none relative"
+                        >
+                          <Bell className="h-4 sm:h-5 w-4 sm:w-5" />
+                          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-3 sm:h-4 w-3 sm:w-4 flex items-center justify-center">
+                            {notifications.filter((n) => !n.isRead).length || 0}
+                          </span>
+                        </button>
 
-                      {isNotificationOpen && (
-                        <div className="absolute right-0 mt-1 sm:mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg py-1 sm:py-2 border border-gray-200 z-50">
-                          <div className="px-3 sm:px-4 py-1 sm:py-2 border-b border-gray-100">
-                            <h3 className="font-semibold text-gray-800 text-sm sm:text-base">
-                              Notifications
-                            </h3>
-                          </div>
-                          <div className="max-h-80 sm:max-h-96 overflow-y-auto">
-                            {notifications.length === 0 ? (
-                              <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
-                                Aucune nouvelle notification
-                              </div>
-                            ) : (
-                              notifications.map((notification) => (
-                                <div
-                                  key={notification.id}
-                                  className={`px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 border-l-4 ${
-                                    notification.type === "CLIENT_REGISTERED"
-                                      ? "border-blue-500"
-                                      : "border-green-500"
-                                  }`}
-                                >
-                                  <p className="text-xs sm:text-sm font-medium text-gray-800">
-                                    {notification.type === "CLIENT_REGISTERED"
-                                      ? "Nouveau client enregistré"
-                                      : "Paiement reçu"}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {notification.message}
-                                  </p>
-                                  <p className="text-xs text-gray-400 mt-1">
-                                    {notification.createdAt}
-                                  </p>
+                        {isNotificationOpen && (
+                          <div className="absolute right-0 mt-1 sm:mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg py-1 sm:py-2 border border-gray-200 z-50">
+                            <div className="px-3 sm:px-4 py-1 sm:py-2 border-b border-gray-100">
+                              <h3 className="font-semibold text-gray-800 text-sm sm:text-base">
+                                Notifications
+                              </h3>
+                            </div>
+                            <div className="max-h-80 sm:max-h-96 overflow-y-auto">
+                              {notifications.length === 0 ? (
+                                <div className="px-3 sm:px-4 py-2 sm:py-3 text-center text-gray-500 text-xs sm:text-sm">
+                                  Aucune nouvelle notification
                                 </div>
-                              ))
-                            )}
-                            <div className="px-3 sm:px-4 py-2 sm:py-3 text-center border-t border-gray-100">
-                              <Link
-                                href="/dashboard/notifications"
-                                className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium"
-                              >
-                                Voir toutes les notifications
-                              </Link>
+                              ) : (
+                                notifications.map((notification) => (
+                                  <div
+                                    key={notification.id}
+                                    className={`px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 border-l-4 ${
+                                      notification.type === "CLIENT_REGISTERED"
+                                        ? "border-blue-500"
+                                        : "border-green-500"
+                                    }`}
+                                  >
+                                    <p className="text-xs sm:text-sm font-medium text-gray-800">
+                                      {notification.type === "CLIENT_REGISTERED"
+                                        ? "Nouveau client enregistré"
+                                        : "Paiement reçu"}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {notification.message}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                      {notification.createdAt}
+                                    </p>
+                                  </div>
+                                ))
+                              )}
+                              <div className="px-3 sm:px-4 py-2 sm:py-3 text-center border-t border-gray-100">
+                                <Link
+                                  href="/dashboard/notifications"
+                                  className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium"
+                                >
+                                  Voir toutes les notifications
+                                </Link>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -402,74 +412,99 @@ export default function DashboardLayout({
               <nav className="space-y-1">
                 {subscriptionWarning?.daysRemaining !== 0 && (
                   <>
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <LayoutDashboard className="h-5 w-5 mr-3 text-gray-500" />
-                      <span className="font-medium">Tableau de bord</span>
-                    </Link>
+                    {isManager ? (
+                      // Navigation for Managers (all links)
+                      <>
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-5 w-5 mr-3 text-gray-500" />
+                          <span className="font-medium">Tableau de bord</span>
+                        </Link>
 
-                    <div className="pt-2">
-                      <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                        Gestion
-                      </p>
-                      <Link
-                        href="/dashboard/clients"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Users className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Clients</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/payments"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <CreditCard className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Paiements</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/calendar"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <Calendar className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Calendrier</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/historic"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <History className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Historique</span>
-                      </Link>
-                    </div>
+                        <div className="pt-2">
+                          <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                            Gestion
+                          </p>
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Tableau de bord</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/clients"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <Users className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Clients</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/payments"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <CreditCard className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Paiements</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/calendar"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <Calendar className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Calendrier</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/historic"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <History className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Historique</span>
+                          </Link>
+                        </div>
 
-                    <div className="pt-2">
-                      <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                        Rapports
-                      </p>
-                      <Link
-                        href="/dashboard/reports"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <TrendingUp className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Analyse</span>
-                      </Link>
-                      <Link
-                        href="/dashboard/factures"
-                        className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <ReceiptCent className="h-5 w-5 mr-3 text-gray-500" />
-                        <span className="font-medium">Factures</span>
-                      </Link>
-                    </div>
+                        <div className="pt-2">
+                          <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                            Rapports
+                          </p>
+                          <Link
+                            href="/dashboard/reports"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <TrendingUp className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Analyse</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/factures"
+                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <ReceiptCent className="h-5 w-5 mr-3 text-gray-500" />
+                            <span className="font-medium">Factures</span>
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      // Navigation for Coaches (only Clients link)
+                      <>
+                        <Link
+                          href="/dashboard/clients"
+                          className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Users className="h-5 w-5 mr-3 text-gray-500" />
+                          <span className="font-medium">Clients</span>
+                        </Link>
+                      </>
+                    )}
                   </>
                 )}
               </nav>
