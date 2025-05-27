@@ -14,12 +14,20 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+interface Client {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  registrationDate: string;
+}
+
 export default function ClientsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [clients, setClients] = useState([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredClients, setFilteredClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -61,7 +69,7 @@ export default function ClientsPage() {
   }, [searchQuery, clients]);
 
   // Gérer la suppression d'un client
-  const handleDelete = async (clientId) => {
+  const handleDelete = async (clientId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
       try {
         await fetch(`/api/clients/${clientId}`, {
@@ -97,7 +105,7 @@ export default function ClientsPage() {
     startIndex + itemsPerPage
   );
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
@@ -108,7 +116,8 @@ export default function ClientsPage() {
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isManager = (session.user as any)?.role === "manager";
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 space-y-6">
       {/* En-tête */}
@@ -123,13 +132,15 @@ export default function ClientsPage() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <Link
-            href="/dashboard/clients/new"
-            className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-sm sm:text-base transition shadow-md w-full sm:w-auto"
-          >
-            <UserPlus className="h-4 sm:h-5 w-4 sm:w-5" />
-            Ajouter un nouveau client
-          </Link>
+          {isManager && (
+            <Link
+              href="/dashboard/clients/new"
+              className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-sm sm:text-base transition shadow-md w-full sm:w-auto"
+            >
+              <UserPlus className="h-4 sm:h-5 w-4 sm:w-5" />
+              Ajouter un nouveau client
+            </Link>
+          )}
         </div>
       </div>
 
@@ -196,20 +207,24 @@ export default function ClientsPage() {
                     <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
                     Voir
                   </Link>
-                  <Link
-                    href={`/dashboard/clients/${client.id}/edit`}
-                    className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
-                  >
-                    <Edit className="h-3 sm:h-4 w-3 sm:w-4" />
-                    Modifier
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(client.id)}
-                    className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
-                  >
-                    <Trash2 className="h-3 sm:h-4 w-3 sm:w-4" />
-                    Supprimer
-                  </button>
+                  {isManager && (
+                    <Link
+                      href={`/dashboard/clients/${client.id}/edit`}
+                      className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
+                    >
+                      <Edit className="h-3 sm:h-4 w-3 sm:w-4" />
+                      Modifier
+                    </Link>
+                  )}
+                  {isManager && (
+                    <button
+                      onClick={() => handleDelete(client.id)}
+                      className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
+                    >
+                      <Trash2 className="h-3 sm:h-4 w-3 sm:w-4" />
+                      Supprimer
+                    </button>
+                  )}
                 </div>
               </div>
             ))

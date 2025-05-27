@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function PaymentsPage() {
   const { data: session, status } = useSession();
@@ -20,6 +21,8 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Same as ClientsPage
 
   // Récupérer les paiements au montage
   useEffect(() => {
@@ -57,6 +60,7 @@ export default function PaymentsPage() {
         payment.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredPayments(filtered);
+    setCurrentPage(1); // Réinitialiser à la première page lors d'une nouvelle recherche
   }, [searchQuery, payments]);
 
   // Gérer la suppression d'un paiement
@@ -70,6 +74,7 @@ export default function PaymentsPage() {
         setFilteredPayments(
           filteredPayments.filter((payment) => payment.id !== paymentId)
         );
+        toast.success("Paiement supprimé avec succès !");
       } catch (error) {
         console.error("Erreur lors de la suppression du paiement :", error);
       }
@@ -87,6 +92,26 @@ export default function PaymentsPage() {
   if (!session) {
     return null; // La redirection est gérée dans useEffect
   }
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedPayments = filteredPayments.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6">
@@ -129,7 +154,7 @@ export default function PaymentsPage() {
       {/* Liste des paiements */}
       <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-md overflow-hidden">
         <div className="space-y-3 sm:space-y-4">
-          {filteredPayments.length === 0 ? (
+          {paginatedPayments.length === 0 ? (
             <div className="text-gray-500 text-center py-6 sm:py-8 md:py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
               <CreditCard className="h-8 sm:h-10 md:h-12 w-8 sm:w-10 md:w-12 mx-auto text-gray-300 mb-3" />
               <p className="font-medium text-xs sm:text-sm md:text-base">
@@ -141,7 +166,7 @@ export default function PaymentsPage() {
               </p>
             </div>
           ) : (
-            filteredPayments.map((payment) => (
+            paginatedPayments.map((payment) => (
               <div
                 key={payment.id}
                 className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200"
@@ -192,15 +217,49 @@ export default function PaymentsPage() {
             ))
           )}
         </div>
+
+        {/* Pagination Controls */}
         {filteredPayments.length > 0 && (
-          <div className="mt-3 sm:mt-4 md:mt-6 text-center">
-            <Link
-              href="/dashboard/payments"
-              className="text-green-600 hover:text-green-800 text-xs sm:text-sm md:text-base font-medium inline-flex items-center"
-            >
-              Voir tous les paiements
-              <ArrowRight className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 ml-1" />
-            </Link>
+          <div className="mt-4 flex justify-center">
+            <nav className="flex items-center gap-2">
+              <button
+                onClick={handlePrevPage}
+                className={`p-2 rounded-lg border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 hover:bg-gray-50 transition"
+                }`}
+                disabled={currentPage === 1}
+              >
+                <ArrowRight className="h-4 w-4 rotate-180" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === page
+                        ? "bg-green-500 text-white font-medium"
+                        : "border border-gray-200 hover:bg-gray-50 transition"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                onClick={handleNextPage}
+                className={`p-2 rounded-lg border ${
+                  currentPage === totalPages
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 hover:bg-gray-50 transition"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </nav>
           </div>
         )}
       </div>

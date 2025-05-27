@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -31,7 +31,34 @@ export default function AddClientForm({ userId }: { userId: string }) {
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null); // State for the selected image file
   const [previewImage, setPreviewImage] = useState<string | null>(null); // State for image preview
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+  } | null>(null);
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await fetch("/api/company/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
+        if (!response.ok) {
+          throw new Error("Failed to fetch company details");
+        }
+
+        const data = await response.json();
+        setCompanyInfo({
+          ...data,
+        });
+      } catch (err: unknown) {
+        toast.error((err as Error).message, { duration: 4000 });
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+  console.log(companyInfo);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -41,7 +68,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
       [name]: value,
     }));
   };
-
+  const isStandardPlan = companyInfo?.subscriptionType !== "free";
   // Handle image file selection and create a preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -207,7 +234,6 @@ export default function AddClientForm({ userId }: { userId: string }) {
       }
     } catch (err: any) {
       console.error("Erreur de création du client :", err);
-      toast.error("Erreur lors de l'ajout du client");
     } finally {
       setIsSubmitting(false);
     }
@@ -296,38 +322,39 @@ export default function AddClientForm({ userId }: { userId: string }) {
                 placeholder="jean@example.com"
               />
             </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="image"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Photo du client (Facultatif)
-              </label>
-              <input
-                type="file"
-                id="image"
-                name="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm md:text-base"
-                disabled={isSubmitting}
-              />
-              {previewImage && (
-                <div className="mt-2">
-                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
-                    Aperçu de l'image :
-                  </p>
-                  <Image
-                    src={previewImage}
-                    alt="Aperçu de la photo du client"
-                    width={100}
-                    height={100}
-                    className="rounded-lg object-cover"
-                  />
-                </div>
-              )}
-            </div>
+            {isStandardPlan && (
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="image"
+                  className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                >
+                  Photo du client (Facultatif)
+                </label>
+                <input
+                  type="file"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm md:text-base"
+                  disabled={isSubmitting}
+                />
+                {previewImage && (
+                  <div className="mt-2">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                      Aperçu de l&apos;image :
+                    </p>
+                    <Image
+                      src={previewImage}
+                      alt="Aperçu de la photo du client"
+                      width={100}
+                      height={100}
+                      className="rounded-lg object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -603,7 +630,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
 
       <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
         <h3 className="text-xs sm:text-sm md:text-base font-medium text-blue-800 mb-2">
-          Conseils rapides pour l'enregistrement des clients
+          Conseils rapides pour l&apos;enregistrement des clients
         </h3>
         <ul className="text-xs sm:text-sm md:text-base text-blue-600 space-y-1 list-disc list-inside">
           <li>Le nom est le seul champ requis</li>

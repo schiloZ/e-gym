@@ -114,7 +114,7 @@ export async function DELETE(
   const companyId = session.user.companyId;
   const clientId = params.id;
 
-  // Validate clientId as a MongoDB ObjectId
+  // Validate clientId as a MongoDB ObjectId (though Prisma doesn't require ObjectId, keeping for consistency)
   if (!ObjectId.isValid(clientId)) {
     console.log("Invalid clientId format:", clientId);
     return NextResponse.json(
@@ -124,7 +124,7 @@ export async function DELETE(
   }
 
   try {
-    // Fetch the client to verify ownership
+    // Fetch the client to verify ownership and capture data for historic record
     const client = await prisma.client.findUnique({
       where: {
         id: clientId,
@@ -150,12 +150,58 @@ export async function DELETE(
       );
     }
 
+    // Capture the client's data before deletion for the historic record
+    const oldData = {
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      registrationDate: client.registrationDate.toISOString(),
+      height: client.height,
+      weight: client.weight,
+      age: client.age,
+      medicalConditions: client.medicalConditions,
+      allergies: client.allergies,
+      injuries: client.injuries,
+      medications: client.medications,
+      bloodPressure: client.bloodPressure,
+      targetWeight: client.targetWeight,
+      fitnessGoal: client.fitnessGoal,
+      targetBodyFat: client.targetBodyFat,
+      goalMilestone: client.goalMilestone
+        ? client.goalMilestone.toISOString()
+        : null,
+    };
+
     // Delete the client (and associated payments due to cascading, if configured)
     await prisma.client.delete({
       where: {
         id: clientId,
       },
     });
+
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
+    });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "DELETE",
+          entityType: "CLIENT",
+          entityId: clientId,
+          clientId: clientId, // Link to the client
+          oldData, // Store the client's data before deletion
+          newData: null, // No new data since this is a deletion
+          changedBy: session.user.id,
+          companyId: session.user.companyId,
+          description: "Client deleted successfully",
+        },
+      });
+    } else {
+      console.log(
+        "Client deleted, but historic record not created: Subscription type is 'free'"
+      );
+    }
 
     console.log("Client deleted successfully:", clientId);
     return NextResponse.json({ message: "Client deleted successfully" });
@@ -211,18 +257,6 @@ export async function PATCH(
 
   if (!ObjectId.isValid(clientId)) {
     console.log("Invalid clientId format:", clientId);
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "CLIENT",
-        entityId: clientId,
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session.user.companyId,
-        description: "Invalid client ID format",
-      },
-    });
     return NextResponse.json(
       { error: "Invalid client ID format" },
       { status: 400 }
@@ -251,17 +285,7 @@ export async function PATCH(
 
     // Validation
     if (!name || !email) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Name and email are required for update",
-        },
-      });
+      console.log("Validation error: Name and email are required");
       return NextResponse.json(
         { error: "Name and email are required" },
         { status: 400 }
@@ -289,18 +313,7 @@ export async function PATCH(
     }
 
     if (phone && !/^\+?[1-9]\d{9,14}$/.test(phone)) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session.user.companyId,
-          description: "Invalid phone number format",
-        },
-      });
+      console.log("Invalid phone number format:", phone);
       return NextResponse.json(
         { error: "Invalid phone number format" },
         { status: 400 }
@@ -311,18 +324,7 @@ export async function PATCH(
       ? new Date(registrationDate)
       : undefined;
     if (registrationDate && isNaN(parsedRegistrationDate.getTime())) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session.user.companyId,
-          description: "Invalid registration date format",
-        },
-      });
+      console.log("Invalid registration date format:", registrationDate);
       return NextResponse.json(
         { error: "Invalid registration date format" },
         { status: 400 }
@@ -388,18 +390,7 @@ export async function PATCH(
       ? new Date(goalMilestone)
       : undefined;
     if (goalMilestone && isNaN(parsedGoalMilestone.getTime())) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session.user.companyId,
-          description: "Invalid goal milestone date format",
-        },
-      });
+      console.log("Invalid goal milestone date format:", goalMilestone);
       return NextResponse.json(
         { error: "Invalid goal milestone date format" },
         { status: 400 }
@@ -412,18 +403,6 @@ export async function PATCH(
 
     if (!client) {
       console.log("Client not found for clientId:", clientId);
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session.user.companyId,
-          description: "Client not found",
-        },
-      });
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
@@ -435,19 +414,6 @@ export async function PATCH(
         "Authenticated user's companyId:",
         companyId
       );
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "CLIENT",
-          entityId: clientId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session.user.companyId,
-          description:
-            "Client does not belong to the authenticated user's company",
-        },
-      });
       return NextResponse.json(
         { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
@@ -521,39 +487,34 @@ export async function PATCH(
           ? client.goalMilestone.toISOString()
           : null,
     };
-
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "CLIENT",
-        entityId: clientId,
-        clientId: clientId, // Link to the client
-        oldData,
-        newData,
-        changedBy: userId,
-        companyId: session.user.companyId,
-        description: "Client updated successfully",
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
     });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "CLIENT",
+          entityId: clientId,
+          clientId: clientId, // Link to the client
+          oldData,
+          newData,
+          changedBy: userId,
+          companyId: session.user.companyId,
+          description: "Client updated successfully",
+        },
+      });
+    } else {
+      console.log(
+        "Client updated, but historic record not created: Subscription type is 'free'"
+      );
+    }
 
     console.log("Client updated successfully:", updatedClient);
     return NextResponse.json(updatedClient);
   } catch (error) {
     console.error("Error updating client:", error);
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "CLIENT",
-        entityId: clientId,
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session.user.companyId,
-        description: `Error updating client: ${
-          error.message || "Unknown error"
-        }`,
-      },
-    });
     return NextResponse.json(
       { error: error.message || "Error updating client data" },
       { status: 500 }

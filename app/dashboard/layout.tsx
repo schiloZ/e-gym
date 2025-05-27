@@ -13,7 +13,6 @@ import {
   User,
   ChevronDown,
   Dumbbell,
-  Settings,
   TrendingUp,
   Calendar,
   History,
@@ -162,13 +161,13 @@ export default function DashboardLayout({
   const getPlanBadgeStyle = (plan: string | null | undefined) => {
     switch (plan) {
       case "free":
-        return "bg-green-100 text-green-800";
+        return "bg-green-200 text-green-900 border border-green-300"; // Vibrant green with a subtle border
       case "premium":
-        return "bg-blue-100 text-blue-800";
+        return "bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 border border-amber-600 shadow-sm"; // Golden gradient with a metallic feel
       case "enterprise":
-        return "bg-purple-100 text-purple-800";
+        return "bg-gradient-to-r from-blue-100 via-cyan-100 to-blue-100 text-blue-900 border border-blue-300 shadow-md"; // Diamond-like icy blue with a sparkling effect
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-200 text-gray-900 border border-gray-300"; // Neutral gray with a clean look
     }
   };
 
@@ -176,11 +175,11 @@ export default function DashboardLayout({
   const getPlanText = (plan: string | null | undefined) => {
     switch (plan) {
       case "free":
-        return "Essai gratuit";
+        return "Standard";
       case "premium":
-        return "Pour Gbô";
+        return "Premium";
       case "enterprise":
-        return "Entreprise";
+        return "Platinum";
       default:
         return "Non abonné";
     }
@@ -188,6 +187,7 @@ export default function DashboardLayout({
 
   // Check if the user has the "manager" role (if not, they are a coach)
   const isManager = session.user?.role === "manager";
+  const isStandard = companyInfo?.subscriptionType !== "free";
 
   return (
     <SessionProvider>
@@ -428,14 +428,7 @@ export default function DashboardLayout({
                           <p className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                             Gestion
                           </p>
-                          <Link
-                            href="/dashboard"
-                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <LayoutDashboard className="h-5 w-5 mr-3 text-gray-500" />
-                            <span className="font-medium">Tableau de bord</span>
-                          </Link>
+
                           <Link
                             href="/dashboard/clients"
                             className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
@@ -460,14 +453,16 @@ export default function DashboardLayout({
                             <Calendar className="h-5 w-5 mr-3 text-gray-500" />
                             <span className="font-medium">Calendrier</span>
                           </Link>
-                          <Link
-                            href="/dashboard/historic"
-                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <History className="h-5 w-5 mr-3 text-gray-500" />
-                            <span className="font-medium">Historique</span>
-                          </Link>
+                          {isStandard && (
+                            <Link
+                              href="/dashboard/historic"
+                              className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <History className="h-5 w-5 mr-3 text-gray-500" />
+                              <span className="font-medium">Historique</span>
+                            </Link>
+                          )}
                         </div>
 
                         <div className="pt-2">
@@ -516,12 +511,12 @@ export default function DashboardLayout({
                   <h3 className="text-sm font-semibold text-blue-800">
                     E-Gym Pro
                   </h3>
-                  <p className="text-xs text-blue-600 mt-1">Version 2.5.0</p>
+                  <p className="text-xs text-blue-600 mt-1">Version 1.0</p>
                   <a
                     href="#"
                     className="text-xs text-blue-700 hover:text-blue-900 mt-2 inline-block font-medium"
                   >
-                    Vérifier les mises à jour
+                    Prochaine mise à jour : 15/08/2025
                   </a>
                 </div>
               )}

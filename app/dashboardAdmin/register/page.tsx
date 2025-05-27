@@ -544,12 +544,12 @@ export default function Register() {
                           passwordStrength === 1
                             ? "text-red-500"
                             : passwordStrength === 2
-                            ? "text-yellow-500"
-                            : passwordStrength === 3
-                            ? "text-blue-500"
-                            : passwordStrength === 4
-                            ? "text-green-500"
-                            : "text-gray-400"
+                              ? "text-yellow-500"
+                              : passwordStrength === 3
+                                ? "text-blue-500"
+                                : passwordStrength === 4
+                                  ? "text-green-500"
+                                  : "text-gray-400"
                         }`}
                       >
                         {getPasswordStrengthText()}

@@ -129,12 +129,12 @@ model Payment {
   amount          Int
   subscription    String
   method          String
-  status          String
+  status          String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   startDate       DateTime
-  endDate         DateTime
-  nextPaymentDate DateTime
+  endDate         DateTime?
+  nextPaymentDate DateTime?
   paymentDate     DateTime?
   paymentStatus   String?
   date            DateTime @default(now())

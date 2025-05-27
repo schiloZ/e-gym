@@ -102,6 +102,8 @@ export default function ClientDetailPage() {
       </div>
     );
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isManager = (session.user as any)?.role === "manager";
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 space-y-6">
@@ -142,22 +144,24 @@ export default function ClientDetailPage() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <Link
-            href={`/dashboard/clients/${clientId}/edit`}
-            className="bg-yellow-50 text-yellow-600 hover:bg-yellow-100 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
-          >
-            <User className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5" />
-            Modifier le client
-          </Link>
-          <Link
-            href="/dashboard/payments/new"
-            className="bg-green-50 text-green-600 hover:bg-green-100 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
-          >
-            <CreditCard className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5" />
-            Ajouter un paiement
-          </Link>
-        </div>
+        {isManager && (
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Link
+              href={`/dashboard/clients/${clientId}/edit`}
+              className="bg-yellow-50 text-yellow-600 hover:bg-yellow-100 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
+            >
+              <User className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5" />
+              Modifier le client
+            </Link>
+            <Link
+              href="/dashboard/payments/new"
+              className="bg-green-50 text-green-600 hover:bg-green-100 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
+            >
+              <CreditCard className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5" />
+              Ajouter un paiement
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Détails du client */}
@@ -397,15 +401,17 @@ export default function ClientDetailPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                  <Link
-                    href={`/dashboard/payments/${payment.id}`}
-                    className="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
-                  >
-                    <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
-                    Voir
-                  </Link>
-                </div>
+                {isManager && (
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                    <Link
+                      href={`/dashboard/payments/${payment.id}`}
+                      className="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
+                    >
+                      <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
+                      Voir
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
           </div>

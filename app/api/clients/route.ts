@@ -187,6 +187,24 @@ export async function POST(request: Request) {
     }
   }
 
+  const company = await prisma.company.findUnique({
+    where: { id: session.user.companyId },
+    select: { clientRegistrationCount: true, maxClientRegistrations: true },
+  });
+
+  if (
+    company &&
+    company.maxClientRegistrations &&
+    company.clientRegistrationCount >= company.maxClientRegistrations
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Le Nombre d'enregistrements clients est atteint veuillez renouveler votre abonnement",
+      },
+      { status: 403 }
+    );
+  }
   try {
     const client = await prisma.client.create({
       data: {
@@ -216,37 +234,45 @@ export async function POST(request: Request) {
       data: { clientRegistrationCount: { increment: 1 } },
     });
 
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "CLIENT",
-        entityId: client.id,
-        clientId: client.id,
-        oldData: null,
-        newData: {
-          name,
-          phone,
-          email,
-          imagePath,
-          registrationDate: client.registrationDate,
-          height,
-          weight,
-          age,
-          medicalConditions,
-          allergies,
-          injuries,
-          medications,
-          bloodPressure,
-          targetWeight,
-          fitnessGoal,
-          targetBodyFat,
-          goalMilestone: goalMilestone ? new Date(goalMilestone) : undefined,
-        },
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
-        description: "Client created successfully",
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
     });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "CREATE",
+          entityType: "CLIENT",
+          entityId: client.id,
+          clientId: client.id,
+          oldData: null,
+          newData: {
+            name,
+            phone,
+            email,
+            imagePath,
+            registrationDate: client.registrationDate,
+            height,
+            weight,
+            age,
+            medicalConditions,
+            allergies,
+            injuries,
+            medications,
+            bloodPressure,
+            targetWeight,
+            fitnessGoal,
+            targetBodyFat,
+            goalMilestone: goalMilestone ? new Date(goalMilestone) : undefined,
+          },
+          changedBy: session.user.id,
+          companyId: session.user.companyId,
+          description: "Client created successfully",
+        },
+      });
+    } else {
+      console.log("Historic record not created: Subscription type is 'free'");
+    }
 
     const notificationMessage = `${name} has registered today${
       fitnessGoal ? ` with a goal of ${fitnessGoal}` : ""

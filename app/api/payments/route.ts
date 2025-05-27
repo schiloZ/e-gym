@@ -13,19 +13,7 @@ export async function POST(request: Request) {
     !session.user.id ||
     !session.user.companyId
   ) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: "unknown",
-        companyId: session?.user?.companyId,
-        description:
-          "Unauthorized attempt to create a payment: No session, user ID, or company ID",
-      },
-    });
+    console.error("Unauthorized access attempt:");
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -51,18 +39,7 @@ export async function POST(request: Request) {
   } = await request.json();
 
   if (!clientEmail || !amount) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: "Client email and amount are required",
-      },
-    });
+    console.error("Missing required fields:");
     return NextResponse.json(
       { error: "Client email and amount are required" },
       { status: 400 }
@@ -71,18 +48,7 @@ export async function POST(request: Request) {
 
   const parsedAmount = Number(amount);
   if (isNaN(parsedAmount) || parsedAmount <= 0) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: "Amount must be a positive number",
-      },
-    });
+    console.error("Invalid amount provided:", amount);
     return NextResponse.json(
       { error: "Amount must be a positive number" },
       { status: 400 }
@@ -90,17 +56,10 @@ export async function POST(request: Request) {
   }
 
   if (!startDate || !endDate || !nextPaymentDate) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: "Start date, end date, and next payment date are required",
-      },
+    console.error("Missing date fields:", {
+      startDate,
+      endDate,
+      nextPaymentDate,
     });
     return NextResponse.json(
       { error: "Start date, end date, and next payment date are required" },
@@ -113,35 +72,15 @@ export async function POST(request: Request) {
   });
 
   if (!user) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: "User not found",
-      },
-    });
+    console.error("User not found:", userId);
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   // Check payment limit
   if (user.paymentCount >= user.maxPayments) {
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: `Limit of ${user.maxPayments} payments reached for ${user.subscriptionType} plan`,
-      },
-    });
+    console.error(
+      `Payment limit reached for user ${userId}: ${user.paymentCount} payments`
+    );
     return NextResponse.json(
       {
         error: `Limit of ${user.maxPayments} payments reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
@@ -155,33 +94,11 @@ export async function POST(request: Request) {
       where: { email: clientEmail },
     });
     if (!client) {
-      await prisma.historic.create({
-        data: {
-          action: "CREATE",
-          entityType: "PAYMENT",
-          entityId: "unknown",
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          companyId: session?.user?.companyId,
-          description: "Client not found",
-        },
-      });
+      console.error("Client not found:", clientEmail);
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
     if (client.companyId !== companyId) {
-      await prisma.historic.create({
-        data: {
-          action: "CREATE",
-          entityType: "PAYMENT",
-          entityId: "unknown",
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description:
-            "Client does not belong to the authenticated user's company",
-        },
-      });
+      console.log("Client does not belong to the authenticated user's company");
       return NextResponse.json(
         { error: "Client does not belong to the authenticated user's company" },
         { status: 403 }
@@ -192,11 +109,11 @@ export async function POST(request: Request) {
       amount: parsedAmount,
       subscription: subscription || "Monthly",
       method: method || "Cash",
-      status: status || "Pending",
+      status: "Completed",
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       nextPaymentDate: new Date(nextPaymentDate),
-      paymentStatus: paymentStatus || "Unpaid",
+      paymentStatus: paymentStatus || "Paid",
       date: new Date(), // Current date: 11:12 AM GMT, May 16, 2025
       client: {
         connect: { id: client.id },
@@ -212,12 +129,27 @@ export async function POST(request: Request) {
     if (paymentDate) {
       paymentData.paymentDate = new Date(paymentDate);
     }
-
+    const company1 = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { paymentCount: true, maxPayments: true, subscriptionType: true },
+    });
+    if (
+      company1 &&
+      company1.maxPayments &&
+      company1.paymentCount >= company1.maxPayments
+    ) {
+      return NextResponse.json(
+        {
+          error: `Vous avez atteint la limite de ${company1.maxPayments} paiements pour votre plan. Veuillez mettre à niveau votre abonnement pour augmenter cette limite.`,
+        },
+        { status: 403 }
+      );
+    }
     const payment = await prisma.payment.create({
       data: paymentData,
     });
 
-    // Increment client registration count for the company
+    // Increment client registration count for the company1
     await prisma.company.update({
       where: { id: session.user.companyId },
       data: { paymentCount: { increment: 1 } },
@@ -227,28 +159,35 @@ export async function POST(request: Request) {
       amount: parsedAmount,
       subscription: subscription || "Monthly",
       method: method || "Cash",
-      status: status || "Pending",
+      status: "Completed",
       startDate,
       endDate,
       nextPaymentDate,
       paymentDate,
       paymentStatus: paymentStatus || "Unpaid",
-      clientId: client.id,
+      clientName: client.name,
     };
-
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: payment.id,
-        paymentId: payment.id,
-        oldData: null,
-        newData,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: "Payment created successfully",
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
     });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "CREATE",
+          entityType: "PAYMENT",
+          entityId: payment.id,
+          paymentId: payment.id,
+          oldData: null,
+          newData,
+          changedBy: userId,
+          companyId: session?.user?.companyId,
+          description: "Payment created successfully",
+        },
+      });
+    } else {
+      console.log("Historic record not created for free subscription");
+    }
 
     // Create a notification for the user
     await prisma.notification.create({
@@ -263,20 +202,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Payment recorded", payment });
   } catch (error) {
     console.error("Payment creation error:", error);
-    await prisma.historic.create({
-      data: {
-        action: "CREATE",
-        entityType: "PAYMENT",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        companyId: session?.user?.companyId,
-        description: `Error creating payment: ${
-          error.message || "Unknown error"
-        }`,
-      },
-    });
     return NextResponse.json(
       { error: error.message || "Error recording payment" },
       { status: 400 }

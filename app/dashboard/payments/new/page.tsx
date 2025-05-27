@@ -126,7 +126,6 @@ export default function NewPaymentPage() {
       // Rediriger vers la liste des paiements après un court délai
       setTimeout(() => router.push("/dashboard/payments"), 1500);
     } catch (err) {
-      toast.error("Erreur lors de l'enregistrement du paiement");
       setError(
         err.message ||
           "Une erreur s'est produite lors de l'enregistrement du paiement."
@@ -215,13 +214,15 @@ export default function NewPaymentPage() {
                 Montant (FCFA)
               </label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 sm:h-5 w-4 sm:w-5 text-gray-400">
+                  XOF
+                </span>{" "}
                 <input
                   type="number"
                   name="amount"
                   value={formData.amount}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
+                  className="w-full pl-15 pr-4 py-4 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
                   placeholder="Saisissez le montant"
                   min="0"
                   step="1"
@@ -266,23 +267,6 @@ export default function NewPaymentPage() {
               </select>
             </div>
 
-            {/* Statut */}
-            <div>
-              <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                Statut
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full p-2 sm:p-2.5 md:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
-              >
-                <option value="Pending">En attente</option>
-                <option value="Completed">Terminé</option>
-                <option value="Failed">Échoué</option>
-              </select>
-            </div>
-
             {/* Statut du paiement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
@@ -320,7 +304,7 @@ export default function NewPaymentPage() {
             {/* Date de fin */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                Date de fin (Facultatif)
+                Date de fin
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
@@ -337,7 +321,7 @@ export default function NewPaymentPage() {
             {/* Prochaine date de paiement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                Prochaine date de paiement (Facultatif)
+                Prochaine date de paiement
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
@@ -345,23 +329,6 @@ export default function NewPaymentPage() {
                   type="date"
                   name="nextPaymentDate"
                   value={formData.nextPaymentDate}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
-                />
-              </div>
-            </div>
-
-            {/* Date de paiement */}
-            <div>
-              <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                Date de paiement (Facultatif)
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
-                <input
-                  type="date"
-                  name="paymentDate"
-                  value={formData.paymentDate}
                   onChange={handleChange}
                   className="w-full pl-10 pr-4 py-2 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
                 />

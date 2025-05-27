@@ -130,12 +130,26 @@ export default function StatsPage() {
     return paymentCount > 0 ? totalPayments / paymentCount : 0;
   };
 
-  const getActiveSubscriptions = () => {
-    const subscriptions = stats.activeSubscriptionsPerDay;
+  const getActiveSubscriptionsTrend = () => {
+    const subscriptions = stats.activeSubscriptionsPerDay || [];
     console.log("subscriptions", subscriptions);
-    return subscriptions.length > 0
-      ? subscriptions[subscriptions.length - 1].count
-      : 0;
+
+    if (subscriptions.length === 0) {
+      return 0;
+    }
+
+    // Get the current date
+    const currentDate = new Date("2025-05-26T16:14:00Z"); // Current time: 04:14 PM GMT on May 26, 2025
+    // Find the latest subscription entry up to the current date
+    const latestSubscription = subscriptions
+      .filter((sub) => new Date(sub.date) <= currentDate)
+      .reduce(
+        (latest, current) =>
+          new Date(latest.date) > new Date(current.date) ? latest : current,
+        subscriptions[0]
+      );
+
+    return latestSubscription ? latestSubscription.count : 0;
   };
 
   const formatCurrency = (value) => {
@@ -604,7 +618,7 @@ export default function StatsPage() {
                   Abonnements actifs
                 </p>
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {formatNumber(getActiveSubscriptions())}
+                  {formatNumber(getActiveSubscriptionsTrend())}
                 </h3>
               </div>
               <div className="p-2 sm:p-3 bg-purple-50 rounded-lg">

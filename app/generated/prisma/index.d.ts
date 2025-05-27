@@ -9176,12 +9176,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status: string | null
     createdAt: Date
     updatedAt: Date
     startDate: Date
-    endDate: Date
-    nextPaymentDate: Date
+    endDate: Date | null
+    nextPaymentDate: Date | null
     paymentDate: Date | null
     paymentStatus: string | null
     date: Date
@@ -9279,12 +9279,12 @@ export namespace Prisma {
       amount: number
       subscription: string
       method: string
-      status: string
+      status: string | null
       createdAt: Date
       updatedAt: Date
       startDate: Date
-      endDate: Date
-      nextPaymentDate: Date
+      endDate: Date | null
+      nextPaymentDate: Date | null
       paymentDate: Date | null
       paymentStatus: string | null
       date: Date
@@ -15159,12 +15159,12 @@ export namespace Prisma {
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
-    status?: StringFilter<"Payment"> | string
+    status?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
     startDate?: DateTimeFilter<"Payment"> | Date | string
-    endDate?: DateTimeFilter<"Payment"> | Date | string
-    nextPaymentDate?: DateTimeFilter<"Payment"> | Date | string
+    endDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
+    nextPaymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
@@ -15210,12 +15210,12 @@ export namespace Prisma {
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
-    status?: StringFilter<"Payment"> | string
+    status?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
     startDate?: DateTimeFilter<"Payment"> | Date | string
-    endDate?: DateTimeFilter<"Payment"> | Date | string
-    nextPaymentDate?: DateTimeFilter<"Payment"> | Date | string
+    endDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
+    nextPaymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
@@ -15261,12 +15261,12 @@ export namespace Prisma {
     amount?: IntWithAggregatesFilter<"Payment"> | number
     subscription?: StringWithAggregatesFilter<"Payment"> | string
     method?: StringWithAggregatesFilter<"Payment"> | string
-    status?: StringWithAggregatesFilter<"Payment"> | string
+    status?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
     startDate?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
-    endDate?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
-    nextPaymentDate?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
+    endDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
+    nextPaymentDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     paymentDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     date?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
@@ -16186,12 +16186,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -16208,12 +16208,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -16227,12 +16227,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16248,12 +16248,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16269,12 +16269,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -16286,12 +16286,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16302,12 +16302,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18981,12 +18981,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -19002,12 +19002,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -19223,12 +19223,12 @@ export namespace Prisma {
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
-    status?: StringFilter<"Payment"> | string
+    status?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
     startDate?: DateTimeFilter<"Payment"> | Date | string
-    endDate?: DateTimeFilter<"Payment"> | Date | string
-    nextPaymentDate?: DateTimeFilter<"Payment"> | Date | string
+    endDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
+    nextPaymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
@@ -19469,12 +19469,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -19490,12 +19490,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -20041,12 +20041,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -20061,12 +20061,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -20523,12 +20523,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -20544,12 +20544,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -20729,12 +20729,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20749,12 +20749,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21299,12 +21299,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -21320,12 +21320,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -21534,12 +21534,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21554,12 +21554,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21814,12 +21814,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -21998,12 +21998,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22018,12 +22018,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22037,12 +22037,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22169,12 +22169,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -22345,12 +22345,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22365,12 +22365,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22384,12 +22384,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22562,12 +22562,12 @@ export namespace Prisma {
     amount: number
     subscription: string
     method: string
-    status: string
+    status?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     startDate: Date | string
-    endDate: Date | string
-    nextPaymentDate: Date | string
+    endDate?: Date | string | null
+    nextPaymentDate?: Date | string | null
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
@@ -22605,12 +22605,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22624,12 +22624,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22643,12 +22643,12 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    nextPaymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextPaymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string

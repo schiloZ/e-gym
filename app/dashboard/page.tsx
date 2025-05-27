@@ -227,6 +227,7 @@ export default function Dashboard() {
       },
     ],
   };
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* En-tête */}

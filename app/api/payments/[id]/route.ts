@@ -119,7 +119,7 @@ export async function DELETE(
   const companyId = session.user.companyId;
   const paymentId = params.id;
 
-  // Validate paymentId as a MongoDB ObjectId
+  // Validate paymentId as a MongoDB ObjectId (though Prisma doesn't require ObjectId, keeping for consistency)
   if (!ObjectId.isValid(paymentId)) {
     console.log("Invalid paymentId format:", paymentId);
     return NextResponse.json(
@@ -129,7 +129,7 @@ export async function DELETE(
   }
 
   try {
-    // Fetch the payment to verify ownership
+    // Fetch the payment to verify ownership and capture data for historic record
     const payment = await prisma.payment.findUnique({
       where: {
         id: paymentId,
@@ -157,12 +157,46 @@ export async function DELETE(
       );
     }
 
+    // Capture the payment's data before deletion for the historic record
+    const oldData = {
+      amount: payment.amount,
+      paymentMethod: payment.paymentMethod,
+      status: payment.status,
+      clientId: payment.clientId,
+      companyId: payment.companyId,
+    };
+
     // Delete the payment
     await prisma.payment.delete({
       where: {
         id: paymentId,
       },
     });
+
+    // Check subscription type before creating historic record
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
+    });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "DELETE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          clientId: payment.clientId, // Link to the associated client
+          oldData, // Store the payment's data before deletion
+          newData: null, // No new data since this is a deletion
+          changedBy: session.user.id,
+          companyId: session.user.companyId,
+          description: "Payment deleted successfully",
+        },
+      });
+    } else {
+      console.log(
+        "Payment deleted, but historic record not created: Subscription type is 'free'"
+      );
+    }
 
     console.log("Payment deleted successfully:", paymentId);
     return NextResponse.json({ message: "Payment deleted successfully" });
@@ -193,18 +227,6 @@ export async function PATCH(
     !session.user.companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "PAYMENT",
-        entityId: params.id,
-        oldData: null,
-        newData: null,
-        changedBy: "unknown",
-        description:
-          "Unauthorized attempt to update payment: No session, user ID, or company ID",
-      },
-    });
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -219,17 +241,6 @@ export async function PATCH(
 
   if (!ObjectId.isValid(paymentId)) {
     console.log("Invalid paymentId format:", paymentId);
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "PAYMENT",
-        entityId: paymentId,
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        description: "Invalid payment ID format",
-      },
-    });
     return NextResponse.json(
       { error: "Invalid payment ID format" },
       { status: 400 }
@@ -281,17 +292,7 @@ export async function PATCH(
 
     const parsedAmount = Number(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Amount must be a positive number",
-        },
-      });
+      console.error("Invalid amount provided:", amount);
       return NextResponse.json(
         { error: "Amount must be a positive number" },
         { status: 400 }
@@ -306,17 +307,7 @@ export async function PATCH(
     let parsedPaymentDate = paymentDate ? new Date(paymentDate) : undefined;
 
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Invalid start or end date format",
-        },
-      });
+      console.error("Invalid start or end date format:", startDate, endDate);
       return NextResponse.json(
         { error: "Invalid start or end date format" },
         { status: 400 }
@@ -324,17 +315,7 @@ export async function PATCH(
     }
 
     if (nextPaymentDate && isNaN(parsedNextPaymentDate.getTime())) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Invalid next payment date format",
-        },
-      });
+      console.error("Invalid next payment date format:", nextPaymentDate);
       return NextResponse.json(
         { error: "Invalid next payment date format" },
         { status: 400 }
@@ -342,17 +323,7 @@ export async function PATCH(
     }
 
     if (paymentDate && isNaN(parsedPaymentDate.getTime())) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Invalid payment date format",
-        },
-      });
+      console.error("Invalid payment date format:", paymentDate);
       return NextResponse.json(
         { error: "Invalid payment date format" },
         { status: 400 }
@@ -366,17 +337,6 @@ export async function PATCH(
 
     if (!payment) {
       console.log("Payment not found for paymentId:", paymentId);
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description: "Payment not found",
-        },
-      });
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
     }
 
@@ -388,18 +348,6 @@ export async function PATCH(
         "Authenticated user's companyId:",
         companyId
       );
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description:
-            "Payment does not belong to the authenticated user's company",
-        },
-      });
       return NextResponse.json(
         {
           error: "Payment does not belong to the authenticated user's company",
@@ -446,37 +394,31 @@ export async function PATCH(
       nextPaymentDate: nextPaymentDate,
       paymentDate: paymentDate,
     };
-
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "PAYMENT",
-        entityId: paymentId,
-        paymentId: paymentId, // Link to the payment
-        oldData,
-        newData,
-        changedBy: userId,
-        description: "Payment updated successfully",
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
     });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "UPDATE",
+          entityType: "PAYMENT",
+          entityId: paymentId,
+          paymentId: paymentId, // Link to the payment
+          oldData,
+          newData,
+          changedBy: userId,
+          description: "Payment updated successfully",
+        },
+      });
+    } else {
+      console.log("Historic record not created for free subscription");
+    }
 
     console.log("Payment updated successfully:", updatedPayment);
     return NextResponse.json(updatedPayment);
   } catch (error) {
     console.error("Error updating payment:", error);
-    await prisma.historic.create({
-      data: {
-        action: "UPDATE",
-        entityType: "PAYMENT",
-        entityId: paymentId,
-        oldData: null,
-        newData: null,
-        changedBy: userId,
-        description: `Error updating payment: ${
-          error.message || "Unknown error"
-        }`,
-      },
-    });
     return NextResponse.json(
       { error: error.message || "Error updating payment data" },
       { status: 500 }

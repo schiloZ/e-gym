@@ -18,18 +18,6 @@ export async function DELETE(
     !session.user.companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
-    await prisma.historic.create({
-      data: {
-        action: "DELETE",
-        entityType: "BILL",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: "unknown",
-        description:
-          "Unauthorized attempt to delete a bill: No session, user ID, or company ID",
-      },
-    });
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -42,19 +30,6 @@ export async function DELETE(
   const billId = params.id;
 
   if (!billId || typeof billId !== "string") {
-    console.log("Invalid billId format:", billId);
-    await prisma.historic.create({
-      data: {
-        action: "DELETE",
-        entityType: "BILL",
-        entityId: "unknown",
-        oldData: null,
-        newData: null,
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
-        description: "Invalid bill ID format",
-      },
-    });
     return NextResponse.json(
       { error: "Invalid bill ID format" },
       { status: 400 }
@@ -67,19 +42,6 @@ export async function DELETE(
     });
 
     if (!bill) {
-      console.log("Bill not found for id:", billId);
-      await prisma.historic.create({
-        data: {
-          action: "DELETE",
-          entityType: "BILL",
-          entityId: billId,
-          oldData: null,
-          newData: null,
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
-          description: "Bill not found",
-        },
-      });
       return NextResponse.json({ error: "Bill not found" }, { status: 404 });
     }
 
@@ -90,19 +52,6 @@ export async function DELETE(
         "Authenticated user's companyId:",
         companyId
       );
-      await prisma.historic.create({
-        data: {
-          action: "DELETE",
-          entityType: "BILL",
-          entityId: billId,
-          oldData: null,
-          newData: null,
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
-          description:
-            "Bill does not belong to the authenticated user's company",
-        },
-      });
       return NextResponse.json(
         { error: "Bill does not belong to the authenticated user's company" },
         { status: 403 }
@@ -119,19 +68,26 @@ export async function DELETE(
     await prisma.bill.delete({
       where: { id: billId },
     });
-
-    await prisma.historic.create({
-      data: {
-        action: "DELETE",
-        entityType: "BILL",
-        entityId: billId,
-        oldData,
-        newData: null,
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
-        description: "Bill deleted successfully",
-      },
+    const company = await prisma.company.findUnique({
+      where: { id: session.user.companyId },
+      select: { subscriptionType: true },
     });
+    if (company?.subscriptionType !== "free") {
+      await prisma.historic.create({
+        data: {
+          action: "DELETE",
+          entityType: "BILL",
+          entityId: billId,
+          oldData,
+          newData: null,
+          changedBy: session.user.id,
+          companyId: session.user.companyId,
+          description: "Bill deleted successfully",
+        },
+      });
+    } else {
+      console.log("Historic record not created for free subscription");
+    }
 
     await prisma.notification.create({
       data: {
@@ -147,18 +103,6 @@ export async function DELETE(
     return NextResponse.json({ message: "Bill deleted successfully" });
   } catch (error) {
     console.error("Error deleting bill:", error);
-    await prisma.historic.create({
-      data: {
-        action: "DELETE",
-        entityType: "BILL",
-        entityId: billId,
-        oldData: null,
-        newData: null,
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
-        description: `Error deleting bill: ${error.message || "Unknown error"}`,
-      },
-    });
     return NextResponse.json(
       { error: error.message || "Error deleting bill" },
       { status: 500 }

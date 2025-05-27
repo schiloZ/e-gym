@@ -31,6 +31,7 @@ export const authOptions = {
               select: {
                 id: true,
                 name: true, // Fetch companyName
+                subscriptionType: true,
               },
             },
           },
@@ -89,6 +90,7 @@ export const authOptions = {
         token.maxPayments = user.maxPayments;
         token.companyId = user.companyId || null; // Add companyId to token
         token.companyName = user.companyName || null; // Add companyName to token
+        token.subscriptionType = user.subscriptionType || null;
       }
       return token;
     },
@@ -100,6 +102,7 @@ export const authOptions = {
         session.user.needsRegistration = token.needsRegistration;
         session.user.companyId = token.companyId; // Add companyId to session
         session.user.companyName = token.companyName; // Add companyName to session
+        session.user.subscriptionType = token.subscriptionType;
       }
       return session;
     },
