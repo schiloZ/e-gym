@@ -58,7 +58,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
     };
     fetchCompanyInfo();
   }, []);
-  console.log(companyInfo);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function PaymentsPage() {
   const { data: session, status } = useSession();
@@ -22,7 +24,35 @@ export default function PaymentsPage() {
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Same as ClientsPage
+  const itemsPerPage = 5;
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+  } | null>(null);
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await fetch("/api/company/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch company details");
+        }
+
+        const data = await response.json();
+        setCompanyInfo({
+          ...data,
+        });
+      } catch (err: unknown) {
+        toast.error((err as Error).message, { duration: 4000 });
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+  const isStandardPlan = companyInfo?.subscriptionType !== "free";
 
   // Récupérer les paiements au montage
   useEffect(() => {
@@ -60,7 +90,7 @@ export default function PaymentsPage() {
         payment.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredPayments(filtered);
-    setCurrentPage(1); // Réinitialiser à la première page lors d'une nouvelle recherche
+    setCurrentPage(1);
   }, [searchQuery, payments]);
 
   // Gérer la suppression d'un paiement
@@ -81,6 +111,135 @@ export default function PaymentsPage() {
     }
   };
 
+  // Fonction pour exporter les données en CSV
+  const exportToCSV = () => {
+    const headers = [
+      "Client",
+      "Montant (FCFA)",
+      "Abonnement",
+      "Statut",
+      "Date",
+      "Date de début",
+      "Date de fin",
+    ];
+    const rows = paginatedPayments.map((payment) => [
+      payment.client.name,
+      payment.amount.toLocaleString("fr-FR"),
+      payment.subscription,
+      payment.status || "N/A",
+      new Date(payment.date).toLocaleDateString("fr-FR"),
+      payment.startDate
+        ? new Date(payment.startDate).toLocaleDateString("fr-FR")
+        : "N/A",
+      payment.endDate
+        ? new Date(payment.endDate).toLocaleDateString("fr-FR")
+        : "N/A",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute(
+      "download",
+      `payments_export_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.setAttribute("href", url);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Fonction pour exporter les données en PDF
+  const exportToPDF = async () => {
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Add title and export date
+      doc.setFontSize(18);
+      doc.text("Rapport des Paiements", 14, 20);
+      doc.setFontSize(12);
+      doc.text(
+        `Exporté le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString(
+          "fr-FR",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        )}`,
+        14,
+        28
+      );
+
+      // Prepare data for the table
+      const headers = [
+        "Client",
+        "Montant (FCFA)",
+        "Abonnement",
+        "Statut",
+        "Date",
+        "Date de début",
+        "Date de fin",
+      ];
+      const rows = paginatedPayments.map((payment) => [
+        payment.client.name,
+        payment.amount.toLocaleString("fr-FR"),
+        payment.subscription,
+        payment.status || "N/A",
+        new Date(payment.date).toLocaleDateString("fr-FR"),
+        payment.startDate
+          ? new Date(payment.startDate).toLocaleDateString("fr-FR")
+          : "N/A",
+        payment.endDate
+          ? new Date(payment.endDate).toLocaleDateString("fr-FR")
+          : "N/A",
+      ]);
+
+      // Add the table
+      autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 35,
+        theme: "grid",
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [34, 197, 94],
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 25 },
+          6: { cellWidth: 25 },
+        },
+        margin: { left: 10, right: 10 },
+      });
+
+      // Save the PDF
+      doc.save(`payments_export_${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Une erreur est survenue lors de la génération du PDF.");
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -90,7 +249,7 @@ export default function PaymentsPage() {
   }
 
   if (!session) {
-    return null; // La redirection est gérée dans useEffect
+    return null;
   }
 
   // Pagination logic
@@ -101,7 +260,7 @@ export default function PaymentsPage() {
     startIndex + itemsPerPage
   );
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
@@ -134,6 +293,24 @@ export default function PaymentsPage() {
             <CreditCard className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6" />
             Nouveau paiement
           </Link>
+          {isStandardPlan && (
+            <>
+              <button
+                onClick={exportToCSV}
+                className="bg-white text-green-600 hover:bg-green-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
+              >
+                <CreditCard className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6" />
+                Exporter en CSV
+              </button>
+              <button
+                onClick={exportToPDF}
+                className="bg-white text-green-600 hover:bg-green-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-xs sm:text-sm md:text-base transition shadow-md w-full sm:w-auto"
+              >
+                <CreditCard className="h-4 sm:h-5 md:h-6 w-4 sm:w-5 md:w-6" />
+                Exporter en PDF
+              </button>
+            </>
+          )}
         </div>
       </div>
 

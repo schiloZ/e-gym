@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   AlertCircle,
   Loader2,
@@ -52,6 +54,34 @@ export default function StatsPage() {
   const [error, setError] = useState(null);
   const [timeRange, setTimeRange] = useState("week"); // semaine, mois, année, tout
   const [showFilters, setShowFilters] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+  } | null>(null);
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await fetch("/api/company/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch company details");
+        }
+
+        const data = await response.json();
+        setCompanyInfo({
+          ...data,
+        });
+      } catch (err: unknown) {
+        toast.error((err as Error).message, { duration: 4000 });
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+  const isStandardPlan = companyInfo?.subscriptionType !== "free";
 
   useEffect(() => {
     fetchData();
@@ -132,15 +162,12 @@ export default function StatsPage() {
 
   const getActiveSubscriptionsTrend = () => {
     const subscriptions = stats.activeSubscriptionsPerDay || [];
-    console.log("subscriptions", subscriptions);
-
     if (subscriptions.length === 0) {
       return 0;
     }
 
     // Get the current date
-    const currentDate = new Date("2025-05-26T16:14:00Z"); // Current time: 04:14 PM GMT on May 26, 2025
-    // Find the latest subscription entry up to the current date
+    const currentDate = new Date("2025-05-27T12:17:00Z"); // Current time: 12:17 PM GMT on May 27, 2025
     const latestSubscription = subscriptions
       .filter((sub) => new Date(sub.date) <= currentDate)
       .reduce(
@@ -288,7 +315,7 @@ export default function StatsPage() {
     ],
   };
 
-  // Données du graphique des revenus (ajusté pour les factures)
+  // Données du graphique des revenus
   const revenueData = {
     labels: stats.paymentAmountPerDay.map((d) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
@@ -358,6 +385,193 @@ export default function StatsPage() {
         barThickness: 12,
       },
     ],
+  };
+
+  // Fonction pour exporter les données en CSV
+  const exportToCSV = () => {
+    const headers = [
+      "Date",
+      "Inscriptions",
+      "Paiements",
+      "Montant des paiements",
+      "Montant des factures",
+      "Abonnements actifs",
+    ];
+    const rows = stats.registrationsPerDay.map((reg, index) => {
+      const payment = stats.paymentsPerDay[index] || {
+        count: 0,
+        totalAmount: 0,
+      };
+      const paymentAmount = stats.paymentAmountPerDay[index] || {
+        totalAmount: 0,
+      };
+      const billAmount = stats.billsAmountPerDay[index] || { totalAmount: 0 };
+      const subscription = stats.activeSubscriptionsPerDay[index] || {
+        count: 0,
+      };
+      return [
+        new Date(reg.date).toLocaleDateString("fr-FR"),
+        reg.count,
+        payment.count,
+        paymentAmount.totalAmount,
+        billAmount.totalAmount,
+        subscription.count,
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute(
+      "download",
+      `stats_export_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.setAttribute("href", url);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Fonction pour exporter les données et graphiques en PDF
+  const exportToPDF = async () => {
+    try {
+      // Create a new jsPDF instance in landscape mode
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Add title and export date
+      doc.setFontSize(18);
+      doc.text("Rapport Statistique", 14, 20);
+      doc.setFontSize(12);
+      doc.text(
+        `Exporté le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString(
+          "fr-FR",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        )}`,
+        14,
+        28
+      );
+
+      // Prepare data for the table (optimized columns)
+      const headers = [
+        "Date",
+        "Inscriptions",
+        "Paiements",
+        "Montant Paiements",
+        "Montant Factures",
+        "Revenu Net",
+        "Abonnements",
+      ];
+
+      const rows = stats.registrationsPerDay.map((reg, index) => {
+        const payment = stats.paymentsPerDay[index] || {
+          count: 0,
+          totalAmount: 0,
+        };
+        const paymentAmount = stats.paymentAmountPerDay[index] || {
+          totalAmount: 0,
+        };
+        const billAmount = stats.billsAmountPerDay[index] || { totalAmount: 0 };
+        const subscription = stats.activeSubscriptionsPerDay[index] || {
+          count: 0,
+        };
+        const revenue = paymentAmount.totalAmount - billAmount.totalAmount;
+
+        return [
+          new Date(reg.date).toLocaleDateString("fr-FR"),
+          reg.count,
+          payment.count,
+          formatCurrency(paymentAmount.totalAmount),
+          formatCurrency(billAmount.totalAmount),
+          formatCurrency(revenue),
+          subscription.count,
+        ];
+      });
+
+      // Add the table with optimized layout
+      autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 35,
+        theme: "grid",
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          overflow: "linebreak",
+          minCellHeight: 5,
+        },
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontStyle: "bold",
+          fontSize: 8,
+        },
+        columnStyles: {
+          0: { cellWidth: 18 }, // Date
+          1: { cellWidth: 15 }, // Inscriptions
+          2: { cellWidth: 15 }, // Paiements
+          3: { cellWidth: 20 }, // Montant Paiements
+          4: { cellWidth: 20 }, // Montant Factures
+          5: { cellWidth: 20 }, // Revenu Net
+          6: { cellWidth: 15 }, // Abonnements
+        },
+        margin: { left: 10, right: 10 },
+        tableWidth: "auto",
+        pageBreak: "auto",
+      });
+
+      // Add charts as images with labels
+      const charts = document.querySelectorAll("canvas");
+      let yPosition = (doc as any).lastAutoTable.finalY + 10;
+      const chartLabels = [
+        "Graphique des Inscriptions",
+        "Graphique des Paiements",
+        "Graphique des Revenus",
+        "Graphique des Factures",
+        "Graphique des Abonnements",
+      ];
+
+      for (let i = 0; i < charts.length; i++) {
+        const chartCanvas = charts[i] as HTMLCanvasElement;
+        const chartImage = chartCanvas.toDataURL("image/png");
+        const imgProps = doc.getImageProperties(chartImage);
+        const imgWidth = 120;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+        // Add new page if needed
+        if (yPosition + imgHeight + 10 > 190) {
+          doc.addPage("a4", "landscape");
+          yPosition = 20;
+        }
+
+        // Add label above the chart
+        doc.setFontSize(12);
+        doc.text(chartLabels[i], 10, yPosition);
+        yPosition += 10; // Space for the label
+
+        // Add the chart image
+        doc.addImage(chartImage, "PNG", 10, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + 10; // Space between charts
+      }
+
+      // Save the PDF
+      doc.save(`stats_export_${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Une erreur est survenue lors de la génération du PDF.");
+    }
   };
 
   if (loading) {
@@ -484,11 +698,29 @@ export default function StatsPage() {
                   </div>
                 )}
               </div>
+              {isStandardPlan && (
+                <>
+                  <button
+                    onClick={() => {
+                      exportToCSV();
+                    }}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm sm:text-base"
+                  >
+                    <Download className="h-4 w-4" />
+                    Exporter en CSV
+                  </button>
 
-              <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm sm:text-base">
-                <Download className="h-4 w-4" />
-                Exporter
-              </button>
+                  <button
+                    onClick={() => {
+                      exportToPDF();
+                    }}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm sm:text-base"
+                  >
+                    <Download className="h-4 w-4" />
+                    Exporter en PDF
+                  </button>
+                </>
+              )}
 
               <button
                 onClick={fetchData}

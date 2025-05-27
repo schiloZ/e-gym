@@ -19,6 +19,9 @@ import {
   AlertTriangle,
   AlertCircle,
   ReceiptCent,
+  Crown,
+  Star,
+  Gem,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -54,6 +57,7 @@ export default function DashboardLayout({
       router.push("/dashboard/clients");
     }
   }, [session, router]);
+
   // Fetch company details from the API
   useEffect(() => {
     const fetchCompanyInfo = async () => {
@@ -89,7 +93,7 @@ export default function DashboardLayout({
   useEffect(() => {
     if (companyInfo?.subscriptionEndDate) {
       const endDate = companyInfo.subscriptionEndDate;
-      const today = new Date(); // Current date and time: 03:52 PM GMT, May 23, 2025
+      const today = new Date();
       const daysRemaining = differenceInDays(endDate, today);
 
       if (daysRemaining <= 0) {
@@ -111,7 +115,7 @@ export default function DashboardLayout({
         setSubscriptionWarning(null);
       }
     } else {
-      setSubscriptionWarning(null); // No warning if no subscription end date
+      setSubscriptionWarning(null);
     }
   }, [companyInfo]);
 
@@ -157,17 +161,61 @@ export default function DashboardLayout({
     return null;
   }
 
+  // Get header styling based on subscription plan
+  const getHeaderStyle = (plan: string | null | undefined) => {
+    switch (plan) {
+      case "free":
+        return {
+          bg: "bg-gradient-to-r from-green-500 to-emerald-600",
+          shadow: "shadow-green-200",
+          border: "border-green-300",
+        };
+      case "premium":
+        return {
+          bg: "bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500",
+          shadow: "shadow-amber-200",
+          border: "border-amber-300",
+        };
+      case "enterprise":
+        return {
+          bg: "bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-700",
+          shadow: "shadow-blue-200",
+          border: "border-blue-300",
+        };
+      default:
+        return {
+          bg: "bg-white",
+          shadow: "shadow-gray-200",
+          border: "border-gray-200",
+        };
+    }
+  };
+
+  // Get plan icon based on subscription type
+  const getPlanIcon = (plan: string | null | undefined) => {
+    switch (plan) {
+      case "free":
+        return <Star className="h-4 sm:h-5 w-4 sm:w-5" />;
+      case "premium":
+        return <Crown className="h-4 sm:h-5 w-4 sm:w-5" />;
+      case "enterprise":
+        return <Gem className="h-4 sm:h-5 w-4 sm:w-5" />;
+      default:
+        return <CreditCard className="h-4 sm:h-5 w-4 sm:w-5" />;
+    }
+  };
+
   // Determine plan badge style based on subscriptionType from companyInfo
   const getPlanBadgeStyle = (plan: string | null | undefined) => {
     switch (plan) {
       case "free":
-        return "bg-green-200 text-green-900 border border-green-300"; // Vibrant green with a subtle border
+        return "bg-white/20 text-white border border-white/30 backdrop-blur-sm";
       case "premium":
-        return "bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 border border-amber-600 shadow-sm"; // Golden gradient with a metallic feel
+        return "bg-white/20 text-white border border-white/30 backdrop-blur-sm";
       case "enterprise":
-        return "bg-gradient-to-r from-blue-100 via-cyan-100 to-blue-100 text-blue-900 border border-blue-300 shadow-md"; // Diamond-like icy blue with a sparkling effect
+        return "bg-white/20 text-white border border-white/30 backdrop-blur-sm";
       default:
-        return "bg-gray-200 text-gray-900 border border-gray-300"; // Neutral gray with a clean look
+        return "bg-gray-200 text-gray-900 border border-gray-300";
     }
   };
 
@@ -185,9 +233,15 @@ export default function DashboardLayout({
     }
   };
 
-  // Check if the user has the "manager" role (if not, they are a coach)
+  // Check if the user has the "manager" role
   const isManager = session.user?.role === "manager";
   const isStandard = companyInfo?.subscriptionType !== "free";
+
+  const headerStyle = getHeaderStyle(companyInfo?.subscriptionType);
+  const planIcon = getPlanIcon(companyInfo?.subscriptionType);
+  const isColoredHeader =
+    companyInfo?.subscriptionType &&
+    companyInfo?.subscriptionType !== "default";
 
   return (
     <SessionProvider>
@@ -230,15 +284,17 @@ export default function DashboardLayout({
           </div>
         )}
 
-        {/* Navbar */}
-        <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-30">
+        {/* Navbar with plan-themed styling */}
+        <nav
+          className={`${headerStyle.bg} ${isColoredHeader ? "shadow-lg" : "shadow-md bg-white"} border-b ${headerStyle.border} sticky top-0 z-30`}
+        >
           <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4">
               {/* Left section (Menu and Logo) */}
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="lg:hidden text-gray-600 hover:text-blue-600 focus:outline-none"
+                  className={`lg:hidden ${isColoredHeader ? "text-white hover:text-white/80" : "text-gray-600 hover:text-blue-600"} focus:outline-none`}
                   aria-label="Toggle menu"
                 >
                   <Menu className="h-5 sm:h-6 w-5 sm:w-6" />
@@ -246,10 +302,14 @@ export default function DashboardLayout({
                 {subscriptionWarning?.daysRemaining !== 0 && (
                   <Link href="/dashboard" className="flex items-center">
                     <div className="flex items-center gap-1 sm:gap-2">
-                      <div className="bg-blue-600 text-white p-1 sm:p-2 rounded-lg">
-                        <Dumbbell className="h-5 sm:h-6 w-5 sm:w-6" />
+                      <div
+                        className={`${isColoredHeader ? "bg-white/20 text-white backdrop-blur-sm" : "bg-blue-600 text-white"} p-1 sm:p-2 rounded-lg`}
+                      >
+                        <Dumbbell className="h-4 sm:h-4 w-5 sm:w-6" />
                       </div>
-                      <span className="text-lg sm:text-xl font-bold text-blue-600">
+                      <span
+                        className={`text-lg sm:text-xl font-bold ${isColoredHeader ? "text-white" : "text-blue-600"}`}
+                      >
                         E-Gym
                       </span>
                     </div>
@@ -261,16 +321,22 @@ export default function DashboardLayout({
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {subscriptionWarning?.daysRemaining !== 0 && (
                   <>
-                    {/* Display subscription plan */}
+                    {/* Display subscription plan with enhanced styling */}
                     <div className="flex items-center space-x-1 sm:space-x-2">
-                      <CreditCard className="h-4 sm:h-5 w-4 sm:w-5 text-gray-500" />
-                      <span className="text-xs sm:text-sm font-medium text-gray-700">
+                      <div
+                        className={`${isColoredHeader ? "text-white" : "text-gray-500"}`}
+                      >
+                        {planIcon}
+                      </div>
+                      <span
+                        className={`text-xs sm:text-sm font-medium ${isColoredHeader ? "text-white/90" : "text-gray-700"}`}
+                      >
                         Plan :
                       </span>
                       <span
-                        className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold ${getPlanBadgeStyle(
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold ${getPlanBadgeStyle(
                           companyInfo?.subscriptionType
-                        )}`}
+                        )} flex items-center gap-1`}
                       >
                         {getPlanText(companyInfo?.subscriptionType)}
                       </span>
@@ -283,7 +349,7 @@ export default function DashboardLayout({
                             setIsNotificationOpen(!isNotificationOpen);
                             setIsProfileOpen(false);
                           }}
-                          className="text-gray-600 hover:text-blue-600 p-1 sm:p-2 rounded-full hover:bg-gray-100 focus:outline-none relative"
+                          className={`${isColoredHeader ? "text-white hover:text-white/80 hover:bg-white/10" : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"} p-1 sm:p-2 rounded-full focus:outline-none relative transition-colors`}
                         >
                           <Bell className="h-4 sm:h-5 w-4 sm:w-5" />
                           <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-3 sm:h-4 w-3 sm:w-4 flex items-center justify-center">
@@ -349,12 +415,16 @@ export default function DashboardLayout({
                       setIsProfileOpen(!isProfileOpen);
                       setIsNotificationOpen(false);
                     }}
-                    className="flex items-center text-gray-600 hover:text-blue-600 focus:outline-none"
+                    className={`flex items-center ${isColoredHeader ? "text-white hover:text-white/80" : "text-gray-600 hover:text-blue-600"} focus:outline-none transition-colors`}
                   >
-                    <div className="bg-blue-100 text-blue-600 rounded-full p-1">
+                    <div
+                      className={`${isColoredHeader ? "bg-white/20 text-white backdrop-blur-sm" : "bg-blue-100 text-blue-600"} rounded-full p-1`}
+                    >
                       <User className="h-4 sm:h-5 w-4 sm:w-5" />
                     </div>
-                    <span className="hidden sm:block ml-1 sm:ml-2 font-medium text-sm sm:text-base">
+                    <span
+                      className={`hidden sm:block ml-1 sm:ml-2 font-medium text-sm sm:text-base ${isColoredHeader ? "text-white" : ""}`}
+                    >
                       {session.user?.email || "Utilisateur Admin"}
                     </span>
                     <ChevronDown className="h-3 sm:h-4 w-3 sm:w-4 ml-0.5 sm:ml-1" />
@@ -445,14 +515,16 @@ export default function DashboardLayout({
                             <CreditCard className="h-5 w-5 mr-3 text-gray-500" />
                             <span className="font-medium">Paiements</span>
                           </Link>
-                          <Link
-                            href="/dashboard/calendar"
-                            className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Calendar className="h-5 w-5 mr-3 text-gray-500" />
-                            <span className="font-medium">Calendrier</span>
-                          </Link>
+                          {isStandard && (
+                            <Link
+                              href="/dashboard/calendar"
+                              className="flex items-center text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-4 py-3 rounded-lg transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <Calendar className="h-5 w-5 mr-3 text-gray-500" />
+                              <span className="font-medium">Calendrier</span>
+                            </Link>
+                          )}
                           {isStandard && (
                             <Link
                               href="/dashboard/historic"

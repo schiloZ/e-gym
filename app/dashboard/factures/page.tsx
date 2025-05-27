@@ -23,6 +23,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 ChartJS.register(
   CategoryScale,
@@ -53,6 +55,34 @@ export default function BillsPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState("mois");
   const [showFilters, setShowFilters] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<{
+    subscriptionType: string | null;
+  } | null>(null);
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await fetch("/api/company/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch company details");
+        }
+
+        const data = await response.json();
+        setCompanyInfo({
+          ...data,
+        });
+      } catch (err: unknown) {
+        toast.error((err as Error).message, { duration: 4000 });
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+  const isStandardPlan = companyInfo?.subscriptionType !== "free";
 
   // Catégories échantillons
   const categories = [
@@ -184,6 +214,98 @@ export default function BillsPage() {
     },
   };
 
+  // Fonction pour exporter les factures en CSV
+  const exportToCSV = () => {
+    const headers = ["Description", "Montant (FCFA)", "Date", "Catégorie"];
+    const rows = bills.map((bill) => [
+      bill.description,
+      bill.amount.toLocaleString("fr-FR"),
+      new Date(bill.date).toLocaleDateString("fr-FR"),
+      bill.category,
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute(
+      "download",
+      `bills_export_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.setAttribute("href", url);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Fonction pour exporter les factures en PDF
+  const exportToPDF = async () => {
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Add title and export date
+      doc.setFontSize(18);
+      doc.text("Rapport des Factures", 14, 20);
+      doc.setFontSize(12);
+      doc.text(
+        `Exporté le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString(
+          "fr-FR",
+          { hour: "2-digit", minute: "2-digit" }
+        )}`,
+        14,
+        28
+      );
+
+      // Prepare data for the table
+      const headers = ["Description", "Montant (FCFA)", "Date", "Catégorie"];
+      const rows = bills.map((bill) => [
+        bill.description,
+        formatCurrency(bill.amount),
+        new Date(bill.date).toLocaleDateString("fr-FR"),
+        bill.category,
+      ]);
+
+      // Add the table
+      autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 35,
+        theme: "grid",
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          0: { cellWidth: 40 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 30 },
+        },
+        margin: { left: 10, right: 10 },
+      });
+
+      // Save the PDF
+      doc.save(`bills_export_${new Date().toISOString().split("T")[0]}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Une erreur est survenue lors de la génération du PDF.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -268,11 +390,28 @@ export default function BillsPage() {
                   </div>
                 )}
               </div>
-
-              <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm sm:text-base">
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Exporter</span>
-              </button>
+              {isStandardPlan && (
+                <>
+                  <button
+                    onClick={() => {
+                      exportToCSV();
+                    }}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm sm:text-base"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Exporter en CSV</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      exportToPDF(); // Export both CSV and PDF
+                    }}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm sm:text-base"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Exporter en PDF</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
