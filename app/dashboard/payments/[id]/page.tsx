@@ -110,7 +110,20 @@ export default function PaymentDetailPage() {
               Détails du paiement
             </h1>
             <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">
-              Abonnement {payment.subscription} pour {payment.client.name}
+              Abonnement{" "}
+              {(() => {
+                const translations: Record<string, string> = {
+                  Daily: "Quotidien",
+                  Weekly: "Hebdomadaire",
+                  Monthly: "Mensuel",
+                  Quarterly: "Trimestriel",
+                  Yearly: "Annuel",
+                };
+                return (
+                  translations[payment.subscription] || payment.subscription
+                );
+              })()}{" "}
+              pour {payment.client.name}
             </p>
           </div>
         </div>
@@ -170,7 +183,8 @@ export default function PaymentDetailPage() {
                   Cash: "Espèces",
                   "Credit Card": "Carte de crédit",
                   "Bank Transfer": "Virement bancaire",
-                  "Mobile Money": "Paiement mobile",
+                  "Mobile Money":
+                    "Paiement mobile, MTN Money, Orange Money, Wave, etc.",
                 };
                 return translations[payment.method] || payment.method;
               })()}
@@ -187,8 +201,8 @@ export default function PaymentDetailPage() {
                   payment.paymentStatus === "Paid"
                     ? "text-green-600"
                     : payment.paymentStatus === "Overdue"
-                    ? "text-yellow-600"
-                    : "text-red-600"
+                      ? "text-yellow-600"
+                      : "text-red-600"
                 }
               >
                 {(() => {

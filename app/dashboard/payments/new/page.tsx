@@ -23,7 +23,7 @@ export default function NewPaymentPage() {
     subscription: "Monthly",
     method: "Cash",
     status: "Pending",
-    startDate: new Date("2025-05-15T11:49:00Z").toISOString().split("T")[0], // Par défaut à aujourd'hui
+    startDate: new Date().toISOString().split("T")[0], // Par défaut à aujourd'hui
     endDate: "",
     nextPaymentDate: "",
     paymentDate: "",
@@ -261,9 +261,11 @@ export default function NewPaymentPage() {
                 className="w-full p-2 sm:p-2.5 md:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
               >
                 <option value="Cash">Espèces</option>
+                <option value="Mobile Money">
+                  Paiement mobile: MTN, Orange Money, Wave
+                </option>
                 <option value="Credit Card">Carte de crédit</option>
                 <option value="Bank Transfer">Virement bancaire</option>
-                <option value="Mobile Money">Paiement mobile</option>
               </select>
             </div>
 

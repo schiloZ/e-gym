@@ -349,8 +349,8 @@ export default function HistoricPage() {
                       entry.action === "CREATE"
                         ? "bg-green-500"
                         : entry.action === "UPDATE"
-                        ? "bg-blue-500"
-                        : "bg-red-500"
+                          ? "bg-blue-500"
+                          : "bg-red-500"
                     }`}
                   ></div>
 
@@ -368,19 +368,41 @@ export default function HistoricPage() {
                           {entry.action === "CREATE"
                             ? "Créer"
                             : entry.action === "UPDATE"
-                            ? "Mettre à jour"
-                            : "Supprimer"}
+                              ? "Mettre à jour"
+                              : "Supprimer"}
                         </span>
                         <span className="text-sm sm:text-base font-semibold text-gray-800 bg-gray-100 px-2 sm:px-2.5 py-1 rounded-full">
                           {entry.entityType === "BILL"
                             ? "Facture"
                             : entry.entityType === "PAYMENT"
-                            ? "Payement"
-                            : "Creation"}
+                              ? "Payement"
+                              : "Creation"}
                         </span>
                       </div>
                       <p className="text-sm sm:text-base text-gray-900 font-medium">
-                        {entry.description}
+                        {entry.description === "Client created successfully"
+                          ? "Client créé avec succès"
+                          : entry.description === "Payment created successfully"
+                            ? "Paiement créé avec succès"
+                            : entry.description ===
+                                "Payment deleted successfully"
+                              ? "Paiement supprimé avec succès"
+                              : entry.description ===
+                                  "Client updated successfully"
+                                ? "Client mis à jour avec succès"
+                                : entry.description ===
+                                    "Client deleted successfully"
+                                  ? "Client supprimé avec succès"
+                                  : entry.description ===
+                                      "Payment updated successfully"
+                                    ? "Paiement mis à jour avec succès"
+                                    : entry.description ===
+                                        "Bill created successfully"
+                                      ? "Facture créée avec succès"
+                                      : entry.description ===
+                                          "Bill deleted successfully"
+                                        ? "Facture supprimée avec succès"
+                                        : entry.description}
                       </p>
 
                       <div className="mt-2 sm:mt-3 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-3 sm:gap-x-4">
@@ -400,8 +422,30 @@ export default function HistoricPage() {
                             <div className="truncate">
                               <span className="font-medium">Paiement :</span>{" "}
                               {entry.payment.amount} FCFA -{" "}
-                              {entry.payment.subscription} (
-                              {entry.payment.status})
+                              {(() => {
+                                const translations: Record<string, string> = {
+                                  Daily: "Quotidien",
+                                  Weekly: "Hebdomadaire",
+                                  Monthly: "Mensuel",
+                                  Quarterly: "Trimestriel",
+                                  Yearly: "Annuel",
+                                };
+                                return (
+                                  translations[entry.payment.subscription] ||
+                                  entry.payment.subscription
+                                );
+                              })()}
+                              (
+                              {entry.payment.status === "Pending" ? (
+                                <span className="text-yellow-500">
+                                  En attente
+                                </span>
+                              ) : entry.payment.status === "Completed" ? (
+                                <span className="text-green-500">Payé</span>
+                              ) : (
+                                <span className="text-red-500">Annulé</span>
+                              )}
+                              )
                             </div>
                           </div>
                         )}

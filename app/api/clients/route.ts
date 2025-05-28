@@ -274,8 +274,10 @@ export async function POST(request: Request) {
       console.log("Historic record not created: Subscription type is 'free'");
     }
 
-    const notificationMessage = `${name} has registered today${
-      fitnessGoal ? ` with a goal of ${fitnessGoal}` : ""
+    const notificationMessage = `${name} a été enregistré comme client ${
+      fitnessGoal
+        ? ` avec un objectif ${fitnessGoal === "weight loss" ? "de perte de poids" : fitnessGoal === "muscle gain" ? "de gain de masse musculaire" : fitnessGoal === "general fitness" ? "de fitness" : "endurance"}`
+        : ""
     }`;
     await prisma.notification.create({
       data: {

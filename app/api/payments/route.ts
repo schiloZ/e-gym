@@ -156,15 +156,13 @@ export async function POST(request: Request) {
     });
 
     const newData = {
-      amount: parsedAmount,
-      subscription: subscription || "Monthly",
+      prix: parsedAmount,
+      souscription: subscription || "Monthly",
       method: method || "Cash",
-      status: "Completed",
-      startDate,
-      endDate,
-      nextPaymentDate,
-      paymentDate,
-      paymentStatus: paymentStatus || "Unpaid",
+      status: "Payé",
+      Debut: startDate,
+      Fin: endDate,
+      ProchaineDate: nextPaymentDate,
       clientName: client.name,
     };
     const company = await prisma.company.findUnique({
@@ -193,7 +191,7 @@ export async function POST(request: Request) {
     await prisma.notification.create({
       data: {
         type: "PAYMENT_RECEIVED",
-        message: `${parsedAmount.toLocaleString()} FCFA from ${client.name}`,
+        message: `${parsedAmount.toLocaleString()} FCFA de ${client.name}`,
         userId: userId,
         paymentId: payment.id,
       },

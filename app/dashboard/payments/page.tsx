@@ -364,7 +364,13 @@ export default function PaymentsPage() {
                   </div>
                   <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
                     <span className="text-green-500">🔔</span> Statut :{" "}
-                    {payment.status}
+                    {payment.status === "Pending" ? (
+                      <span className="text-yellow-500">En attente</span>
+                    ) : payment.status === "Completed" ? (
+                      <span className="text-green-500">Payé</span>
+                    ) : (
+                      <span className="text-red-500">Annulé</span>
+                    )}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">

@@ -48,7 +48,7 @@ export default function BillsPage() {
   const [newBill, setNewBill] = useState<Omit<Bill, "id">>({
     description: "",
     amount: 0,
-    date: new Date("2025-05-15T12:36:00Z").toISOString().split("T")[0],
+    date: new Date().toISOString().split("T")[0],
     category: "Services publics",
   });
   const [loading, setLoading] = useState(true);
@@ -131,7 +131,7 @@ export default function BillsPage() {
       setNewBill({
         description: "",
         amount: 0,
-        date: new Date("2025-05-15T12:36:00Z").toISOString().split("T")[0],
+        date: new Date().toISOString().split("T")[0],
         category: "Services publics",
       });
       setError(null);

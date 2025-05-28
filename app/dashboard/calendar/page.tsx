@@ -170,8 +170,8 @@ export default function DatesPage() {
                             event.source === "Client"
                               ? "bg-blue-400"
                               : event.source === "Payment"
-                              ? "bg-green-400"
-                              : "bg-purple-400"
+                                ? "bg-green-400"
+                                : "bg-purple-400"
                           }`}
               ></div>
             ))}
@@ -393,8 +393,8 @@ export default function DatesPage() {
                     {filter === "Client"
                       ? "Clients"
                       : filter === "Payment"
-                      ? "Paiements"
-                      : "Historique"}
+                        ? "Paiements"
+                        : "Historique"}
                   </span>
                 )}
               </div>
@@ -436,7 +436,9 @@ export default function DatesPage() {
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-semibold text-sm sm:text-base text-gray-900">
-                                {event.type}
+                                {event.type === "Start Date"
+                                  ? "Début de l'événement"
+                                  : "Fin de l'événement"}
                               </span>
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${colorClass}-100 text-${colorClass}-800`}
@@ -444,8 +446,8 @@ export default function DatesPage() {
                                 {event.source === "Client"
                                   ? "Client"
                                   : event.source === "Payment"
-                                  ? "Paiement"
-                                  : "Historique"}
+                                    ? "Paiement"
+                                    : "Historique"}
                               </span>
                             </div>
 
@@ -459,7 +461,25 @@ export default function DatesPage() {
                                   Client :
                                 </span>
                                 <span className="text-gray-900 font-medium">
-                                  {event.entityName}
+                                  {event.entityName ===
+                                  "Client created successfully"
+                                    ? "Client créé avec succès"
+                                    : event.entityName ===
+                                        "Payment created successfully"
+                                      ? "Paiement créé avec succès"
+                                      : event.entityName ===
+                                          "Payment deleted successfully"
+                                        ? "Paiement supprimé avec succès"
+                                        : event.entityName ===
+                                            "Client updated successfully"
+                                          ? "Client mis à jour avec succès"
+                                          : event.entityName ===
+                                              "Client deleted successfully"
+                                            ? "Client supprimé avec succès"
+                                            : event.entityName ===
+                                                "Payment updated successfully"
+                                              ? "Paiement mis à jour avec succès"
+                                              : event.entityName}
                                 </span>
                               </div>
 
@@ -473,15 +493,6 @@ export default function DatesPage() {
                                   </span>
                                 </div>
                               )}
-
-                              <div className="flex items-center">
-                                <span className="text-gray-500 w-20 sm:w-24">
-                                  ID de l'entité :
-                                </span>
-                                <span className="text-gray-500">
-                                  {event.entityId}
-                                </span>
-                              </div>
                             </div>
                           </div>
                         </div>

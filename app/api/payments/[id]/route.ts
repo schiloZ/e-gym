@@ -159,11 +159,8 @@ export async function DELETE(
 
     // Capture the payment's data before deletion for the historic record
     const oldData = {
-      amount: payment.amount,
-      paymentMethod: payment.paymentMethod,
-      status: payment.status,
-      clientId: payment.clientId,
-      companyId: payment.companyId,
+      montant: payment.amount,
+      status: "Payé",
     };
 
     // Delete the payment

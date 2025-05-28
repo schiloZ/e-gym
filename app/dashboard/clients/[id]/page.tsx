@@ -361,7 +361,16 @@ export default function ClientDetailPage() {
               >
                 <div className="mb-2 sm:mb-0">
                   <p className="font-semibold text-gray-800 text-xs sm:text-sm md:text-base">
-                    Abonnement {payment.subscription}
+                    Abonnement{" "}
+                    {payment.subscription === "Monthly"
+                      ? "mensuel"
+                      : payment.subscription === "Yearly"
+                        ? "annuel"
+                        : payment.subscription === "Weekly"
+                          ? "hebdomadaire"
+                          : payment.subscription === "Daily"
+                            ? "quotidien"
+                            : "trimestriel"}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 mt-1">
                     <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
