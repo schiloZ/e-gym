@@ -15,6 +15,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast"; // Ensure toast is imported
 
 interface Client {
   id: string;
@@ -60,6 +61,7 @@ export default function ClientsPage() {
   const [companyInfo, setCompanyInfo] = useState<{
     subscriptionType: string | null;
   } | null>(null);
+
   useEffect(() => {
     const fetchCompanyInfo = async () => {
       try {
@@ -84,9 +86,10 @@ export default function ClientsPage() {
     };
     fetchCompanyInfo();
   }, []);
+
   const isStandardPlan = companyInfo?.subscriptionType !== "free";
 
-  // Récupérer les clients au montage
+  // Fetch clients
   useEffect(() => {
     const fetchClients = async () => {
       if (status === "loading") return;
@@ -110,7 +113,7 @@ export default function ClientsPage() {
     fetchClients();
   }, [session, status, router]);
 
-  // Gérer la recherche
+  // Handle search
   useEffect(() => {
     const filtered = clients.filter(
       (client) =>
@@ -119,10 +122,10 @@ export default function ClientsPage() {
         client.phone?.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredClients(filtered);
-    setCurrentPage(1); // Réinitialiser à la première page lors d'une nouvelle recherche
+    setCurrentPage(1);
   }, [searchQuery, clients]);
 
-  // Gérer la suppression d'un client
+  // Handle client deletion
   const handleDelete = async (clientId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
       try {
@@ -133,25 +136,24 @@ export default function ClientsPage() {
         setFilteredClients(
           filteredClients.filter((client) => client.id !== clientId)
         );
+        toast.success("Client supprimé avec succès !");
       } catch (error) {
         console.error("Erreur lors de la suppression du client :", error);
+        toast.error("Erreur lors de la suppression du client.");
       }
     }
   };
 
-  // Fonction utilitaire pour échapper les valeurs CSV
+  // Utility function to escape CSV values
   const escapeCSVValue = (value: string): string => {
-    // Si la valeur contient des virgules, des guillemets ou des retours à la ligne
     if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-      // Échapper les guillemets en les doublant et entourer la valeur de guillemets
       return `"${value.replace(/"/g, '""')}"`;
     }
     return value;
   };
 
-  // Fonction pour exporter les clients en CSV
+  // Export to CSV
   const exportToCSV = () => {
-    // Définir les en-têtes du CSV, incluant tous les champs du schéma (sauf relations)
     const headers = [
       "Nom",
       "Email",
@@ -171,7 +173,6 @@ export default function ClientsPage() {
       "Date de l'objectif",
     ];
 
-    // Convertir les données des clients en lignes CSV
     const rows = filteredClients.map((client) => [
       escapeCSVValue(client.name),
       escapeCSVValue(client.email || "N/A"),
@@ -188,7 +189,15 @@ export default function ClientsPage() {
       escapeCSVValue(client.medications || "N/A"),
       escapeCSVValue(client.bloodPressure || "N/A"),
       escapeCSVValue(client.targetWeight?.toString() || "N/A"),
-      escapeCSVValue(client.fitnessGoal || "N/A"),
+      escapeCSVValue(
+        client.fitnessGoal === "weight loss"
+          ? "perte de poids"
+          : client.fitnessGoal === "muscle gain"
+            ? "gain de masse musculaire"
+            : client.fitnessGoal === "general fitness"
+              ? "fitness"
+              : client.fitnessGoal || "N/A"
+      ),
       escapeCSVValue(client.targetBodyFat?.toString() || "N/A"),
       escapeCSVValue(
         client.goalMilestone
@@ -197,13 +206,11 @@ export default function ClientsPage() {
       ),
     ]);
 
-    // Combiner les en-têtes et les lignes en une seule chaîne CSV
     const csvContent = [
-      headers.map(escapeCSVValue).join(","), // Première ligne : en-têtes
-      ...rows.map((row) => row.join(",")), // Lignes de données
+      headers.map(escapeCSVValue).join(","),
+      ...rows.map((row) => row.join(",")),
     ].join("\n");
 
-    // Créer un fichier CSV téléchargeable
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -218,9 +225,9 @@ export default function ClientsPage() {
     URL.revokeObjectURL(url);
   };
 
-  // Fonction pour exporter les clients en PDF
+  // Export to PDF (Updated)
+  // Export to PDF with all columns (Alternative approach)
   const exportToPDF = () => {
-    // Charger les bibliothèques jsPDF et autotable via CDN
     const script = document.createElement("script");
     script.src =
       "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
@@ -234,18 +241,33 @@ export default function ClientsPage() {
     script.onload = () => {
       autoTableScript.onload = () => {
         const { jsPDF } = window.jspdf;
+
+        // Use A3 format in landscape for more space
         const doc = new jsPDF({
           orientation: "landscape",
           unit: "mm",
-          format: "a4",
+          format: "a3", // Larger format
         });
 
-        // Définir les en-têtes du tableau
+        // Add title and export date
+        doc.setFontSize(16);
+        doc.text("Liste des Clients", 15, 20);
+        doc.setFontSize(10);
+        doc.text(
+          `Exporté le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString(
+            "fr-FR",
+            { hour: "2-digit", minute: "2-digit" }
+          )}`,
+          15,
+          28
+        );
+
+        // Define all table headers
         const headers = [
           "Nom",
           "Email",
           "Téléphone",
-          "Date d'inscription",
+          "Date inscription",
           "Taille (cm)",
           "Poids (kg)",
           "Âge",
@@ -255,12 +277,12 @@ export default function ClientsPage() {
           "Médicaments",
           "Tension artérielle",
           "Poids cible (kg)",
-          "Objectif de fitness",
-          "Pourcentage de graisse corporelle cible",
-          "Date de l'objectif",
+          "Objectif fitness",
+          "% Graisse cible",
+          "Date objectif",
         ];
 
-        // Convertir les données des clients en lignes pour le tableau
+        // Convert client data to table rows
         const rows = filteredClients.map((client) => [
           client.name,
           client.email || "N/A",
@@ -275,61 +297,52 @@ export default function ClientsPage() {
           client.medications || "N/A",
           client.bloodPressure || "N/A",
           client.targetWeight?.toString() || "N/A",
-          client.fitnessGoal || "N/A",
+          client.fitnessGoal === "weight loss"
+            ? "Perte poids"
+            : client.fitnessGoal === "muscle gain"
+              ? "Gain muscle"
+              : client.fitnessGoal === "general fitness"
+                ? "Fitness"
+                : client.fitnessGoal || "N/A",
           client.targetBodyFat?.toString() || "N/A",
           client.goalMilestone
             ? new Date(client.goalMilestone).toLocaleDateString("fr-FR")
             : "N/A",
         ]);
 
-        // Ajouter le titre
-        doc.setFontSize(20);
-        doc.text("Liste des Clients", 10, 10);
-        doc.setFontSize(12);
-        doc.text(
-          `Exporté le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString(
-            "fr-FR",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )}`,
-          10,
-          20
-        );
-
-        // Ajouter le tableau
+        // Add the table
         doc.autoTable({
           head: [headers],
           body: rows,
-          startY: 30,
+          startY: 35,
           theme: "grid",
-          styles: { overflow: "linebreak", cellWidth: "wrap" },
-          columnStyles: {
-            0: { cellWidth: 20 },
-            1: { cellWidth: 25 },
-            2: { cellWidth: 20 },
-            3: { cellWidth: 20 },
-            4: { cellWidth: 15 },
-            5: { cellWidth: 15 },
-            6: { cellWidth: 10 },
-            7: { cellWidth: 20 },
-            8: { cellWidth: 20 },
-            9: { cellWidth: 20 },
-            10: { cellWidth: 20 },
-            11: { cellWidth: 20 },
-            12: { cellWidth: 15 },
-            13: { cellWidth: 20 },
-            14: { cellWidth: 25 },
-            15: { cellWidth: 20 },
+          styles: {
+            fontSize: 6, // Very small font
+            cellPadding: 1,
+            overflow: "linebreak",
+            lineWidth: 0.1,
+            halign: "center",
           },
-          margin: { top: 30 },
+          headStyles: {
+            fillColor: [59, 130, 246],
+            textColor: 255,
+            fontStyle: "bold",
+            fontSize: 7,
+          },
+          // Let autoTable handle the sizing
+          tableWidth: "auto",
+          margin: { top: 35, bottom: 15, left: 10, right: 10 },
+          showHead: "everyPage",
         });
 
-        // Télécharger le PDF
+        // Save the PDF
         doc.save(
-          `clients_export_${new Date().toISOString().split("T")[0]}.pdf`
+          `clients_export_complet_${new Date().toISOString().split("T")[0]}.pdf`
         );
+
+        // Clean up scripts
+        document.body.removeChild(script);
+        document.body.removeChild(autoTableScript);
       };
     };
   };
@@ -343,7 +356,7 @@ export default function ClientsPage() {
   }
 
   if (!session) {
-    return null; // La redirection est gérée dans useEffect
+    return null;
   }
 
   // Pagination logic
@@ -366,7 +379,6 @@ export default function ClientsPage() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isManager = (session.user as any)?.role === "manager";
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 space-y-6">
@@ -402,7 +414,7 @@ export default function ClientsPage() {
                   </button>
                   <button
                     onClick={exportToPDF}
-                    className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-2 text-sm sm:text-base transition shadow-md w-full sm:w-auto"
+                    className="bg-white text-blue-600 hover:bg-blue-50 py-2 px-3 sm:px-4 rounded-lg font-bold flex items-center gap-2 text-sm sm:text-base transition shadow-md w-full sm:w-auto"
                   >
                     <FileText className="h-4 sm:h-5 w-4 sm:w-5" />
                     Exporter en PDF
@@ -415,7 +427,7 @@ export default function ClientsPage() {
       </div>
 
       {/* Recherche et filtres */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
         <div className="relative mb-4 sm:mb-6">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
           <input
@@ -452,18 +464,18 @@ export default function ClientsPage() {
                   <p className="font-semibold text-gray-800 text-sm sm:text-base">
                     {client.name}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 mt-1">
                     <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-blue-500">✉️</span>{" "}
+                      <span className="text-blue-600">✉️</span>{" "}
                       {client.email || "N/A"}
                     </p>
                     <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-blue-500">📞</span>{" "}
+                      <span className="text-blue-600">📞</span>{" "}
                       {client.phone || "N/A"}
                     </p>
                   </div>
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                    <span className="text-blue-500">📅</span> Inscrit(e) le :{" "}
+                  <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
+                    <span className="text-blue-500">📅</span> Inscrit le :{" "}
                     {new Date(client.registrationDate).toLocaleDateString(
                       "fr-FR"
                     )}
@@ -474,13 +486,13 @@ export default function ClientsPage() {
                     href={`/dashboard/clients/${client.id}`}
                     className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                   >
-                    <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
+                    <Eye className="h-3 sm:h-4 w-3 sm:w-4 h-4" />
                     Voir
                   </Link>
                   {isManager && (
                     <Link
-                      href={`/dashboard/clients/${client.id}/edit`}
-                      className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition wfull sm:w-auto"
+                      href={`/dashboard/clients/${client.id}/edit}`}
+                      className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                     >
                       <Edit className="h-3 sm:h-4 w-3 sm:w-4" />
                       Modifier

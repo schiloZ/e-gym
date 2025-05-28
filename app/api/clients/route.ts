@@ -250,20 +250,25 @@ export async function POST(request: Request) {
             name,
             phone,
             email,
-            imagePath,
-            registrationDate: client.registrationDate,
-            height,
-            weight,
+            dateEnregistrement: client.registrationDate,
+            taille: client.height,
+            poids: client.weight,
             age,
-            medicalConditions,
+            Condition: client.medicalConditions,
             allergies,
-            injuries,
+            blessure: client.injuries,
             medications,
-            bloodPressure,
-            targetWeight,
-            fitnessGoal,
-            targetBodyFat,
-            goalMilestone: goalMilestone ? new Date(goalMilestone) : undefined,
+            pressionSanguine: client.bloodPressure,
+            objectifPoids: client.targetWeight,
+            objectifFitness:
+              client.fitnessGoal === "weight loss"
+                ? "perte de poids"
+                : client.fitnessGoal === "muscle gain"
+                  ? "gain de masse musculaire"
+                  : client.fitnessGoal === "general fitness"
+                    ? "fitness"
+                    : "endurance",
+            objectifGraisse: client.targetBodyFat,
           },
           changedBy: session.user.id,
           companyId: session.user.companyId,

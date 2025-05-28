@@ -124,9 +124,18 @@ export default function PaymentsPage() {
     ];
     const rows = paginatedPayments.map((payment) => [
       payment.client.name,
-      payment.amount.toLocaleString("fr-FR"),
-      payment.subscription,
-      payment.status || "N/A",
+      payment.amount,
+      (() => {
+        const translations: Record<string, string> = {
+          Daily: "Quotidien",
+          Weekly: "Hebdomadaire",
+          Monthly: "Mensuel",
+          Quarterly: "Trimestriel",
+          Yearly: "Annuel",
+        };
+        return translations[payment.subscription] || payment.subscription;
+      })(),
+      payment.status === "Completed" ? "Payé" : payment.status || "N/A",
       new Date(payment.date).toLocaleDateString("fr-FR"),
       payment.startDate
         ? new Date(payment.startDate).toLocaleDateString("fr-FR")
@@ -192,9 +201,18 @@ export default function PaymentsPage() {
       ];
       const rows = paginatedPayments.map((payment) => [
         payment.client.name,
-        payment.amount.toLocaleString("fr-FR"),
-        payment.subscription,
-        payment.status || "N/A",
+        payment.amount,
+        (() => {
+          const translations: Record<string, string> = {
+            Daily: "Quotidien",
+            Weekly: "Hebdomadaire",
+            Monthly: "Mensuel",
+            Quarterly: "Trimestriel",
+            Yearly: "Annuel",
+          };
+          return translations[payment.subscription] || payment.subscription;
+        })(),
+        payment.status === "Completed" ? "Payé" : payment.status || "N/A",
         new Date(payment.date).toLocaleDateString("fr-FR"),
         payment.startDate
           ? new Date(payment.startDate).toLocaleDateString("fr-FR")

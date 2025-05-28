@@ -155,21 +155,18 @@ export async function DELETE(
       name: client.name,
       email: client.email,
       phone: client.phone,
-      registrationDate: client.registrationDate.toISOString(),
-      height: client.height,
-      weight: client.weight,
+      dateEnregistrement: client.registrationDate.toISOString(),
+      taille: client.height,
+      poids: client.weight,
       age: client.age,
-      medicalConditions: client.medicalConditions,
+      conditionMedical: client.medicalConditions,
       allergies: client.allergies,
-      injuries: client.injuries,
+      blessures: client.injuries,
       medications: client.medications,
-      bloodPressure: client.bloodPressure,
-      targetWeight: client.targetWeight,
-      fitnessGoal: client.fitnessGoal,
-      targetBodyFat: client.targetBodyFat,
-      goalMilestone: client.goalMilestone
-        ? client.goalMilestone.toISOString()
-        : null,
+      pressionSanguine: client.bloodPressure,
+      poidsCiblé: client.targetWeight,
+      objectifFitness: client.fitnessGoal,
+      objectifGraisse: client.targetBodyFat,
     };
 
     // Delete the client (and associated payments due to cascading, if configured)
@@ -424,21 +421,18 @@ export async function PATCH(
       name: client.name,
       email: client.email,
       phone: client.phone,
-      registrationDate: client.registrationDate.toISOString(),
-      height: client.height,
-      weight: client.weight,
+      dateEnregistrement: client.registrationDate.toISOString(),
+      taille: client.height,
+      poids: client.weight,
       age: client.age,
-      medicalConditions: client.medicalConditions,
+      conditionMedical: client.medicalConditions,
       allergies: client.allergies,
-      injuries: client.injuries,
+      blessures: client.injuries,
       medications: client.medications,
-      bloodPressure: client.bloodPressure,
-      targetWeight: client.targetWeight,
-      fitnessGoal: client.fitnessGoal,
-      targetBodyFat: client.targetBodyFat,
-      goalMilestone: client.goalMilestone
-        ? client.goalMilestone.toISOString()
-        : null,
+      pressionSanguine: client.bloodPressure,
+      poidsCiblé: client.targetWeight,
+      objectifFitness: client.fitnessGoal,
+      objectifGraisse: client.targetBodyFat,
     };
 
     const updatedClient = await prisma.client.update({
@@ -467,20 +461,20 @@ export async function PATCH(
       name,
       email,
       phone,
-      registrationDate: parsedRegistrationDate
+      dateEnregistrement: parsedRegistrationDate
         ? parsedRegistrationDate.toISOString()
         : client.registrationDate.toISOString(),
-      height,
-      weight,
+      taille: height,
+      poids: weight,
       age,
-      medicalConditions,
+      conditionMedical: medicalConditions,
       allergies,
-      injuries,
+      blessures: injuries,
       medications,
-      bloodPressure,
-      targetWeight,
-      fitnessGoal,
-      targetBodyFat,
+      pressionSanguine: bloodPressure,
+      poidsCiblé: targetWeight,
+      objectifFitness: fitnessGoal,
+      objectifGraisse: targetBodyFat,
       goalMilestone: parsedGoalMilestone
         ? parsedGoalMilestone.toISOString()
         : client.goalMilestone

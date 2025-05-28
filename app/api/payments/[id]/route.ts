@@ -266,18 +266,6 @@ export async function PATCH(
       !startDate ||
       !endDate
     ) {
-      await prisma.historic.create({
-        data: {
-          action: "UPDATE",
-          entityType: "PAYMENT",
-          entityId: paymentId,
-          oldData: null,
-          newData: null,
-          changedBy: userId,
-          description:
-            "Amount, subscription, method, status, payment status, start date, and end date are required",
-        },
-      });
       return NextResponse.json(
         {
           error:
@@ -354,15 +342,22 @@ export async function PATCH(
     }
 
     const oldData = {
-      amount: payment.amount,
-      subscription: payment.subscription,
-      method: payment.method,
-      status: payment.status,
-      paymentStatus: payment.paymentStatus,
-      startDate: payment.startDate.toISOString(),
-      endDate: payment.endDate.toISOString(),
-      nextPaymentDate: payment.nextPaymentDate?.toISOString(),
-      paymentDate: payment.paymentDate?.toISOString(),
+      montant: payment.amount,
+      souscription:
+        payment.subscription === "Quarterly"
+          ? "trimestiel"
+          : payment.subscription === "Monthly"
+            ? "Mensuel"
+            : payment.subscription === "Yearly"
+              ? "Annueel"
+              : payment.subscription === "Weekly"
+                ? "Hebdomadaire"
+                : "Journalier",
+      methode: payment.method,
+      status: payment.status === "Completed" ? "Payé" : "Non payé",
+      Debut: payment.startDate.toISOString(),
+      Fin: payment.endDate.toISOString(),
+      ProchaindeDateDePayement: payment.nextPaymentDate?.toISOString(),
     };
 
     const updatedPayment = await prisma.payment.update({
@@ -381,15 +376,23 @@ export async function PATCH(
     });
 
     const newData = {
-      amount: parsedAmount,
-      subscription,
-      method,
-      status,
-      paymentStatus,
-      startDate: startDate,
-      endDate: endDate,
+      montant: parsedAmount,
+      souscription:
+        subscription === "Quarterly"
+          ? "trimestiel"
+          : subscription === "Monthly"
+            ? "Mensuel"
+            : subscription === "Yearly"
+              ? "Annueel"
+              : subscription === "Weekly"
+                ? "Hebdomadaire"
+                : "Journalier",
+      methode: method,
+      status: status === "Completed" ? "Payé" : "Non payé",
+      Debut: startDate,
+      Fin: endDate,
       nextPaymentDate: nextPaymentDate,
-      paymentDate: paymentDate,
+      ProchaindeDateDePayement: paymentDate,
     };
     const company = await prisma.company.findUnique({
       where: { id: session.user.companyId },
@@ -405,6 +408,7 @@ export async function PATCH(
           oldData,
           newData,
           changedBy: userId,
+          companyId: session.user.companyId,
           description: "Payment updated successfully",
         },
       });
