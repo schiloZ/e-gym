@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     await prisma.historic.create({
       data: {
         action: "READ",
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   try {
     const billsPerDay = await prisma.bill.groupBy({
       by: ["date"],
-      where: { companyId: session.user.companyId },
+      where: { companyId: (session.user as any).companyId },
       _sum: { amount: true },
       orderBy: { date: "asc" },
     });
@@ -42,8 +43,8 @@ export async function GET(request: Request) {
         entityId: "unknown",
         oldData: null,
         newData: null,
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
+        changedBy: (session.user as any).id,
+        companyId: (session.user as any).companyId,
         description: `Error fetching bills amount per day: ${
           error.message || "Unknown error"
         }`,
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     await prisma.historic.create({
       data: {
         action: "CREATE",
@@ -73,32 +74,11 @@ export async function POST(request: Request) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: (session.user as any).id },
   });
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  // Hypothetical bill limit based on subscription type
-  const billLimits = {
-    free: 10,
-    premium: 50,
-    enterprise: 100,
-  };
-  const maxBills =
-    billLimits[user.subscriptionType as keyof typeof billLimits] || 10;
-  const billCount = await prisma.bill.count({
-    where: { userId: session.user.id },
-  });
-
-  if (billCount >= maxBills) {
-    return NextResponse.json(
-      {
-        error: `Limit of ${maxBills} bills reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
-      },
-      { status: 403 }
-    );
   }
 
   const { description, amount, date, category } = await request.json();
@@ -111,8 +91,8 @@ export async function POST(request: Request) {
         entityId: "unknown",
         oldData: null,
         newData: null,
-        changedBy: session.user.id,
-        companyId: session.user.companyId,
+        changedBy: (session.user as any).id,
+        companyId: (session.user as any).companyId,
         description: "Failed to create bill: Description or amount invalid",
       },
     });
@@ -129,7 +109,7 @@ export async function POST(request: Request) {
         amount: Math.round(amount), // Ensure integer for XOF
         date: new Date(date),
         category,
-        userId: session.user.id,
+        userId: (session.user as any).id,
       },
     });
 
@@ -146,7 +126,7 @@ export async function POST(request: Request) {
           date,
           category,
         },
-        changedBy: session.user.id,
+        changedBy: (session.user as any).id,
         description: "Bill created successfully",
       },
     });
@@ -155,7 +135,7 @@ export async function POST(request: Request) {
       data: {
         type: "BILL_ADDED",
         message: `${description} of ${formatCurrency(amount)} added today`,
-        userId: session.user.id,
+        userId: (session.user as any).id,
       },
     });
 
@@ -169,7 +149,7 @@ export async function POST(request: Request) {
         entityId: "unknown",
         oldData: null,
         newData: null,
-        changedBy: session.user.id,
+        changedBy: (session.user as any).id,
         description: `Error creating bill: ${error.message || "Unknown error"}`,
       },
     });

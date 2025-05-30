@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import cloudinary from "cloudinary";
 
 // Configure Cloudinary (you can also do this in a separate config file)
@@ -13,7 +14,14 @@ cloudinary.v2.config({
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id || !session.user.companyId) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     console.error(
       "Unauthorized: User not authenticated or no company associated"
     );
@@ -26,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: (session.user as any).id },
   });
 
   if (!user) {
@@ -159,36 +167,41 @@ export async function POST(request: Request) {
 
       // Upload the image to Cloudinary
       console.log("Uploading image to Cloudinary...");
-      const uploadResponse = await new Promise((resolve, reject) => {
-        const stream = cloudinary.v2.uploader.upload_stream(
-          {
-            folder: "clients", // Optional: Store images in a "clients" folder in Cloudinary
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
+      const uploadResponse = await new Promise<{ secure_url: string }>(
+        (resolve, reject) => {
+          const stream = cloudinary.v2.uploader.upload_stream(
+            {
+              folder: "clients", // Optional: Store images in a "clients" folder in Cloudinary
+              resource_type: "image",
+            },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              } else if (result) {
+                resolve(result);
+              } else {
+                reject(new Error("Upload result is undefined"));
+              }
             }
-          }
-        );
-        stream.end(buffer);
-      });
+          );
+          stream.end(buffer);
+        }
+      );
 
       imagePath = uploadResponse.secure_url; // Use secure URL for the image
       console.log("Image uploaded successfully. Image Path:", imagePath);
     } catch (error) {
-      console.error("Failed to upload image to Cloudinary:", error.message);
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
       return NextResponse.json(
-        { error: `Failed to upload image to Cloudinary: ${error.message}` },
+        { error: `Failed to upload image to Cloudinary: ${errorMessage}` },
         { status: 500 }
       );
     }
   }
 
   const company = await prisma.company.findUnique({
-    where: { id: session.user.companyId },
+    where: { id: (session.user as any).companyId },
     select: { clientRegistrationCount: true, maxClientRegistrations: true },
   });
 
@@ -212,8 +225,8 @@ export async function POST(request: Request) {
         phone,
         email,
         imagePath, // Save the Cloudinary image URL
-        userId: session.user.id,
-        companyId: session.user.companyId,
+        userId: (session.user as any).id,
+        companyId: (session.user as any).companyId,
         height: height ? Number(height) : undefined,
         weight: weight ? Number(weight) : undefined,
         age: age ? Number(age) : undefined,
@@ -230,12 +243,12 @@ export async function POST(request: Request) {
     });
 
     await prisma.company.update({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       data: { clientRegistrationCount: { increment: 1 } },
     });
 
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -270,8 +283,8 @@ export async function POST(request: Request) {
                     : "endurance",
             objectifGraisse: client.targetBodyFat,
           },
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
+          changedBy: (session.user as any).id,
+          companyId: (session.user as any).companyId,
           description: "Client created successfully",
         },
       });
@@ -288,8 +301,8 @@ export async function POST(request: Request) {
       data: {
         type: "CLIENT_REGISTERED",
         message: notificationMessage,
-        userId: session.user.id,
-        companyId: session.user.companyId,
+        userId: (session.user as any).id,
+        companyId: (session.user as any).companyId,
         clientId: client.id,
       },
     });
@@ -297,16 +310,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Client registered", client });
   } catch (error) {
     console.error("Client creation error:", error);
-    return NextResponse.json(
-      { error: error.message || "Error registering client" },
-      { status: 400 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Error registering client";
+    return NextResponse.json({ error: errorMessage }, { status: 400 });
   }
 }
-
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id || !session.user.companyId) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -317,10 +335,11 @@ export async function GET(request: Request) {
 
   try {
     const clients = await prisma.client.findMany({
-      where: { companyId: session.user.companyId },
+      where: { companyId: (session.user as any).companyId },
       include: { user: true, payments: true },
     });
     return NextResponse.json(clients);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
       { error: "Error fetching clients" },

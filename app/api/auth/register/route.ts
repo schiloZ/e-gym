@@ -93,7 +93,14 @@ export async function POST(request: Request) {
 
   try {
     let userData;
-    let companyData;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let companyData: any = {
+      subscriptionType: "",
+      subscriptionStartDate: new Date(),
+      subscriptionEndDate: null,
+      maxClientRegistrations: 0,
+      maxPayments: 0,
+    };
 
     if (role.toLowerCase() === "superadmin") {
       // Create a SuperAdmin
@@ -122,7 +129,7 @@ export async function POST(request: Request) {
           const effectiveSubscriptionType = subscriptionType || "free";
           let maxClientRegistrations = 5;
           let maxPayments = 20;
-          let effectiveStartDate = parsedStartDate || new Date();
+          const effectiveStartDate = parsedStartDate || new Date();
           let effectiveEndDate = parsedEndDate;
 
           if (effectiveSubscriptionType === "free") {
@@ -199,7 +206,7 @@ export async function POST(request: Request) {
               <td style="padding: 10px; border: 1px solid #e0e0e0;">${role.charAt(0).toUpperCase() + role.slice(1)}</td>
             </tr>
             ${
-              role.toLowerCase() !== "superadmin"
+              role.toLowerCase() !== "superadmin" && companyData
                 ? `
             <tr>
               <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Company Name</td>
@@ -207,7 +214,7 @@ export async function POST(request: Request) {
             </tr>
             <tr style="background-color: #f8f9fa;">
               <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Subscription Type</td>
-              <td style="padding: 10px; border: 1px solid #e0e0e0;">${companyData.subscriptionType.charAt(0).toUpperCase() + companyData.subscriptionType.slice(1)}</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0;">${(companyData.subscriptionType || "").charAt(0).toUpperCase() + (companyData.subscriptionType || "").slice(1)}</td>
             </tr>
             <tr>
               <td style="padding: 10px; border: 1px solid #e0e0e0; font-weight: bold;">Subscription Start Date</td>
@@ -246,7 +253,7 @@ export async function POST(request: Request) {
       `;
 
       const emailResponse = await resend.emails.send({
-        from: "onboarding@resend.dev", // Use Resend's test email for local development
+        from: "onboarding@resend.dev",
         to: email,
         subject: "Welcome to E-Gym - Your Account Receipt",
         html: emailContent,
@@ -256,23 +263,6 @@ export async function POST(request: Request) {
     } catch (emailError) {
       console.error("Error sending email:", emailError);
     }
-
-    // Send SMS notification if phone number is provided
-    // if (phone) {
-    //   try {
-    //     const smsMessage = `Welcome to E-Gym! Your account as a ${role} has been created on ${new Date().toLocaleString()}. Log in at ${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/login.`;
-
-    //     const smsResponse = await twilioClient.messages.create({
-    //       body: smsMessage,
-    //       from: process.env.TWILIO_PHONE_NUMBER, // Your Twilio phone number
-    //       to: phone, // User's phone number
-    //     });
-
-    //     console.log("SMS sent successfully:", smsResponse.sid);
-    //   } catch (smsError) {
-    //     console.error("Error sending SMS:", smsError);
-    //   }
-    // }
 
     return NextResponse.json({
       message:

@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 
-export async function GET(request: Request) {
+export async function GET() {
   // Step 1: Verify the session
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Step 2: Check if the user is a superadmin (superadmins may not have a company)
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
-  if (userRole === "superadmin" || session.user?.isSuperAdmin) {
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
+  if (userRole === "superadmin" || (session.user as any).isSuperAdmin) {
     return NextResponse.json(
       {
         subscriptionType: null,
@@ -24,7 +26,7 @@ export async function GET(request: Request) {
   }
 
   // Step 3: Get the companyId from the session
-  const companyId = session.user?.companyId;
+  const companyId = (session.user as any).companyId;
   if (!companyId) {
     return NextResponse.json(
       { error: "User is not associated with a company" },

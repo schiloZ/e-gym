@@ -1,28 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
 // GET: Fetch a specific user by ID with associated company details
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can access this endpoint" },
       { status: 403 }
     );
   }
-
-  const { id } = params;
 
   try {
     const user = await prisma.user.findUnique({
@@ -68,16 +67,20 @@ export async function GET(
 }
 
 // PATCH: Update a specific user by ID (including password and company details)
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  if (!id) {
+    return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+  }
+
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can update users" },
@@ -85,7 +88,6 @@ export async function PATCH(
     );
   }
 
-  const id = params.id;
   const body = await request.json();
 
   // Validate and separate user and company updates
@@ -265,7 +267,7 @@ export async function PATCH(
               company: { ...currentCompany, ...companyUpdates },
             })
           ),
-          changedBy: session.user.id,
+          changedBy: (session.user as any).id,
           companyId: currentUser.companyId,
           description: `User ${currentUser.email} updated by superadmin`,
         },
@@ -299,25 +301,25 @@ export async function PATCH(
 }
 
 // DELETE: Delete a specific user by ID
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any)?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any)?.role || (session.user as any)?.isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can delete users" },
       { status: 403 }
     );
   }
-
-  const { id } = params;
-
+  if (!id) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+  }
   try {
     const user = await prisma.user.findUnique({
       where: { id },
@@ -351,7 +353,7 @@ export async function DELETE(
           entityId: id,
           oldData: JSON.parse(JSON.stringify(user)),
           newData: null,
-          changedBy: session.user.id,
+          changedBy: (session.user as any).id,
           companyId: user.companyId,
           description: `User ${user.email} deleted by superadmin`,
         },

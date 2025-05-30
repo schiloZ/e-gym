@@ -1,23 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API DELETE /api/bills/[id] called with id:", params.id);
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
 
-  const session = await getServerSession(authOptions);
+  console.log("API DELETE /api/bills/[id] called with id:", id);
+
+  const session = await getServerSession(authOptions as any);
 
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
-    console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -26,8 +28,8 @@ export async function DELETE(
     );
   }
 
-  const companyId = session.user.companyId;
-  const billId = params.id;
+  const companyId = (session.user as any).companyId;
+  const billId = id;
 
   if (!billId || typeof billId !== "string") {
     return NextResponse.json(
@@ -46,12 +48,6 @@ export async function DELETE(
     }
 
     if (bill.companyId !== companyId) {
-      console.log(
-        "Bill does not belong to company. Bill companyId:",
-        bill.companyId,
-        "Authenticated user's companyId:",
-        companyId
-      );
       return NextResponse.json(
         { error: "Bill does not belong to the authenticated user's company" },
         { status: 403 }
@@ -68,10 +64,12 @@ export async function DELETE(
     await prisma.bill.delete({
       where: { id: billId },
     });
+
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: companyId },
       select: { subscriptionType: true },
     });
+
     if (company?.subscriptionType !== "free") {
       await prisma.historic.create({
         data: {
@@ -80,13 +78,11 @@ export async function DELETE(
           entityId: billId,
           oldData,
           newData: null,
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
+          changedBy: (session.user as any).id,
+          companyId: companyId,
           description: "Bill deleted successfully",
         },
       });
-    } else {
-      console.log("Historic record not created for free subscription");
     }
 
     await prisma.notification.create({
@@ -95,23 +91,21 @@ export async function DELETE(
         message: `${bill.description} of ${formatCurrency(
           bill.amount
         )} deleted today`,
-        companyId: session.user.companyId,
-        userId: session.user.id,
+        companyId: companyId,
+        userId: (session.user as any).id,
       },
     });
 
     return NextResponse.json({ message: "Bill deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting bill:", error);
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: error.message || "Error deleting bill" },
+      { error: error instanceof Error ? error.message : "Error deleting bill" },
       { status: 500 }
     );
   }
 }
 
-// Helper function to format currency (used in notification message)
-function formatCurrency(value) {
+function formatCurrency(value: number | bigint) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "XOF",

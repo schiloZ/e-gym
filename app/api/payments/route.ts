@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { ObjectId } from "mongodb"; // For ObjectId validation
 
 export async function POST(request: Request) {
@@ -9,9 +10,11 @@ export async function POST(request: Request) {
 
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.error("Unauthorized access attempt:");
     return NextResponse.json(
@@ -22,15 +25,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const userId = session.user.id;
-  const companyId = session.user.companyId;
+  const userId = (session.user as any).id;
+  const companyId = (session.user as any).companyId;
 
   const {
     clientEmail,
     amount,
     subscription,
     method,
-    status,
     startDate,
     endDate,
     nextPaymentDate,
@@ -69,6 +71,9 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: {
+      company: true,
+    },
   });
 
   if (!user) {
@@ -76,14 +81,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Check payment limit
-  if (user.paymentCount >= user.maxPayments) {
+  // Check payment limit using company data instead of user
+  if (user.company && user.company.paymentCount >= user.company.maxPayments) {
     console.error(
-      `Payment limit reached for user ${userId}: ${user.paymentCount} payments`
+      `Payment limit reached for company: ${user.company.paymentCount} payments`
     );
     return NextResponse.json(
       {
-        error: `Limit of ${user.maxPayments} payments reached for your ${user.subscriptionType} plan. Upgrade to increase limit.`,
+        error: `Limit of ${user.company.maxPayments} payments reached for your ${user.company.subscriptionType} plan. Upgrade to increase limit.`,
       },
       { status: 403 }
     );
@@ -105,7 +110,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const paymentData = {
+    const paymentData: any = {
       amount: parsedAmount,
       subscription: subscription || "Monthly",
       method: method || "Cash",
@@ -114,7 +119,7 @@ export async function POST(request: Request) {
       endDate: new Date(endDate),
       nextPaymentDate: new Date(nextPaymentDate),
       paymentStatus: paymentStatus || "Paid",
-      date: new Date(), // Current date: 11:12 AM GMT, May 16, 2025
+      date: new Date(),
       client: {
         connect: { id: client.id },
       },
@@ -130,7 +135,7 @@ export async function POST(request: Request) {
       paymentData.paymentDate = new Date(paymentDate);
     }
     const company1 = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { paymentCount: true, maxPayments: true, subscriptionType: true },
     });
     if (
@@ -149,9 +154,8 @@ export async function POST(request: Request) {
       data: paymentData,
     });
 
-    // Increment client registration count for the company1
     await prisma.company.update({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       data: { paymentCount: { increment: 1 } },
     });
 
@@ -166,7 +170,7 @@ export async function POST(request: Request) {
       clientName: client.name,
     };
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -179,7 +183,7 @@ export async function POST(request: Request) {
           oldData: null,
           newData,
           changedBy: userId,
-          companyId: session?.user?.companyId,
+          companyId: (session.user as any).companyId,
           description: "Payment created successfully",
         },
       });
@@ -187,7 +191,6 @@ export async function POST(request: Request) {
       console.log("Historic record not created for free subscription");
     }
 
-    // Create a notification for the user
     await prisma.notification.create({
       data: {
         type: "PAYMENT_RECEIVED",
@@ -198,7 +201,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Payment recorded", payment });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Payment creation error:", error);
     return NextResponse.json(
       { error: error.message || "Error recording payment" },
@@ -206,17 +209,18 @@ export async function POST(request: Request) {
     );
   }
 }
-
-export async function GET(request: Request) {
+export async function GET() {
   // Get the session
   const session = await getServerSession(authOptions);
 
   // Check if the user is authenticated and has a companyId
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     return NextResponse.json(
       {
@@ -226,8 +230,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const userId = session.user.id;
-  const companyId = session.user.companyId;
+  const userId = (session.user as any).id;
+  const companyId = (session.user as any).companyId;
 
   // Validate userId as a MongoDB ObjectId
   if (!ObjectId.isValid(userId)) {
@@ -252,7 +256,8 @@ export async function GET(request: Request) {
       },
     });
     return NextResponse.json(payments);
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error: any) {
     return NextResponse.json(
       { error: "Error fetching payments" },
       { status: 500 }

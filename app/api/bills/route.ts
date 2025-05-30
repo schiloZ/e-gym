@@ -1,11 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id || !session.user.companyId) {
+export async function GET() {
+  const session = await getServerSession(authOptions as any);
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     console.error("Unauthorized access attempt");
     return NextResponse.json(
       {
@@ -17,7 +25,7 @@ export async function GET(request: Request) {
 
   try {
     const bills = await prisma.bill.findMany({
-      where: { companyId: session.user.companyId },
+      where: { companyId: (session.user as any).companyId },
       orderBy: { date: "desc" },
     });
     console.log(bills);
@@ -33,7 +41,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id || !session.user.companyId) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     console.error("Unauthorized access attempt");
     return NextResponse.json(
       {
@@ -44,11 +59,11 @@ export async function POST(request: Request) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: (session.user as any).id },
   });
 
   if (!user) {
-    console.error("User not found:", session.user.id);
+    console.error("User not found:", (session.user as any).id);
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
@@ -92,13 +107,13 @@ export async function POST(request: Request) {
         amount: Math.round(amount), // Ensure integer for XOF
         date: new Date(date),
         category,
-        userId: session.user.id,
-        companyId: session.user.companyId, // Associate with the company
+        userId: (session.user as any).id,
+        companyId: (session.user as any).companyId, // Associate with the company
       },
     });
 
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -115,8 +130,8 @@ export async function POST(request: Request) {
             date,
             category,
           },
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
+          changedBy: (session.user as any).id,
+          companyId: (session.user as any).companyId,
           description: "Bill created successfully",
         },
       });
@@ -128,8 +143,8 @@ export async function POST(request: Request) {
       data: {
         type: "BILL_ADDED",
         message: `${description} of ${formatCurrency(amount)} added today`,
-        companyId: session.user.companyId,
-        userId: session.user.id,
+        companyId: (session.user as any).companyId,
+        userId: (session.user as any).id,
       },
     });
 
@@ -137,14 +152,14 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Bill creation error:", error);
     return NextResponse.json(
-      { error: error.message || "Error creating bill" },
+      { error: error instanceof Error ? error.message : "Error creating bill" },
       { status: 400 }
     );
   }
 }
 
 // Helper function to format currency (used in notification message)
-function formatCurrency(value) {
+function formatCurrency(value: number | bigint) {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "XOF",

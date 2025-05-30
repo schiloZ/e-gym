@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { ObjectId } from "mongodb";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API GET /api/clients/[id] called with clientId:", params.id);
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API GET /api/clients/[id] called with clientId:", id);
 
   // Get the session
   const session = await getServerSession(authOptions);
@@ -16,9 +16,11 @@ export async function GET(
   // Check if the user is authenticated and has a companyId
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
@@ -29,17 +31,8 @@ export async function GET(
     );
   }
 
-  const companyId = session.user.companyId;
-  const clientId = params.id;
-
-  // Validate clientId as a MongoDB ObjectId
-  if (!ObjectId.isValid(clientId)) {
-    console.log("Invalid clientId format:", clientId);
-    return NextResponse.json(
-      { error: "Invalid client ID format" },
-      { status: 400 }
-    );
-  }
+  const companyId = (session.user as any).companyId;
+  const clientId = id;
 
   try {
     // Fetch the client and their payments
@@ -86,11 +79,15 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API DELETE /api/clients/[id] called with clientId:", params.id);
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+
+  if (!id) {
+    return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+  }
+
+  console.log("API DELETE /api/clients/[id] called with clientId:", id);
 
   // Get the session
   const session = await getServerSession(authOptions);
@@ -98,9 +95,11 @@ export async function DELETE(
   // Check if the user is authenticated and has a companyId
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
@@ -111,17 +110,8 @@ export async function DELETE(
     );
   }
 
-  const companyId = session.user.companyId;
-  const clientId = params.id;
-
-  // Validate clientId as a MongoDB ObjectId (though Prisma doesn't require ObjectId, keeping for consistency)
-  if (!ObjectId.isValid(clientId)) {
-    console.log("Invalid clientId format:", clientId);
-    return NextResponse.json(
-      { error: "Invalid client ID format" },
-      { status: 400 }
-    );
-  }
+  const companyId = (session.user as any).companyId;
+  const clientId = id;
 
   try {
     // Fetch the client to verify ownership and capture data for historic record
@@ -177,7 +167,7 @@ export async function DELETE(
     });
 
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -189,8 +179,8 @@ export async function DELETE(
           clientId: clientId, // Link to the client
           oldData, // Store the client's data before deletion
           newData: null, // No new data since this is a deletion
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
+          changedBy: (session.user as any).id,
+          companyId: (session.user as any).companyId,
           description: "Client deleted successfully",
         },
       });
@@ -210,30 +200,30 @@ export async function DELETE(
     );
   }
 }
-
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log(
-    "API PATCH /api/clients/[clientId] called with clientId:",
-    params.id
-  );
+export async function PATCH(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API PATCH /api/clients/[clientId] called with clientId:", id);
 
   const session = await getServerSession(authOptions);
+  if (!id) {
+    return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+  }
 
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     await prisma.historic.create({
       data: {
         action: "UPDATE",
         entityType: "CLIENT",
-        entityId: params.id,
+        entityId: id,
         oldData: null,
         newData: null,
         changedBy: "unknown",
@@ -248,9 +238,9 @@ export async function PATCH(
     );
   }
 
-  const userId = session.user.id;
-  const companyId = session.user.companyId;
-  const clientId = params.id;
+  const userId = (session.user as any).id;
+  const companyId = (session.user as any).companyId;
+  const clientId = id;
 
   if (!ObjectId.isValid(clientId)) {
     console.log("Invalid clientId format:", clientId);
@@ -299,7 +289,7 @@ export async function PATCH(
           oldData: null,
           newData: null,
           changedBy: userId,
-          companyId: session.user.companyId,
+          companyId: (session.user as any).companyId,
           description: "Invalid email format",
         },
       });
@@ -317,10 +307,10 @@ export async function PATCH(
       );
     }
 
-    let parsedRegistrationDate = registrationDate
+    const parsedRegistrationDate = registrationDate
       ? new Date(registrationDate)
-      : undefined;
-    if (registrationDate && isNaN(parsedRegistrationDate.getTime())) {
+      : null;
+    if (registrationDate && isNaN(parsedRegistrationDate!.getTime())) {
       console.log("Invalid registration date format:", registrationDate);
       return NextResponse.json(
         { error: "Invalid registration date format" },
@@ -383,10 +373,8 @@ export async function PATCH(
       );
     }
 
-    let parsedGoalMilestone = goalMilestone
-      ? new Date(goalMilestone)
-      : undefined;
-    if (goalMilestone && isNaN(parsedGoalMilestone.getTime())) {
+    const parsedGoalMilestone = goalMilestone ? new Date(goalMilestone) : null;
+    if (goalMilestone && isNaN(parsedGoalMilestone!.getTime())) {
       console.log("Invalid goal milestone date format:", goalMilestone);
       return NextResponse.json(
         { error: "Invalid goal milestone date format" },
@@ -482,7 +470,7 @@ export async function PATCH(
           : null,
     };
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -495,7 +483,7 @@ export async function PATCH(
           oldData,
           newData,
           changedBy: userId,
-          companyId: session.user.companyId,
+          companyId: (session.user as any).companyId,
           description: "Client updated successfully",
         },
       });
@@ -510,7 +498,10 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating client:", error);
     return NextResponse.json(
-      { error: error.message || "Error updating client data" },
+      {
+        error:
+          error instanceof Error ? error.message : "Error updating client data",
+      },
       { status: 500 }
     );
   }

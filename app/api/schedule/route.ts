@@ -1,16 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     return NextResponse.json(
       {
@@ -20,7 +23,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const companyId = session.user.companyId;
+  const companyId = (session.user as any).companyId;
 
   try {
     // Fetch all clients for the authenticated user's company

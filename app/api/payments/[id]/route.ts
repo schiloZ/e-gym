@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { ObjectId } from "mongodb";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log(
-    "API GET /api/payments/[paymentId] called with paymentId:",
-    params.id
-  );
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API GET /api/payments/[paymentId] called with paymentId:", id);
+
+  if (!id) {
+    return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+  }
 
   // Get the session
   const session = await getServerSession(authOptions);
@@ -19,9 +20,11 @@ export async function GET(
   // Check if the user is authenticated and has a companyId
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
@@ -32,8 +35,8 @@ export async function GET(
     );
   }
 
-  const companyId = session.user.companyId;
-  const paymentId = params.id;
+  const companyId = (session.user as any).companyId;
+  const paymentId = id;
 
   // Validate paymentId as a MongoDB ObjectId
   if (!ObjectId.isValid(paymentId)) {
@@ -88,13 +91,16 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+
+  if (!id) {
+    return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+  }
   console.log(
     "API DELETE /api/payments/[paymentId] called with paymentId:",
-    params.id
+    id
   );
 
   // Get the session
@@ -103,9 +109,11 @@ export async function DELETE(
   // Check if the user is authenticated and has a companyId
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
@@ -116,8 +124,8 @@ export async function DELETE(
     );
   }
 
-  const companyId = session.user.companyId;
-  const paymentId = params.id;
+  const companyId = (session.user as any).companyId;
+  const paymentId = id;
 
   // Validate paymentId as a MongoDB ObjectId (though Prisma doesn't require ObjectId, keeping for consistency)
   if (!ObjectId.isValid(paymentId)) {
@@ -172,7 +180,7 @@ export async function DELETE(
 
     // Check subscription type before creating historic record
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -184,8 +192,8 @@ export async function DELETE(
           clientId: payment.clientId, // Link to the associated client
           oldData, // Store the payment's data before deletion
           newData: null, // No new data since this is a deletion
-          changedBy: session.user.id,
-          companyId: session.user.companyId,
+          changedBy: (session.user as any).id,
+          companyId: (session.user as any).companyId,
           description: "Payment deleted successfully",
         },
       });
@@ -206,22 +214,25 @@ export async function DELETE(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log(
-    "API PATCH /api/payments/[paymentId] called with paymentId:",
-    params.id
-  );
+export async function PATCH(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+
+  if (!id) {
+    return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+  }
+
+  console.log("API PATCH /api/payments/[paymentId] called with paymentId:", id);
 
   const session = await getServerSession(authOptions);
 
   if (
     !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
     !session.user ||
-    !session.user.id ||
-    !session.user.companyId
+    !(session.user as any).id ||
+    !(session.user as any).companyId
   ) {
     console.log("Unauthorized: No session, user ID, or company ID");
     return NextResponse.json(
@@ -232,9 +243,9 @@ export async function PATCH(
     );
   }
 
-  const userId = session.user.id;
-  const companyId = session.user.companyId;
-  const paymentId = params.id;
+  const userId = (session.user as any).id;
+  const companyId = (session.user as any).companyId;
+  const paymentId = id;
 
   if (!ObjectId.isValid(paymentId)) {
     console.log("Invalid paymentId format:", paymentId);
@@ -286,10 +297,10 @@ export async function PATCH(
 
     const parsedStartDate = new Date(startDate);
     const parsedEndDate = new Date(endDate);
-    let parsedNextPaymentDate = nextPaymentDate
+    const parsedNextPaymentDate = nextPaymentDate
       ? new Date(nextPaymentDate)
-      : undefined;
-    let parsedPaymentDate = paymentDate ? new Date(paymentDate) : undefined;
+      : null;
+    const parsedPaymentDate = paymentDate ? new Date(paymentDate) : undefined;
 
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
       console.error("Invalid start or end date format:", startDate, endDate);
@@ -299,7 +310,7 @@ export async function PATCH(
       );
     }
 
-    if (nextPaymentDate && isNaN(parsedNextPaymentDate.getTime())) {
+    if (nextPaymentDate && isNaN(parsedNextPaymentDate!.getTime())) {
       console.error("Invalid next payment date format:", nextPaymentDate);
       return NextResponse.json(
         { error: "Invalid next payment date format" },
@@ -307,7 +318,7 @@ export async function PATCH(
       );
     }
 
-    if (paymentDate && isNaN(parsedPaymentDate.getTime())) {
+    if (paymentDate && isNaN(parsedPaymentDate!.getTime())) {
       console.error("Invalid payment date format:", paymentDate);
       return NextResponse.json(
         { error: "Invalid payment date format" },
@@ -355,8 +366,8 @@ export async function PATCH(
                 : "Journalier",
       methode: payment.method,
       status: payment.status === "Completed" ? "Payé" : "Non payé",
-      Debut: payment.startDate.toISOString(),
-      Fin: payment.endDate.toISOString(),
+      Debut: payment.startDate?.toISOString() || "",
+      Fin: payment.endDate?.toISOString() || "",
       ProchaindeDateDePayement: payment.nextPaymentDate?.toISOString(),
     };
 
@@ -395,7 +406,7 @@ export async function PATCH(
       ProchaindeDateDePayement: paymentDate,
     };
     const company = await prisma.company.findUnique({
-      where: { id: session.user.companyId },
+      where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
     if (company?.subscriptionType !== "free") {
@@ -408,7 +419,7 @@ export async function PATCH(
           oldData,
           newData,
           changedBy: userId,
-          companyId: session.user.companyId,
+          companyId: (session.user as any).companyId,
           description: "Payment updated successfully",
         },
       });
@@ -418,7 +429,7 @@ export async function PATCH(
 
     console.log("Payment updated successfully:", updatedPayment);
     return NextResponse.json(updatedPayment);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating payment:", error);
     return NextResponse.json(
       { error: error.message || "Error updating payment data" },

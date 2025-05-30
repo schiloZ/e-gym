@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     // Fetch all payments for the user
     const payments = await prisma.payment.findMany({
-      where: { companyId: session.user.companyId },
+      where: { companyId: (session.user as any).companyId },
       select: {
         date: true,
         amount: true,

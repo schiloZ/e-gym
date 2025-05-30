@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path as needed
+import { authOptions } from "@/lib/authOptions"; // Adjust path as needed
 import prisma from "@/lib/prisma"; // Adjust path as needed
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (!session || !(session.user as any).id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can access this endpoint" },
@@ -20,8 +21,9 @@ export async function GET(
     );
   }
 
-  const { id } = params;
-
+  if (!id) {
+    return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+  }
   try {
     // Verify the user exists
     const user = await prisma.user.findUnique({ where: { id } });

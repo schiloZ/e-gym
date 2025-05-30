@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(request: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user || !session.user.companyId) {
+  if (!session || !session.user || !(session.user as any).companyId) {
     return NextResponse.json(
       {
         error: "Unauthorized: User not authenticated or no company associated",
@@ -17,8 +18,8 @@ export async function GET(request: Request) {
     const notifications = await prisma.notification.findMany({
       where: {
         OR: [
-          { client: { companyId: session.user.companyId } }, // Notifications linked to clients in the company
-          { payment: { companyId: session.user.companyId } }, // Notifications linked to payments in the company
+          { client: { companyId: (session.user as any).companyId } }, // Notifications linked to clients in the company
+          { payment: { companyId: (session.user as any).companyId } }, // Notifications linked to payments in the company
         ],
       },
       orderBy: { createdAt: "desc" },

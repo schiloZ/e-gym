@@ -1,28 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API GET /api/company/[id] called with companyId:", params.id);
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API GET /api/company/[id] called with companyId:", id);
   // Step 1: Verify the session and user role
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Step 2: Check if the user is a superadmin
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can access this endpoint" },
       { status: 403 }
     );
   }
-  const companyId = params.id;
+  const companyId = id;
 
   try {
     if (companyId) {
@@ -118,19 +126,26 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API PATCH /api/company/[id] called with companyId:", params.id);
+export async function PATCH(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API PATCH /api/company/[id] called with companyId:", id);
   // Step 1: Verify the session and user role
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Step 2: Check if the user is a superadmin
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can access this endpoint" },
@@ -138,7 +153,7 @@ export async function PATCH(
     );
   }
 
-  const companyId = params.id;
+  const companyId = id;
   if (!companyId) {
     return NextResponse.json(
       { error: "Company ID is required" },
@@ -202,7 +217,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(updatedCompany, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating company:", error);
     if (error.code === "P2025") {
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
@@ -213,20 +228,26 @@ export async function PATCH(
     );
   }
 }
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("API DELETE /api/company/[id] called with companyId:", params.id);
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  console.log("API DELETE /api/company/[id] called with companyId:", id);
   // Step 1: Verify the session and user role
   const session = await getServerSession(authOptions);
-  if (!session || !session.user?.id) {
+  if (
+    !session ||
+    typeof session !== "object" ||
+    !("user" in session) ||
+    !session.user ||
+    !(session.user as any).id ||
+    !(session.user as any).companyId
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Step 2: Check if the user is a superadmin
-  const userRole = session.user?.role || session.user?.isSuperAdmin;
+  const userRole =
+    (session.user as any).role || (session.user as any).isSuperAdmin;
   if (!["superadmin", true].includes(userRole)) {
     return NextResponse.json(
       { error: "Forbidden: Only superadmins can access this endpoint" },
@@ -234,7 +255,7 @@ export async function DELETE(
     );
   }
 
-  const companyId = params.id;
+  const companyId = id;
   if (!companyId) {
     return NextResponse.json(
       { error: "Company ID is required" },
@@ -252,7 +273,7 @@ export async function DELETE(
       { message: "Company deleted successfully" },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting company:", error);
     if (error.code === "P2025") {
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
