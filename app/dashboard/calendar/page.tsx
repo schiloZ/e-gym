@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import {
   Calendar as CalendarIcon,
   AlertCircle,
@@ -38,7 +38,7 @@ export default function DatesPage() {
         }
         const data = await response.json();
         setDates(data);
-      } catch (err) {
+      } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
@@ -48,19 +48,24 @@ export default function DatesPage() {
     fetchDates();
   }, []);
 
-  const formatValue = (value) => {
+  const formatValue = (
+    value: string | number | Date | null | undefined
+  ): string => {
     if (value === null || value === undefined) return "N/A";
+
     if (typeof value === "string" && !isNaN(Date.parse(value))) {
       const date = new Date(value);
       return isNaN(date.getTime()) ? value : date.toLocaleString("fr-FR");
     }
+
     if (value instanceof Date && !isNaN(value.getTime())) {
       return value.toLocaleString("fr-FR");
     }
-    return value;
+
+    return String(value); // ✅ Ensures the return is a string
   };
 
-  const formatDateHeader = (date) => {
+  const formatDateHeader = (date: Date) => {
     return date.toLocaleDateString("fr-FR", {
       weekday: "long",
       year: "numeric",
@@ -69,30 +74,32 @@ export default function DatesPage() {
     });
   };
 
-  const handleDateClick = (date) => {
+  const handleDateClick = (date: SetStateAction<Date>) => {
     setSelectedDate(date);
     setSidebarOpen(true);
   };
 
-  const getEventsForDate = (date) => {
+  const getEventsForDate = (date: string | number | Date) => {
     if (!date) return [];
 
     let filtered = dates.filter(
-      (d) =>
+      (d: { date: string | number | Date }) =>
         d.date &&
         new Date(d.date).toDateString() === new Date(date).toDateString()
     );
 
     // Appliquer les filtres
     if (filter !== "all") {
-      filtered = filtered.filter((d) => d.source === filter);
+      filtered = filtered.filter(
+        (d: { source?: string }) => d.source === filter
+      );
     }
 
     // Appliquer la recherche
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (d) =>
+        (d: { entityName?: string; type?: string }) =>
           (d.entityName && d.entityName.toLowerCase().includes(term)) ||
           (d.type && d.type.toLowerCase().includes(term))
       );
@@ -101,11 +108,11 @@ export default function DatesPage() {
     return filtered;
   };
 
-  const getDaysInMonth = (year, month) => {
+  const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
   };
 
-  const getFirstDayOfMonth = (year, month) => {
+  const getFirstDayOfMonth = (year: number, month: number) => {
     return new Date(year, month, 1).getDay();
   };
 
@@ -162,7 +169,7 @@ export default function DatesPage() {
 
           {/* Afficher jusqu'à 3 indicateurs d'événements */}
           <div className="mt-1 space-y-0.5 sm:space-y-1">
-            {events.slice(0, 2).map((event, idx) => (
+            {events.slice(0, 2).map((event: { source: string }, idx) => (
               <div
                 key={idx}
                 className={`h-1 sm:h-1.5 rounded-full text-xs truncate
@@ -174,7 +181,7 @@ export default function DatesPage() {
                                 : "bg-purple-400"
                           }`}
               ></div>
-            ))}
+            ))}{" "}
             {events.length > 2 && (
               <div className="text-xs text-gray-500 truncate">
                 +{events.length - 2} de plus
@@ -291,7 +298,7 @@ export default function DatesPage() {
                 onClick={today}
                 className="ml-2 px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition"
               >
-                Aujourd'hui
+                Aujourd&apos;hui
               </button>
             </div>
 
@@ -415,90 +422,102 @@ export default function DatesPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {getEventsForDate(selectedDate).map((event, index) => {
-                    const EventIcon =
-                      eventTypes[event.source]?.icon || CalendarIcon;
-                    const colorClass =
-                      eventTypes[event.source]?.color || "gray";
+                  {getEventsForDate(selectedDate).map(
+                    (
+                      event: {
+                        source: keyof typeof eventTypes;
+                        type: string;
+                        date: Date;
+                        entityName: string;
+                        amount?: number;
+                      },
+                      index
+                    ) => {
+                      const EventIcon =
+                        eventTypes[event.source]?.icon || CalendarIcon;
+                      const colorClass =
+                        eventTypes[event.source]?.color || "gray";
 
-                    return (
-                      <div
-                        key={index}
-                        className={`p-3 sm:p-4 rounded-xl border-l-4 border-${colorClass}-500 bg-white shadow-sm hover:shadow-md transition`}
-                      >
-                        <div className="flex items-start gap-2 sm:gap-3">
-                          <div
-                            className={`p-2 rounded-lg bg-${colorClass}-100 text-${colorClass}-600`}
-                          >
-                            <EventIcon className="h-4 sm:h-5 w-4 sm:w-5" />
-                          </div>
-
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-semibold text-sm sm:text-base text-gray-900">
-                                {event.type === "Start Date"
-                                  ? "Début de l'événement"
-                                  : "Fin de l'événement"}
-                              </span>
-                              <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${colorClass}-100 text-${colorClass}-800`}
-                              >
-                                {event.source === "Client"
-                                  ? "Client"
-                                  : event.source === "Payment"
-                                    ? "Paiement"
-                                    : "Historique"}
-                              </span>
+                      return (
+                        <div
+                          key={index}
+                          className={`p-3 sm:p-4 rounded-xl border-l-4 border-${colorClass}-500 bg-white shadow-sm hover:shadow-md transition`}
+                        >
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div
+                              className={`p-2 rounded-lg bg-${colorClass}-100 text-${colorClass}-600`}
+                            >
+                              <EventIcon className="h-4 sm:h-5 w-4 sm:w-5" />
                             </div>
 
-                            <p className="text-xs sm:text-sm text-gray-700 mb-2">
-                              {formatValue(event.date)}
-                            </p>
-
-                            <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm">
-                              <div className="flex items-center">
-                                <span className="text-gray-500 w-20 sm:w-24">
-                                  Client :
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-semibold text-sm sm:text-base text-gray-900">
+                                  {event.type === "Start Date"
+                                    ? "Début de l'événement"
+                                    : "Fin de l'événement"}
                                 </span>
-                                <span className="text-gray-900 font-medium">
-                                  {event.entityName ===
-                                  "Client created successfully"
-                                    ? "Client créé avec succès"
-                                    : event.entityName ===
-                                        "Payment created successfully"
-                                      ? "Paiement créé avec succès"
-                                      : event.entityName ===
-                                          "Payment deleted successfully"
-                                        ? "Paiement supprimé avec succès"
-                                        : event.entityName ===
-                                            "Client updated successfully"
-                                          ? "Client mis à jour avec succès"
-                                          : event.entityName ===
-                                              "Client deleted successfully"
-                                            ? "Client supprimé avec succès"
-                                            : event.entityName ===
-                                                "Payment updated successfully"
-                                              ? "Paiement mis à jour avec succès"
-                                              : event.entityName}
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${colorClass}-100 text-${colorClass}-800`}
+                                >
+                                  {event.source === "Client"
+                                    ? "Client"
+                                    : event.source === "Payment"
+                                      ? "Paiement"
+                                      : "Historique"}
                                 </span>
                               </div>
 
-                              {event.amount && (
+                              <p className="text-xs sm:text-sm text-gray-700 mb-2">
+                                {formatValue(event.date.toString())}
+                              </p>
+
+                              <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm">
                                 <div className="flex items-center">
                                   <span className="text-gray-500 w-20 sm:w-24">
-                                    Montant :
+                                    Client :
                                   </span>
                                   <span className="text-gray-900 font-medium">
-                                    {event.amount.toLocaleString("fr-FR")} FCFA
+                                    {event.entityName ===
+                                    "Client created successfully"
+                                      ? "Client créé avec succès"
+                                      : event.entityName ===
+                                          "Payment created successfully"
+                                        ? "Paiement créé avec succès"
+                                        : event.entityName ===
+                                            "Payment deleted successfully"
+                                          ? "Paiement supprimé avec succès"
+                                          : event.entityName ===
+                                              "Client updated successfully"
+                                            ? "Client mis à jour avec succès"
+                                            : event.entityName ===
+                                                "Client deleted successfully"
+                                              ? "Client supprimé avec succès"
+                                              : event.entityName ===
+                                                  "Payment updated successfully"
+                                                ? "Paiement mis à jour avec succès"
+                                                : event.entityName}
                                   </span>
                                 </div>
-                              )}
+
+                                {event.amount && (
+                                  <div className="flex items-center">
+                                    <span className="text-gray-500 w-20 sm:w-24">
+                                      Montant :
+                                    </span>
+                                    <span className="text-gray-900 font-medium">
+                                      {event.amount.toLocaleString("fr-FR")}{" "}
+                                      FCFA
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    }
+                  )}{" "}
                 </div>
               )}
             </>

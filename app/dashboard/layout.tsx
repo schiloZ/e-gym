@@ -39,7 +39,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession<any>();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -59,11 +59,10 @@ export default function DashboardLayout({
   } | null>(null);
 
   useEffect(() => {
-    if (session?.user?.role !== "manager") {
+    if ((session?.user as any)?.role !== "manager") {
       router.push("/dashboard/clients");
     }
   }, [session, router]);
-
   // Fetch company details from the API
   useEffect(() => {
     const fetchCompanyInfo = async () => {
@@ -303,7 +302,7 @@ export default function DashboardLayout({
   };
 
   // Check if the user has the "manager" role
-  const isManager = session.user?.role === "manager";
+  const isManager = (session?.user as any)?.role === "manager";
   const isStandard = companyInfo?.subscriptionType !== "free";
 
   const headerStyle = getHeaderStyle(companyInfo?.subscriptionType);
@@ -500,7 +499,7 @@ export default function DashboardLayout({
                           isColoredHeader ? "text-white/70" : "text-gray-500"
                         }`}
                       >
-                        {session.user?.role === "manager"
+                        {(session?.user as any)?.role === "manager"
                           ? "Gestionnaire"
                           : "Coach"}
                       </span>
@@ -523,7 +522,7 @@ export default function DashboardLayout({
                                     "Admin"}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  {session.user?.role === "manager"
+                                  {(session?.user as any)?.role === "manager"
                                     ? "Gestionnaire"
                                     : "Coach"}
                                 </p>
@@ -564,9 +563,15 @@ export default function DashboardLayout({
                         } p-2 sm:p-2.5 rounded-xl focus:outline-none relative transition-all duration-200 transform hover:scale-110`}
                       >
                         <Bell className="h-5 w-5" />
-                        {notifications.filter((n) => !n.isRead).length > 0 && (
+                        {notifications.filter(
+                          (n: { isRead: boolean }) => !n.isRead
+                        ).length > 0 && (
                           <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
-                            {notifications.filter((n) => !n.isRead).length}
+                            {
+                              notifications.filter(
+                                (n: { isRead: boolean }) => !n.isRead
+                              ).length
+                            }
                           </span>
                         )}
                       </button>
@@ -580,7 +585,11 @@ export default function DashboardLayout({
                                 Notifications
                               </h3>
                               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-                                {notifications.filter((n) => !n.isRead).length}{" "}
+                                {
+                                  notifications.filter(
+                                    (n: { isRead: boolean }) => !n.isRead
+                                  ).length
+                                }{" "}
                                 nouvelles
                               </span>
                             </div>
@@ -597,7 +606,7 @@ export default function DashboardLayout({
                                 </p>
                               </div>
                             ) : (
-                              notifications.map((notification) => (
+                              notifications.map((notification: any) => (
                                 <div
                                   key={notification.id}
                                   className={`px-4 py-4 hover:bg-gray-50 border-l-4 transition-all duration-200 ${

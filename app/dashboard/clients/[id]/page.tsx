@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+} from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
@@ -24,7 +32,7 @@ export default function ClientDetailPage() {
   const router = useRouter();
   const params = useParams();
   const clientId = params.id; // Utiliser params.id au lieu de router.asPath
-  const [client, setClient] = useState(null);
+  const [client, setClient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -57,7 +65,7 @@ export default function ClientDetailPage() {
         }
 
         setClient(data);
-      } catch (err) {
+      } catch (err: any) {
         setError(
           err.message ||
             "Une erreur s'est produite lors de la récupération des données du client"
@@ -102,7 +110,13 @@ export default function ClientDetailPage() {
       </div>
     );
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fitnessGoalMap: Record<string, string> = {
+    "weight loss": "Perte de poids",
+    "muscle gain": "Gain musculaire",
+    endurance: "Endurance",
+    "general fitness": "Condition physique générale",
+  };
+
   const isManager = (session.user as any)?.role === "manager";
 
   return (
@@ -184,7 +198,7 @@ export default function ClientDetailPage() {
           </div>
           <div>
             <p className="text-xs sm:text-sm text-gray-600">
-              Date d'inscription
+              Date d&apos;inscription
             </p>
             <p className="text-xs sm:text-sm md:text-base font-medium text-gray-800 flex items-center gap-1">
               <span className="text-blue-500">📅</span>{" "}
@@ -313,19 +327,14 @@ export default function ClientDetailPage() {
               </p>
               <p className="text-sm sm:text-base font-medium text-gray-800">
                 {client.fitnessGoal
-                  ? {
-                      "weight loss": "Perte de poids",
-                      "muscle gain": "Gain musculaire",
-                      endurance: "Endurance",
-                      "general fitness": "Condition physique générale",
-                    }[client.fitnessGoal] || client.fitnessGoal
+                  ? fitnessGoalMap[client.fitnessGoal] || client.fitnessGoal
                   : "N/A"}
               </p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition">
               <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                 <Calendar className="h-4 w-4 text-blue-500" />
-                Date de l'objectif
+                Date de l&apos;objectif
               </p>
               <p className="text-sm sm:text-base font-medium text-gray-800">
                 {client.goalMilestone
@@ -354,75 +363,111 @@ export default function ClientDetailPage() {
           </div>
         ) : (
           <div className="space-y-3 sm:space-y-4">
-            {client.payments.map((payment) => (
-              <div
-                key={payment.id}
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200"
-              >
-                <div className="mb-2 sm:mb-0">
-                  <p className="font-semibold text-gray-800 text-xs sm:text-sm md:text-base">
-                    Abonnement{" "}
-                    {payment.subscription === "Monthly"
-                      ? "mensuel"
-                      : payment.subscription === "Yearly"
-                        ? "annuel"
-                        : payment.subscription === "Weekly"
-                          ? "hebdomadaire"
-                          : payment.subscription === "Daily"
-                            ? "quotidien"
-                            : "trimestriel"}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 mt-1">
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-green-500">💰</span>{" "}
-                      {payment.amount.toLocaleString("fr-FR")} FCFA
+            {client.payments.map(
+              (payment: {
+                id: Key | null | undefined;
+                subscription: string;
+                amount: {
+                  toLocaleString: (
+                    arg0: string
+                  ) =>
+                    | string
+                    | number
+                    | bigint
+                    | boolean
+                    | ReactElement<unknown, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | Promise<
+                        | string
+                        | number
+                        | bigint
+                        | boolean
+                        | ReactPortal
+                        | ReactElement<
+                            unknown,
+                            string | JSXElementConstructor<any>
+                          >
+                        | Iterable<ReactNode>
+                        | null
+                        | undefined
+                      >
+                    | null
+                    | undefined;
+                };
+                date: string | number | Date;
+                paymentStatus: string;
+                nextPaymentDate: string | number | Date;
+              }) => (
+                <div
+                  key={payment.id}
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200"
+                >
+                  <div className="mb-2 sm:mb-0">
+                    <p className="font-semibold text-gray-800 text-xs sm:text-sm md:text-base">
+                      Abonnement{" "}
+                      {payment.subscription === "Monthly"
+                        ? "mensuel"
+                        : payment.subscription === "Yearly"
+                          ? "annuel"
+                          : payment.subscription === "Weekly"
+                            ? "hebdomadaire"
+                            : payment.subscription === "Daily"
+                              ? "quotidien"
+                              : "trimestriel"}
                     </p>
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-green-500">📅</span>{" "}
-                      {new Date(payment.date).toLocaleDateString("fr-FR")}
-                    </p>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
-                    <span className="text-green-500">🔔</span> Statut :{" "}
-                    <span
-                      className={
-                        payment.paymentStatus === "Paid"
-                          ? "text-green-600"
-                          : payment.paymentStatus === "Unpaid"
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                      }
-                    >
-                      {payment.paymentStatus === "Paid"
-                        ? "Payé"
-                        : payment.paymentStatus === "Unpaid"
-                          ? "Non payé"
-                          : payment.paymentStatus || "N/A"}
-                    </span>
-                  </p>
-                  {payment.nextPaymentDate && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 mt-1">
+                      <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                        <span className="text-green-500">💰</span>{" "}
+                        {payment.amount.toLocaleString("fr-FR")} FCFA
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                        <span className="text-green-500">📅</span>{" "}
+                        {new Date(payment.date).toLocaleDateString("fr-FR")}
+                      </p>
+                    </div>
                     <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
-                      <span className="text-green-500">⏳</span> Prochain
-                      paiement :{" "}
-                      {new Date(payment.nextPaymentDate).toLocaleDateString(
-                        "fr-FR"
-                      )}
+                      <span className="text-green-500">🔔</span> Statut :{" "}
+                      <span
+                        className={
+                          payment.paymentStatus === "Paid"
+                            ? "text-green-600"
+                            : payment.paymentStatus === "Unpaid"
+                              ? "text-yellow-600"
+                              : "text-red-600"
+                        }
+                      >
+                        {payment.paymentStatus === "Paid"
+                          ? "Payé"
+                          : payment.paymentStatus === "Unpaid"
+                            ? "Non payé"
+                            : payment.paymentStatus || "N/A"}
+                      </span>
                     </p>
+                    {payment.nextPaymentDate && (
+                      <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
+                        <span className="text-green-500">⏳</span> Prochain
+                        paiement :{" "}
+                        {new Date(payment.nextPaymentDate).toLocaleDateString(
+                          "fr-FR"
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  {isManager && (
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                      <Link
+                        href={`/dashboard/payments/${payment.id}`}
+                        className="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
+                      >
+                        <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
+                        Voir
+                      </Link>
+                    </div>
                   )}
                 </div>
-                {isManager && (
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                    <Link
-                      href={`/dashboard/payments/${payment.id}`}
-                      className="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
-                    >
-                      <Eye className="h-3 sm:h-4 w-3 sm:w-4" />
-                      Voir
-                    </Link>
-                  </div>
-                )}
-              </div>
-            ))}
+              )
+            )}
           </div>
         )}
       </div>

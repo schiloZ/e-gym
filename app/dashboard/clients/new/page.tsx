@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Image from "next/image"; // Import Next.js Image component for optimized image rendering
 
-export default function AddClientForm({ userId }: { userId: string }) {
+export default function AddClientForm() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
-    userId: userId,
     height: "",
     weight: "",
     age: "",
@@ -27,6 +28,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
     targetBodyFat: "",
     goalMilestone: "",
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null); // State for the selected image file
@@ -79,7 +81,14 @@ export default function AddClientForm({ userId }: { userId: string }) {
       setPreviewImage(previewUrl);
     }
   };
-
+  useEffect(() => {
+    if (session?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        userId: (session.user as any).id, // or session.user.id if typed
+      }));
+    }
+  }, [session]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -182,7 +191,8 @@ export default function AddClientForm({ userId }: { userId: string }) {
     dataToSend.append("name", formData.name);
     if (formData.phone) dataToSend.append("phone", formData.phone);
     if (formData.email) dataToSend.append("email", formData.email);
-    dataToSend.append("userId", formData.userId);
+    if (session?.user)
+      dataToSend.append("userId", (session.user as { id: string }).id);
     if (formData.height) dataToSend.append("height", formData.height);
     if (formData.weight) dataToSend.append("weight", formData.weight);
     if (formData.age) dataToSend.append("age", formData.age);
@@ -216,8 +226,11 @@ export default function AddClientForm({ userId }: { userId: string }) {
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.error.includes("Failed to upload image")) {
-          toast.warning(
-            "Client enregistré avec succès, mais l'image n'a pas pu être téléchargée."
+          toast(
+            "Client enregistré avec succès, mais l'image n'a pas pu être téléchargée.",
+            {
+              icon: "⚠️",
+            }
           );
           const data = await response.json(); // Try to parse response for client ID
           router.push(`/dashboard/clients/${data.client?.id || ""}`);
@@ -238,7 +251,6 @@ export default function AddClientForm({ userId }: { userId: string }) {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 bg-white rounded-xl shadow-md">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8">
@@ -585,7 +597,7 @@ export default function AddClientForm({ userId }: { userId: string }) {
                 htmlFor="goalMilestone"
                 className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
               >
-                Date d'objectif
+                Date d&apos;objectif
               </label>
               <input
                 type="date"
@@ -636,7 +648,8 @@ export default function AddClientForm({ userId }: { userId: string }) {
           <li>Le nom est le seul champ requis</li>
           <li>Le numéro de téléphone aide pour les notifications SMS</li>
           <li>
-            L'email est facultatif mais utile pour la communication digitale
+            L&apos;email est facultatif mais utile pour la communication
+            digitale
           </li>
           <li>
             Les informations médicales et objectifs physiques sont facultatifs

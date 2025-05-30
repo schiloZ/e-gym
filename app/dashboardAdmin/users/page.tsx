@@ -10,7 +10,6 @@ import {
   MapPin,
   CreditCard,
   Search,
-  Filter,
   MoreHorizontal,
   UserPlus,
   Download,
@@ -450,10 +449,10 @@ export default function UsersPage() {
                             company.subscriptionType === "free"
                               ? "bg-gray-100 text-gray-800"
                               : company.subscriptionType === "premium"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : company.subscriptionType === "enterprise"
-                              ? "bg-indigo-100 text-indigo-800"
-                              : "bg-gray-100 text-gray-600"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : company.subscriptionType === "enterprise"
+                                  ? "bg-indigo-100 text-indigo-800"
+                                  : "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {company.subscriptionType || "No subscription"}

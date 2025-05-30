@@ -82,7 +82,7 @@ export default function ClientEditPage() {
             ? new Date(data.goalMilestone).toISOString().split("T")[0]
             : "",
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erreur de récupération :", err);
         setError(
           err.message ||
@@ -213,10 +213,9 @@ export default function ClientEditPage() {
         );
       }
 
-      const updatedClient = await response.json();
       setSuccess("Client mis à jour avec succès");
       setTimeout(() => router.push(`/dashboard/clients/${clientId}`), 2000); // Redirection après 2 secondes
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur de mise à jour :", err);
       setError(
         err.message ||
@@ -329,7 +328,7 @@ export default function ClientEditPage() {
               </div>
               <div>
                 <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                  Date d'inscription
+                  Date d&apos;inscription
                 </label>
                 <input
                   type="date"
@@ -519,7 +518,7 @@ export default function ClientEditPage() {
               </div>
               <div>
                 <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
-                  Date de l'objectif
+                  Date de l&apos;objectif
                 </label>
                 <input
                   type="date"

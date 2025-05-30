@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+
 import { Lock, Mail, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -16,7 +16,10 @@ export default function Login() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      if (session?.user?.role === "superadmin" || session?.user?.isSuperAdmin) {
+      if (
+        (session?.user as any)?.role === "superadmin" ||
+        (session?.user as any)?.isSuperAdmin
+      ) {
         router.push("/dashboardAdmin");
       } else {
         router.push("/dashboard");

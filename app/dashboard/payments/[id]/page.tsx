@@ -11,7 +11,7 @@ export default function PaymentDetailPage() {
   const router = useRouter();
   const params = useParams();
   const paymentId = params.id;
-  const [payment, setPayment] = useState(null);
+  const [payment, setPayment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -44,7 +44,7 @@ export default function PaymentDetailPage() {
 
         const data = await response.json();
         setPayment(data);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erreur de récupération :", err);
         setError(
           err.message ||

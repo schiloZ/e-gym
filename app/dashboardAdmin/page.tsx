@@ -56,7 +56,7 @@ export default function AdminDashboard() {
     revenueGrowth: 0,
   });
 
-  const [userChartData, setUserChartData] = useState({
+  const [userChartData, setUserChartData] = useState<any>({
     labels: [],
     datasets: [
       {
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
     ],
   });
 
-  const [revenueChartData, setRevenueChartData] = useState({
+  const [revenueChartData, setRevenueChartData] = useState<any>({
     labels: [],
     datasets: [
       {
@@ -84,9 +84,9 @@ export default function AdminDashboard() {
     ],
   });
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<any>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState<any>([]);
 
   // Simulate data loading
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
         await new Promise((resolve) => setTimeout(resolve, 800));
 
         // Mock data based on date range
-        const months =
+        const months: string[] =
           dateRange === "year"
             ? [
                 "Jan",
@@ -115,11 +115,15 @@ export default function AdminDashboard() {
                 "Dec",
               ]
             : dateRange === "month"
-            ? ["Week 1", "Week 2", "Week 3", "Week 4"]
-            : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+              ? ["Week 1", "Week 2", "Week 3", "Week 4"]
+              : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
         // Generate random data based on date range
-        const generateRandomData = (min, max, length) => {
+        const generateRandomData = (
+          min: number,
+          max: number,
+          length: number
+        ) => {
           return Array.from(
             { length },
             () => Math.floor(Math.random() * (max - min + 1)) + min
@@ -223,7 +227,6 @@ export default function AdminDashboard() {
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, [dateRange]);
 
@@ -235,7 +238,7 @@ export default function AdminDashboard() {
       const lowercaseQuery = searchQuery.toLowerCase();
       setFilteredUsers(
         users.filter(
-          (user) =>
+          (user: any) =>
             user.email.toLowerCase().includes(lowercaseQuery) ||
             user.name.toLowerCase().includes(lowercaseQuery) ||
             user.role.toLowerCase().includes(lowercaseQuery) ||
@@ -310,7 +313,7 @@ export default function AdminDashboard() {
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
             <p className="text-gray-600">
-              Monitor and manage your gym's performance
+              Monitor and manage your gym&apos;s performance
             </p>
           </div>
 
@@ -508,7 +511,6 @@ export default function AdminDashboard() {
                           scales: {
                             y: {
                               beginAtZero: true,
-                              grid: { drawBorder: false },
                             },
                             x: {
                               grid: { display: false },
@@ -536,7 +538,7 @@ export default function AdminDashboard() {
                           scales: {
                             y: {
                               beginAtZero: true,
-                              grid: { drawBorder: false },
+
                               ticks: {
                                 callback: function (value) {
                                   return "$" + value;
@@ -583,7 +585,7 @@ export default function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {users.slice(0, 5).map((user) => (
+                        {users.slice(0, 5).map((user: any) => (
                           <tr
                             key={user.id}
                             className="border-t hover:bg-gray-50"
@@ -666,7 +668,7 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredUsers.map((user) => (
+                      {filteredUsers.map((user: any) => (
                         <tr key={user.id} className="border-t hover:bg-gray-50">
                           <td className="px-4 py-3">{user.name}</td>
                           <td className="px-4 py-3">{user.email}</td>

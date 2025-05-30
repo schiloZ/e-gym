@@ -133,7 +133,7 @@ export default function Dashboard() {
   }, []);
 
   // Configurations des graphiques
-  const commonOptions = {
+  const commonOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -158,7 +158,9 @@ export default function Dashboard() {
               label += ": ";
             }
             if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat("fr-FR").format(context.parsed.y);
+              label += new Intl.NumberFormat("fr-FR").format(
+                Number(context.parsed.y)
+              );
             }
             return label;
           },
@@ -184,7 +186,7 @@ export default function Dashboard() {
 
   // Données du graphique des inscriptions
   const registrationsData = {
-    labels: chartData.registrationsPerDay.map((d) =>
+    labels: chartData.registrationsPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -193,7 +195,7 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Inscriptions",
-        data: chartData.registrationsPerDay.map((d) => d.count),
+        data: chartData.registrationsPerDay.map((d: any) => d.count),
         backgroundColor: "rgba(59, 130, 246, 0.7)",
         borderColor: "rgba(37, 99, 235, 1)",
         borderWidth: 2,
@@ -205,7 +207,7 @@ export default function Dashboard() {
 
   // Données du graphique des abonnements
   const subscriptionsData = {
-    labels: chartData.activeSubscriptionsPerDay.map((d) =>
+    labels: chartData.activeSubscriptionsPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -214,7 +216,7 @@ export default function Dashboard() {
     datasets: [
       {
         label: "Abonnements actifs",
-        data: chartData.activeSubscriptionsPerDay.map((d) => d.count),
+        data: chartData.activeSubscriptionsPerDay.map((d: any) => d.count),
         backgroundColor: "rgba(168, 85, 247, 0.15)",
         borderColor: "rgba(126, 34, 206, 1)",
         borderWidth: 2,
@@ -361,7 +363,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="space-y-3 sm:space-y-4">
-            {recentClients.map((client) => (
+            {recentClients.map((client: any) => (
               <div
                 key={client.id}
                 className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 py-2 sm:py-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition border border-gray-100 hover:border-blue-200"
@@ -502,7 +504,7 @@ export default function Dashboard() {
           >
             <span className="flex items-center">
               <BarChart className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-2 text-purple-500" />
-              Voir plus d'analyses
+              Voir plus d&apos;analyses
             </span>
             <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
           </Link>

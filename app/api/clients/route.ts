@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
@@ -339,7 +338,6 @@ export async function GET() {
       include: { user: true, payments: true },
     });
     return NextResponse.json(clients);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
       { error: "Error fetching clients" },

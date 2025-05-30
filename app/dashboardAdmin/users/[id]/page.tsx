@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   Building,
-  Mail,
-  Phone,
-  Shield,
   MapPin,
   CreditCard,
   Calendar,
@@ -271,10 +268,10 @@ export default function CompanyDetailPage() {
                     company.subscriptionType === "free"
                       ? "bg-gray-100 text-gray-800"
                       : company.subscriptionType === "premium"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : company.subscriptionType === "enterprise"
-                      ? "bg-indigo-100 text-indigo-800"
-                      : "bg-gray-100 text-gray-600"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : company.subscriptionType === "enterprise"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : "bg-gray-100 text-gray-600"
                   }`}
                 >
                   {company.subscriptionType || "No subscription"}
@@ -506,8 +503,8 @@ export default function CompanyDetailPage() {
                               payment.status === "completed"
                                 ? "bg-green-100 text-green-800"
                                 : payment.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-red-100 text-red-800"
                             }`}
                           >
                             {payment.status}

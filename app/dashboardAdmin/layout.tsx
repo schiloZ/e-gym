@@ -14,8 +14,6 @@ import {
   Dumbbell,
   Settings,
   TrendingUp,
-  Calendar,
-  History,
   Loader2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -58,7 +56,7 @@ export default function AdminDashboardLayout({
     } else if (
       session &&
       !["superadmin", true].includes(
-        session.user?.role || session.user?.isSuperAdmin
+        (session?.user as any)?.role || (session?.user as any)?.isSuperAdmin
       )
     ) {
       router.push("/");
@@ -75,15 +73,15 @@ export default function AdminDashboardLayout({
         duration: 3000,
       });
       setTimeout(() => router.push("/"), 0);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Erreur lors de la déconnexion", {
         duration: 4000,
       });
+      console.error(error);
     } finally {
       setIsLoggingOut(false);
     }
   }, [router]);
-
   // Handle loading state
   if (status === "loading") {
     return (
@@ -138,7 +136,9 @@ export default function AdminDashboardLayout({
                   >
                     <Bell className="h-5 w-5" />
                     <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      {notifications.filter((n) => !n.isRead).length || 0}
+                      {notifications.filter(
+                        (n: { isRead: boolean }) => !n.isRead
+                      ).length || 0}
                     </span>
                   </button>
 
@@ -155,7 +155,7 @@ export default function AdminDashboardLayout({
                             No new notifications
                           </div>
                         ) : (
-                          notifications.map((notification) => (
+                          notifications.map((notification: any) => (
                             <div
                               key={notification.id}
                               className={`px-4 py-3 hover:bg-gray-50 border-l-4 ${

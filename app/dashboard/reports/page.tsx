@@ -29,6 +29,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
+import toast from "react-hot-toast";
 
 ChartJS.register(
   CategoryScale,
@@ -107,7 +108,7 @@ export default function StatsPage() {
         billsAmountPerDay: bills,
         activeSubscriptionsPerDay: subscriptions,
       });
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -116,12 +117,8 @@ export default function StatsPage() {
 
   // Calculer les statistiques récapitulatives pour les cartes de métriques
   const getTotalRegistrations = () => {
-    return stats.registrationsPerDay.reduce((sum, day) => sum + day.count, 0);
-  };
-
-  const getTotalPayments = () => {
-    return stats.paymentsPerDay.reduce(
-      (sum, day) => sum + (day.totalAmount || 0),
+    return stats.registrationsPerDay.reduce(
+      (sum, day: any) => sum + day.count,
       0
     );
   };
@@ -136,14 +133,14 @@ export default function StatsPage() {
 
   const getTotalPaymentAmount = () => {
     return stats.paymentAmountPerDay.reduce(
-      (sum, day) => sum + day.totalAmount,
+      (sum, day: any) => sum + day.totalAmount,
       0
     );
   };
 
   const getTotalBillsAmount = () => {
     return stats.billsAmountPerDay.reduce(
-      (sum, day) => sum + day.totalAmount,
+      (sum, day: any) => sum + day.totalAmount,
       0
     );
   };
@@ -169,9 +166,9 @@ export default function StatsPage() {
     // Get the current date
     const currentDate = new Date("2025-05-27T12:17:00Z"); // Current time: 12:17 PM GMT on May 27, 2025
     const latestSubscription = subscriptions
-      .filter((sub) => new Date(sub.date) <= currentDate)
+      .filter((sub: any) => new Date(sub.date) <= currentDate)
       .reduce(
-        (latest, current) =>
+        (latest: any, current: any) =>
           new Date(latest.date) > new Date(current.date) ? latest : current,
         subscriptions[0]
       );
@@ -179,7 +176,7 @@ export default function StatsPage() {
     return latestSubscription ? latestSubscription.count : 0;
   };
 
-  const formatCurrency = (value) => {
+  const formatCurrency = (value: any) => {
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "XOF",
@@ -187,12 +184,12 @@ export default function StatsPage() {
     }).format(value);
   };
 
-  const formatNumber = (value) => {
+  const formatNumber = (value: number) => {
     return value;
   };
 
   // Calculer les tendances (changement en pourcentage)
-  const calculateTrend = (data, key = "count") => {
+  const calculateTrend = (data: any, key = "count") => {
     if (!data || data.length < 2) return 0;
 
     const current = data[data.length - 1][key] || 0;
@@ -203,7 +200,7 @@ export default function StatsPage() {
   };
 
   // Configurations des graphiques
-  const commonOptions = {
+  const commonOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -221,7 +218,10 @@ export default function StatsPage() {
         borderWidth: 1,
         displayColors: false,
         callbacks: {
-          label: function (context) {
+          label: function (context: {
+            dataset: { label: string; yAxisID: string };
+            parsed: { y: number | null };
+          }) {
             let label = context.dataset.label || "";
             if (label) {
               label += ": ";
@@ -275,7 +275,7 @@ export default function StatsPage() {
 
   // Données du graphique des inscriptions
   const registrationsData = {
-    labels: stats.registrationsPerDay.map((d) =>
+    labels: stats.registrationsPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -284,7 +284,7 @@ export default function StatsPage() {
     datasets: [
       {
         label: "Inscriptions",
-        data: stats.registrationsPerDay.map((d) => d.count),
+        data: stats.registrationsPerDay.map((d: any) => d.count),
         backgroundColor: "rgba(59, 130, 246, 0.7)",
         borderColor: "rgba(37, 99, 235, 1)",
         borderWidth: 2,
@@ -296,7 +296,7 @@ export default function StatsPage() {
 
   // Données du graphique des paiements
   const paymentsData = {
-    labels: stats.paymentsPerDay.map((d) =>
+    labels: stats.paymentsPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -305,7 +305,7 @@ export default function StatsPage() {
     datasets: [
       {
         label: "Paiements",
-        data: stats.paymentsPerDay.map((d) => d.count),
+        data: stats.paymentsPerDay.map((d: any) => d.count),
         backgroundColor: "rgba(34, 197, 94, 0.7)",
         borderColor: "rgba(22, 163, 74, 1)",
         borderWidth: 2,
@@ -317,7 +317,7 @@ export default function StatsPage() {
 
   // Données du graphique des revenus
   const revenueData = {
-    labels: stats.paymentAmountPerDay.map((d) =>
+    labels: stats.paymentAmountPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -326,8 +326,10 @@ export default function StatsPage() {
     datasets: [
       {
         label: "Revenus",
-        data: stats.paymentAmountPerDay.map((paymentDay, index) => {
-          const billDay = stats.billsAmountPerDay[index] || { totalAmount: 0 };
+        data: stats.paymentAmountPerDay.map((paymentDay: any, index) => {
+          const billDay: any = stats.billsAmountPerDay[index] || {
+            totalAmount: 0,
+          };
           return paymentDay.totalAmount - billDay.totalAmount;
         }),
         backgroundColor: "rgba(245, 158, 11, 0.7)",
@@ -342,7 +344,7 @@ export default function StatsPage() {
 
   // Données du graphique des abonnements
   const subscriptionsData = {
-    labels: stats.activeSubscriptionsPerDay.map((d) =>
+    labels: stats.activeSubscriptionsPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -351,7 +353,7 @@ export default function StatsPage() {
     datasets: [
       {
         label: "Abonnements actifs",
-        data: stats.activeSubscriptionsPerDay.map((d) => d.count),
+        data: stats.activeSubscriptionsPerDay.map((d: any) => d.count),
         backgroundColor: "rgba(168, 85, 247, 0.15)",
         borderColor: "rgba(126, 34, 206, 1)",
         borderWidth: 2,
@@ -367,7 +369,7 @@ export default function StatsPage() {
 
   // Données du graphique des factures
   const billsData = {
-    labels: stats.billsAmountPerDay.map((d) =>
+    labels: stats.billsAmountPerDay.map((d: any) =>
       new Date(d.date).toLocaleDateString("fr-FR", {
         month: "short",
         day: "numeric",
@@ -376,7 +378,7 @@ export default function StatsPage() {
     datasets: [
       {
         label: "Montant des factures",
-        data: stats.billsAmountPerDay.map((d) => d.totalAmount),
+        data: stats.billsAmountPerDay.map((d: any) => d.totalAmount),
         backgroundColor: "rgba(239, 68, 68, 0.7)",
         borderColor: "rgba(220, 38, 38, 1)",
         borderWidth: 2,
@@ -397,16 +399,18 @@ export default function StatsPage() {
       "Montant des factures",
       "Abonnements actifs",
     ];
-    const rows = stats.registrationsPerDay.map((reg, index) => {
-      const payment = stats.paymentsPerDay[index] || {
+    const rows = stats.registrationsPerDay.map((reg: any, index) => {
+      const payment: any = stats.paymentsPerDay[index] || {
         count: 0,
         totalAmount: 0,
       };
-      const paymentAmount = stats.paymentAmountPerDay[index] || {
+      const paymentAmount: any = stats.paymentAmountPerDay[index] || {
         totalAmount: 0,
       };
-      const billAmount = stats.billsAmountPerDay[index] || { totalAmount: 0 };
-      const subscription = stats.activeSubscriptionsPerDay[index] || {
+      const billAmount: any = stats.billsAmountPerDay[index] || {
+        totalAmount: 0,
+      };
+      const subscription: any = stats.activeSubscriptionsPerDay[index] || {
         count: 0,
       };
       return [
@@ -475,16 +479,18 @@ export default function StatsPage() {
         "Abonnements",
       ];
 
-      const rows = stats.registrationsPerDay.map((reg, index) => {
-        const payment = stats.paymentsPerDay[index] || {
+      const rows = stats.registrationsPerDay.map((reg: any, index) => {
+        const payment: any = stats.paymentsPerDay[index] || {
           count: 0,
           totalAmount: 0,
         };
-        const paymentAmount = stats.paymentAmountPerDay[index] || {
+        const paymentAmount: any = stats.paymentAmountPerDay[index] || {
           totalAmount: 0,
         };
-        const billAmount = stats.billsAmountPerDay[index] || { totalAmount: 0 };
-        const subscription = stats.activeSubscriptionsPerDay[index] || {
+        const billAmount: any = stats.billsAmountPerDay[index] || {
+          totalAmount: 0,
+        };
+        const subscription: any = stats.activeSubscriptionsPerDay[index] || {
           count: 0,
         };
         const revenue = paymentAmount.totalAmount - billAmount.totalAmount;
@@ -625,8 +631,8 @@ export default function StatsPage() {
                 Tableau de bord statistique
               </h1>
               <p className="text-gray-500 mt-1 text-sm sm:text-base">
-                Perspectives sur la performance de l'entreprise et l'engagement
-                des utilisateurs
+                Perspectives sur la performance de l&apos;entreprise et
+                l&apos;engagement des utilisateurs
               </p>
             </div>
 

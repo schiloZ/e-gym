@@ -7,7 +7,6 @@ import {
   Trash2,
   DollarSign,
   FileText,
-  Calendar,
   TrendingUp,
   Download,
   RefreshCw,
@@ -25,6 +24,7 @@ import {
 } from "chart.js";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import toast from "react-hot-toast";
 
 ChartJS.register(
   CategoryScale,

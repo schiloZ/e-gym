@@ -1,22 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Key } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  CreditCard,
-  ArrowLeft,
-  Calendar,
-  DollarSign,
-  AlertCircle,
-} from "lucide-react";
+import { CreditCard, ArrowLeft, Calendar, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function NewPaymentPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [clients, setClients] = useState([]);
+  const [clients, setClients] = useState<any>([]);
   const [formData, setFormData] = useState({
     clientEmail: "",
     amount: "",
@@ -47,8 +41,10 @@ export default function NewPaymentPage() {
         const response = await fetch("/api/clients");
         const data = await response.json();
         setClients(data);
-      } catch (err) {
-        setError("Échec du chargement des clients. Veuillez réessayer.");
+      } catch (err: any) {
+        setError(
+          err.message || "Échec du chargement des clients. Veuillez réessayer."
+        );
       } finally {
         setLoadingClients(false);
       }
@@ -58,7 +54,7 @@ export default function NewPaymentPage() {
   }, [session, status, router]);
 
   // Gérer les changements dans le formulaire
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -67,7 +63,7 @@ export default function NewPaymentPage() {
   };
 
   // Gérer la soumission du formulaire
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -125,7 +121,7 @@ export default function NewPaymentPage() {
       toast.success("Paiement enregistré avec succès !");
       // Rediriger vers la liste des paiements après un court délai
       setTimeout(() => router.push("/dashboard/payments"), 1500);
-    } catch (err) {
+    } catch (err: any) {
       setError(
         err.message ||
           "Une erreur s'est produite lors de l'enregistrement du paiement."
@@ -200,11 +196,17 @@ export default function NewPaymentPage() {
                 className="w-full p-2 sm:p-2.5 md:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
               >
                 <option value="">Sélectionnez un client</option>
-                {clients.map((client) => (
-                  <option key={client.id} value={client.email}>
-                    {client.name} ({client.email})
-                  </option>
-                ))}
+                {clients.map(
+                  (client: {
+                    id: Key | null | undefined;
+                    email: string;
+                    name: string;
+                  }) => (
+                    <option key={client.id} value={client.email}>
+                      {client.name} ({client.email})
+                    </option>
+                  )
+                )}{" "}
               </select>
             </div>
 

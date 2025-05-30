@@ -37,7 +37,7 @@ export default function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const [currentStep, setCurrentStep] = useState(1);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [companies, setCompanies] = useState([]);
@@ -63,7 +63,7 @@ export default function Register() {
   useEffect(() => {
     if (formData.isNewCompany && formData.subscriptionType) {
       const startDate = new Date();
-      let endDate = new Date();
+      const endDate = new Date();
       let maxClientRegistrations = 5;
       let maxPayments = 20;
 
@@ -136,7 +136,7 @@ export default function Register() {
     const passwordError = validatePassword();
     const confirmPasswordError = validateConfirmPassword();
 
-    const newErrors = {};
+    const newErrors: any = {};
     if (emailError) newErrors.email = emailError;
     if (phoneError) newErrors.phone = phoneError;
     if (passwordError) newErrors.password = passwordError;
@@ -147,7 +147,7 @@ export default function Register() {
   };
 
   const validateStep2 = () => {
-    const newErrors = {};
+    const newErrors: any = {};
 
     if (!formData.role) {
       newErrors.role = "Role is required";
@@ -200,7 +200,7 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = (e) => {
+  const nextStep = (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
@@ -211,17 +211,17 @@ export default function Register() {
     setCurrentStep(1);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
 
-    if (errors[name]) {
-      setErrors((prev) => {
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev: any) => {
         const newErrors = { ...prev };
-        delete newErrors[name];
+        delete newErrors[name as keyof typeof errors];
         return newErrors;
       });
     }
@@ -235,10 +235,9 @@ export default function Register() {
       setPasswordStrength(strength);
     }
   };
-
-  const handleCompanyChange = (e) => {
+  const handleCompanyChange = (e: { target: { value: any } }) => {
     const { value } = e.target;
-    const selectedCompany = companies.find((c) => c.name === value);
+    const selectedCompany: any = companies.find((c: any) => c.name === value);
     setFormData((prev) => ({
       ...prev,
       companyName: selectedCompany ? value : prev.newCompanyName,
@@ -256,7 +255,7 @@ export default function Register() {
     }));
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: any) => {
     e.preventDefault();
 
     if (!validateStep2()) return;
@@ -304,7 +303,7 @@ export default function Register() {
       }
 
       router.push("/");
-    } catch (error) {
+    } catch (error: any) {
       setErrors({
         form: error.message || "An error occurred during registration",
       });
@@ -741,7 +740,7 @@ export default function Register() {
                           disabled={isLoading}
                         >
                           <option value="">Select a company or add new</option>
-                          {companies.map((company) => (
+                          {companies.map((company: any) => (
                             <option key={company.id} value={company.name}>
                               {company.name} (Created:{" "}
                               {new Date(company.createdAt).toLocaleDateString()}

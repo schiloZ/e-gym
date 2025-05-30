@@ -19,7 +19,7 @@ import autoTable from "jspdf-autotable";
 export default function PaymentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [payments, setPayments] = useState([]);
+  const [payments, setPayments] = useState<any>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +81,7 @@ export default function PaymentsPage() {
   // Gérer la recherche
   useEffect(() => {
     const filtered = payments.filter(
-      (payment) =>
+      (payment: any) =>
         payment.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         payment.subscription
           .toLowerCase()
@@ -94,15 +94,17 @@ export default function PaymentsPage() {
   }, [searchQuery, payments]);
 
   // Gérer la suppression d'un paiement
-  const handleDelete = async (paymentId) => {
+  const handleDelete = async (paymentId: any) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce paiement ?")) {
       try {
         await fetch(`/api/payments/${paymentId}`, {
           method: "DELETE",
         });
-        setPayments(payments.filter((payment) => payment.id !== paymentId));
+        setPayments(
+          payments.filter((payment: any) => payment.id !== paymentId)
+        );
         setFilteredPayments(
-          filteredPayments.filter((payment) => payment.id !== paymentId)
+          filteredPayments.filter((payment: any) => payment.id !== paymentId)
         );
         toast.success("Paiement supprimé avec succès !");
       } catch (error) {
@@ -122,7 +124,7 @@ export default function PaymentsPage() {
       "Date de début",
       "Date de fin",
     ];
-    const rows = paginatedPayments.map((payment) => [
+    const rows = paginatedPayments.map((payment: any) => [
       payment.client.name,
       payment.amount,
       (() => {
@@ -199,7 +201,7 @@ export default function PaymentsPage() {
         "Date de début",
         "Date de fin",
       ];
-      const rows = paginatedPayments.map((payment) => [
+      const rows = paginatedPayments.map((payment: any) => [
         payment.client.name,
         payment.amount,
         (() => {
@@ -278,7 +280,7 @@ export default function PaymentsPage() {
     startIndex + itemsPerPage
   );
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: any) => {
     setCurrentPage(page);
   };
 
@@ -361,7 +363,7 @@ export default function PaymentsPage() {
               </p>
             </div>
           ) : (
-            paginatedPayments.map((payment) => (
+            paginatedPayments.map((payment: any) => (
               <div
                 key={payment.id}
                 className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200"

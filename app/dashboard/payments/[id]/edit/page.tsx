@@ -73,7 +73,7 @@ export default function PaymentEditPage() {
             ? new Date(data.paymentDate).toISOString().split("T")[0]
             : "",
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erreur de récupération :", err);
         setError(
           err.message ||
@@ -118,10 +118,9 @@ export default function PaymentEditPage() {
         );
       }
 
-      const updatedPayment = await response.json();
       setSuccess("Paiement mis à jour avec succès");
       setTimeout(() => router.push(`/dashboard/payments/${paymentId}`), 2000); // Redirection après 2 secondes
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur de mise à jour :", err);
       setError(
         err.message ||

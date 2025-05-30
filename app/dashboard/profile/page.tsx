@@ -149,7 +149,7 @@ export default function ProfilePage() {
   }
 
   // Format subscription end date
-  const formatDate = (date) => {
+  const formatDate = (date: string | number | Date | null | undefined) => {
     if (!date) return "Non défini";
     const parsedDate = new Date(date);
     return isNaN(parsedDate.getTime())
@@ -162,14 +162,17 @@ export default function ProfilePage() {
   };
 
   // Calculate the percentage for progress bars
-  const calculatePercentage = (current, max) => {
+  const calculatePercentage = (current: number, max: number) => {
     if (!max || max === 0) return 100;
     const percentage = (current / max) * 100;
     return Math.min(percentage, 100);
   };
 
   // Get progress bar color based on percentage and subscription
-  const getProgressColor = (percentage, plan) => {
+  const getProgressColor = (
+    percentage: number,
+    plan: string | null | undefined
+  ) => {
     if (percentage < 50) {
       switch (plan) {
         case "free":
@@ -188,7 +191,7 @@ export default function ProfilePage() {
   };
 
   // Subscription type text mapping
-  const getSubscriptionText = (type: string | null) => {
+  const getSubscriptionText = (type: any) => {
     switch (type) {
       case "free":
         return "Standard";
@@ -260,7 +263,7 @@ export default function ProfilePage() {
                     <span
                       className={`text-xs sm:text-sm font-medium ${headerStyle.textColor}`}
                     >
-                      {session?.user?.role || "Utilisateur"}
+                      {(session?.user as any)?.role || "Utilisateur"}
                     </span>
                   </div>
                 </div>
@@ -307,7 +310,7 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     <span className="text-gray-900 font-medium text-sm sm:text-base">
-                      {session?.user?.role || "N/D"}
+                      {(session?.user as any)?.role || "N/D"}
                     </span>
                   </div>
 
@@ -350,7 +353,7 @@ export default function ProfilePage() {
                     <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
                       <HeaderIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                       <span className="font-medium text-gray-700 text-sm sm:text-base">
-                        Type d'abonnement
+                        Type d&apos;abonnement
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -388,7 +391,7 @@ export default function ProfilePage() {
                     <Users className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                   </div>
                   <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                    Limites d'utilisation
+                    Limites d&apos;utilisation
                   </h2>
                 </div>
 
@@ -418,7 +421,7 @@ export default function ProfilePage() {
                         <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
                           <p className="text-xs sm:text-sm text-red-700 font-medium">
                             ⚠️ Attention : Vous approchez de votre limite
-                            d'inscriptions !
+                            d&apos;inscriptions !
                           </p>
                         </div>
                       )}

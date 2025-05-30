@@ -80,7 +80,6 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.userId = user.id;
@@ -95,7 +94,7 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     async session({ session, token }: { session: any; token: any }) {
       if (token?.userId) {
         session.user = {

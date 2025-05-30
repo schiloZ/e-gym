@@ -125,7 +125,7 @@ export default function CompanyEditPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    let parsedValue = value;
+    let parsedValue: any = value;
 
     // Parse numeric fields to ensure they are integers
     if (
@@ -139,9 +139,11 @@ export default function CompanyEditPage() {
       parsedValue = parseInt(value, 10) || 0; // Default to 0 if invalid
     }
 
-    setFormData((prev) => ({ ...prev, [name]: parsedValue }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: parsedValue,
+    }));
   };
-
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

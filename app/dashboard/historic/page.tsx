@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX, SetStateAction } from "react";
 import {
   Activity,
   ChevronDown,
@@ -11,7 +11,6 @@ import {
   CreditCard,
   Calendar,
   DollarSign,
-  Filter,
   RefreshCw,
   Search,
   Clock,
@@ -24,7 +23,7 @@ import {
 
 export default function HistoricPage() {
   const [historyEntries, setHistoryEntries] = useState([]);
-  const [expandedRows, setExpandedRows] = useState({});
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,7 +40,7 @@ export default function HistoricPage() {
         }
         const data = await response.json();
         setHistoryEntries(data);
-      } catch (err) {
+      } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
@@ -51,8 +50,8 @@ export default function HistoricPage() {
     fetchHistory();
   }, []);
 
-  const toggleRow = (id) => {
-    setExpandedRows((prev) => ({
+  const toggleRow = (id: string | number) => {
+    setExpandedRows((prev: Record<string | number, boolean>) => ({
       ...prev,
       [id]: !prev[id],
     }));
@@ -68,15 +67,15 @@ export default function HistoricPage() {
       const data = await response.json();
       setHistoryEntries(data);
       setCurrentPage(1); // Réinitialiser à la première page lors du rafraîchissement
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getIconForField = (key) => {
-    const iconMap = {
+  const getIconForField = (key: string) => {
+    const iconMap: Record<string, JSX.Element> = {
       name: <User className="h-4 w-4 text-blue-500" />,
       email: <User className="h-4 w-4 text-blue-500" />,
       phone: <User className="h-4 w-4 text-blue-500" />,
@@ -94,20 +93,32 @@ export default function HistoricPage() {
     };
     return iconMap[key] || null;
   };
-
-  const formatValue = (value) => {
+  const formatValue = (value: unknown): string => {
     if (value === null || value === undefined) return "N/A";
+
     if (typeof value === "string" && !isNaN(Date.parse(value))) {
       const date = new Date(value);
       return date.toLocaleString("fr-FR") || value;
     }
-    if (value instanceof Date && !isNaN(value)) {
+
+    if (value instanceof Date && !isNaN(value.getTime())) {
       return value.toLocaleString("fr-FR");
     }
-    return value;
+
+    // Fallback for numbers or other primitive types
+    if (typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+
+    // For objects/arrays/etc.
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "Valeur non affichable";
+    }
   };
 
-  const getActionIcon = (action) => {
+  const getActionIcon = (action: any) => {
     switch (action) {
       case "CREATE":
         return <Plus className="h-4 w-4" />;
@@ -120,7 +131,7 @@ export default function HistoricPage() {
     }
   };
 
-  const getActionColor = (action) => {
+  const getActionColor = (action: any) => {
     switch (action) {
       case "CREATE":
         return "bg-green-100 text-green-800 border-green-200";
@@ -133,7 +144,7 @@ export default function HistoricPage() {
     }
   };
 
-  const filteredEntries = historyEntries.filter((entry) => {
+  const filteredEntries = historyEntries.filter((entry: any) => {
     if (filterType !== "all" && entry.action !== filterType) {
       return false;
     }
@@ -150,7 +161,6 @@ export default function HistoricPage() {
     }
     return true;
   });
-
   // Logique de pagination
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -159,7 +169,7 @@ export default function HistoricPage() {
     startIndex + itemsPerPage
   );
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: SetStateAction<number>) => {
     setCurrentPage(page);
   };
 
@@ -177,7 +187,7 @@ export default function HistoricPage() {
         <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-lg">
           <Loader2 className="h-10 sm:h-12 w-10 sm:w-12 text-blue-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-600 font-medium text-sm sm:text-base">
-            Chargement de l'historique d'activité...
+            Chargement de l&apos;historique d&apos;activité...
           </p>
         </div>
       </div>
@@ -190,7 +200,7 @@ export default function HistoricPage() {
         <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-lg max-w-md w-full">
           <AlertCircle className="h-10 sm:h-12 w-10 sm:w-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
-            Une erreur s'est produite
+            Une erreur s&apos;est produite
           </h3>
           <p className="text-red-500 mb-4 text-sm sm:text-base">{error}</p>
           <button
@@ -213,7 +223,7 @@ export default function HistoricPage() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
               <Activity className="h-6 sm:h-8 w-6 sm:w-8" />
-              Historique d'activité
+              Historique d&apos;activité
             </h1>
             <p className="text-indigo-100 mt-1 text-base sm:text-lg">
               Suivez toutes les actions et modifications dans votre système
@@ -338,7 +348,7 @@ export default function HistoricPage() {
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
-              {paginatedEntries.map((entry) => (
+              {paginatedEntries.map((entry: any) => (
                 <div
                   key={entry.id}
                   className="p-4 sm:p-5 bg-white rounded-xl transition border border-gray-100 hover:border-blue-200 hover:shadow-md group relative overflow-hidden"
@@ -431,8 +441,10 @@ export default function HistoricPage() {
                                   Yearly: "Annuel",
                                 };
                                 return (
-                                  translations[entry.payment.subscription] ||
-                                  entry.payment.subscription
+                                  translations[
+                                    entry.payment
+                                      .subscription as keyof typeof translations
+                                  ] || entry.payment.subscription
                                 );
                               })()}
                               (
@@ -558,7 +570,7 @@ export default function HistoricPage() {
                     </div>
                   )}
                 </div>
-              ))}
+              ))}{" "}
             </div>
           )}
 
