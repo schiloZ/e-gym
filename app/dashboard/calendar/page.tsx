@@ -19,12 +19,8 @@ export default function DatesPage() {
   const [dates, setDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date("2025-05-15T12:18:00Z")
-  );
-  const [currentMonth, setCurrentMonth] = useState(
-    new Date("2025-05-15T12:18:00Z")
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
