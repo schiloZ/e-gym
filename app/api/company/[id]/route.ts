@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/authOptions";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = url.pathname.split("/").pop(); // Extracts the ID from the path
-  console.log("API GET /api/company/[id] called with companyId:", id);
+
   // Step 1: Verify the session and user role
   const session = await getServerSession(authOptions);
   if (
@@ -14,8 +14,7 @@ export async function GET(request: Request) {
     typeof session !== "object" ||
     !("user" in session) ||
     !session.user ||
-    !(session.user as any).id ||
-    !(session.user as any).companyId
+    !(session.user as any).id
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -136,8 +135,7 @@ export async function PATCH(request: Request) {
     typeof session !== "object" ||
     !("user" in session) ||
     !session.user ||
-    !(session.user as any).id ||
-    !(session.user as any).companyId
+    !(session.user as any).id
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
