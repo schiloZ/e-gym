@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     "E gym",
     "e gym",
     "e Gym",
+    "e gym top",
     "E gym top",
     "gym scheduling",
   ],
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
     title: "E-Gym",
     description:
       "Streamline your gym operations with E-Gym’s powerful SaaS platform.",
-    url: "https://www.e-gym.top",
+    url: "https://e-gym.top",
     type: "website",
     images: ["/og-image.png"],
   },
