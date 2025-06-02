@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /dashboardAdmin
+Disallow: /api
+
+# Host
+Host: https://e-gym.top
+
+# Sitemaps
+Sitemap: https://e-gym.top/sitemap.xml
