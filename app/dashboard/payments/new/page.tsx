@@ -1,34 +1,48 @@
 "use client";
 
-import { useState, useEffect, Key } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CreditCard, ArrowLeft, Calendar, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import Select from "react-select";
 
 export default function NewPaymentPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [clients, setClients] = useState<any>([]);
   const [formData, setFormData] = useState({
-    clientEmail: "",
+    clientId: "",
     amount: "",
     subscription: "Monthly",
     method: "Cash",
     status: "Pending",
-    startDate: new Date().toISOString().split("T")[0], // Par défaut à aujourd'hui
-    endDate: "",
-    nextPaymentDate: "",
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: calculateEndDate(new Date().toISOString().split("T")[0]),
+    nextPaymentDate: calculateNextPaymentDate(
+      calculateEndDate(new Date().toISOString().split("T")[0])
+    ),
     paymentDate: "",
-    paymentStatus: "Unpaid",
+    paymentStatus: "Paid",
   });
+  // Helper functions to calculate dates
+  function calculateEndDate(startDate: string): string {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + 30);
+    return date.toISOString().split("T")[0];
+  }
+
+  function calculateNextPaymentDate(endDate: string): string {
+    const date = new Date(endDate);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split("T")[0];
+  }
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loadingClients, setLoadingClients] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Récupérer les clients au montage
   useEffect(() => {
     const fetchClients = async () => {
       if (status === "loading") return;
@@ -53,7 +67,6 @@ export default function NewPaymentPage() {
     fetchClients();
   }, [session, status, router]);
 
-  // Gérer les changements dans le formulaire
   const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -62,15 +75,20 @@ export default function NewPaymentPage() {
     }));
   };
 
-  // Gérer la soumission du formulaire
+  const handleClientSelect = (selectedOption: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      clientId: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setSubmitting(true);
 
-    // Valider les champs requis
-    if (!formData.clientEmail || !formData.amount) {
+    if (!formData.clientId || !formData.amount) {
       toast.error(
         "S'il vous plaît, sélectionnez un client et saisissez un montant."
       );
@@ -88,7 +106,7 @@ export default function NewPaymentPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          clientEmail: formData.clientEmail,
+          clientId: formData.clientId,
           amount: parseInt(formData.amount),
           subscription: formData.subscription,
           method: formData.method,
@@ -119,7 +137,6 @@ export default function NewPaymentPage() {
       }
 
       toast.success("Paiement enregistré avec succès !");
-      // Rediriger vers la liste des paiements après un court délai
       setTimeout(() => router.push("/dashboard/payments"), 1500);
     } catch (err: any) {
       setError(
@@ -131,6 +148,13 @@ export default function NewPaymentPage() {
     }
   };
 
+  const clientOptions = clients.map(
+    (client: { id: string; name: string; email: string }) => ({
+      value: client.id,
+      label: `${client.name} (${client.email})`,
+    })
+  );
+
   if (status === "loading" || loadingClients) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -140,13 +164,12 @@ export default function NewPaymentPage() {
   }
 
   if (!session) {
-    return null; // La redirection est gérée dans useEffect
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
       <div className="max-w-2xl mx-auto">
-        {/* En-tête */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
           <div className="flex items-center">
             <Link
@@ -167,10 +190,8 @@ export default function NewPaymentPage() {
           </div>
         </div>
 
-        {/* Formulaire */}
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-md">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            {/* Messages de succès/erreur */}
             {error && (
               <div className="flex items-center gap-2 p-2 sm:p-3 bg-red-50 text-red-700 rounded-lg text-xs sm:text-sm md:text-base">
                 <AlertCircle className="h-4 sm:h-5 w-4 sm:w-5" />
@@ -184,33 +205,64 @@ export default function NewPaymentPage() {
               </div>
             )}
 
-            {/* Sélection du client */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Client
               </label>
-              <select
-                name="clientEmail"
-                value={formData.clientEmail}
-                onChange={handleChange}
-                className="w-full p-2 sm:p-2.5 md:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
-              >
-                <option value="">Sélectionnez un client</option>
-                {clients.map(
-                  (client: {
-                    id: Key | null | undefined;
-                    email: string;
-                    name: string;
-                  }) => (
-                    <option key={client.id} value={client.email}>
-                      {client.name} ({client.email})
-                    </option>
-                  )
-                )}{" "}
-              </select>
+              <Select
+                options={clientOptions}
+                onChange={handleClientSelect}
+                value={clientOptions.find(
+                  (option: any) => option.value === formData.clientId
+                )}
+                placeholder="Rechercher un client par nom..."
+                isClearable
+                className="text-xs sm:text-sm md:text-base"
+                classNamePrefix="select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: "#e5e7eb",
+                    borderRadius: "0.5rem",
+                    padding: "0.25rem",
+                    "&:hover": {
+                      borderColor: "#10b981",
+                    },
+                    boxShadow: "none",
+                    "&:focus-within": {
+                      borderColor: "#10b981",
+                      ring: "2px",
+                      ringColor: "#10b981",
+                    },
+                  }),
+                  input: (base) => ({
+                    ...base,
+                    padding: "0.25rem",
+                  }),
+                  menu: (base) => ({
+                    ...base,
+                    borderRadius: "0.5rem",
+                    marginTop: "0.25rem",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  }),
+                  option: (base, { isFocused, isSelected }) => ({
+                    ...base,
+                    backgroundColor: isSelected
+                      ? "#10b981"
+                      : isFocused
+                        ? "#f0fdf4"
+                        : "white",
+                    color: isSelected ? "white" : "#1f2937",
+                    padding: "0.5rem 1rem",
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#f0fdf4",
+                    },
+                  }),
+                }}
+              />
             </div>
 
-            {/* Montant */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Montant (FCFA)
@@ -218,13 +270,13 @@ export default function NewPaymentPage() {
               <div className="relative">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 sm:h-5 w-4 sm:w-5 text-gray-400">
                   XOF
-                </span>{" "}
+                </span>
                 <input
                   type="number"
                   name="amount"
                   value={formData.amount}
                   onChange={handleChange}
-                  className="w-full pl-15 pr-4 py-4 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
+                  className="w-full pl-12 pr-4 py-2 sm:py-2.5 md:py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
                   placeholder="Saisissez le montant"
                   min="0"
                   step="1"
@@ -232,7 +284,6 @@ export default function NewPaymentPage() {
               </div>
             </div>
 
-            {/* Abonnement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Abonnement
@@ -251,7 +302,6 @@ export default function NewPaymentPage() {
               </select>
             </div>
 
-            {/* Méthode de paiement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Méthode de paiement
@@ -271,7 +321,6 @@ export default function NewPaymentPage() {
               </select>
             </div>
 
-            {/* Statut du paiement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Statut du paiement
@@ -282,13 +331,12 @@ export default function NewPaymentPage() {
                 onChange={handleChange}
                 className="w-full p-2 sm:p-2.5 md:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-xs sm:text-sm md:text-base"
               >
-                <option value="Unpaid">Non payé</option>
                 <option value="Paid">Payé</option>
+                <option value="Unpaid">Non payé</option>
                 <option value="Overdue">En retard</option>
               </select>
             </div>
 
-            {/* Date de début */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Date de début
@@ -305,7 +353,6 @@ export default function NewPaymentPage() {
               </div>
             </div>
 
-            {/* Date de fin */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Date de fin
@@ -322,7 +369,6 @@ export default function NewPaymentPage() {
               </div>
             </div>
 
-            {/* Prochaine date de paiement */}
             <div>
               <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1">
                 Prochaine date de paiement
@@ -339,7 +385,6 @@ export default function NewPaymentPage() {
               </div>
             </div>
 
-            {/* Bouton de soumission */}
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"

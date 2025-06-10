@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   const companyId = (session.user as any).companyId;
 
   const {
-    clientEmail,
+    clientId,
     amount,
     subscription,
     method,
@@ -39,10 +39,10 @@ export async function POST(request: Request) {
     paymentStatus,
   } = await request.json();
 
-  if (!clientEmail || !amount) {
+  if (!clientId || !amount) {
     console.error("Missing required fields:");
     return NextResponse.json(
-      { error: "Client email and amount are required" },
+      { error: "Client ID and amount are required" },
       { status: 400 }
     );
   }
@@ -95,10 +95,10 @@ export async function POST(request: Request) {
 
   try {
     const client = await prisma.client.findUnique({
-      where: { email: clientEmail },
+      where: { id: clientId },
     });
     if (!client) {
-      console.error("Client not found:", clientEmail);
+      console.error("Client not found:", clientId);
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
     if (client.companyId !== companyId) {
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
       paymentStatus: paymentStatus || "Paid",
       date: new Date(),
       client: {
-        connect: { id: client.id },
+        connect: { id: clientId },
       },
       user: {
         connect: { id: userId },

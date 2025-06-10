@@ -336,6 +336,9 @@ export async function GET() {
     const clients = await prisma.client.findMany({
       where: { companyId: (session.user as any).companyId },
       include: { user: true, payments: true },
+      orderBy: {
+        registrationDate: "desc", // Sort by registrationDate in descending order
+      },
     });
     return NextResponse.json(clients);
   } catch (error) {
