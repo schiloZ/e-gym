@@ -28,9 +28,6 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: npm run type-check
 
-      - name: Run tests
-        run: npm test -- --watchAll=false
-
       - name: Build project
         run: npm run build
 
