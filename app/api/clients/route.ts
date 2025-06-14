@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import cloudinary from "cloudinary";
 
-// Configure Cloudinary (you can also do this in a separate config file)
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -15,9 +14,6 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (
     !session ||
-    typeof session !== "object" ||
-    !("user" in session) ||
-    !session.user ||
     !(session.user as any).id ||
     !(session.user as any).companyId
   ) {
@@ -45,6 +41,7 @@ export async function POST(request: Request) {
   const name = formData.get("name") as string;
   const phone = formData.get("phone") as string;
   const email = formData.get("email") as string;
+  const registrationDate = formData.get("registrationDate") as string;
   const height = formData.get("height") as string;
   const weight = formData.get("weight") as string;
   const age = formData.get("age") as string;
@@ -74,7 +71,7 @@ export async function POST(request: Request) {
   }
 
   if (phone && !/^\+?[1-9]\d{1,14}$/.test(phone)) {
-    console.error("Invalid phone number format (e.g., +1234567890)");
+    console.error("Invalid phone number format");
     return NextResponse.json(
       { error: "Invalid phone number format (e.g., +1234567890)" },
       { status: 400 }
@@ -87,18 +84,21 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
   if (weight && (Number(weight) <= 0 || Number(weight) > 500)) {
     return NextResponse.json(
       { error: "Weight must be between 0 and 500 kg" },
       { status: 400 }
     );
   }
+
   if (age && (Number(age) < 0 || Number(age) > 150)) {
     return NextResponse.json(
       { error: "Age must be between 0 and 150" },
       { status: 400 }
     );
   }
+
   if (bloodPressure && !/^\d{2,3}\/\d{2,3}$/.test(bloodPressure)) {
     return NextResponse.json(
       {
@@ -108,6 +108,7 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
   if (
     targetWeight &&
     (Number(targetWeight) <= 0 || Number(targetWeight) > 500)
@@ -117,6 +118,7 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
   if (
     targetBodyFat &&
     (Number(targetBodyFat) < 0 || Number(targetBodyFat) > 100)
@@ -126,6 +128,7 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
   if (
     fitnessGoal &&
     !["weight loss", "muscle gain", "endurance", "general fitness"].includes(
@@ -141,11 +144,17 @@ export async function POST(request: Request) {
     );
   }
 
+  if (registrationDate && isNaN(new Date(registrationDate).getTime())) {
+    return NextResponse.json(
+      { error: "Invalid registration date" },
+      { status: 400 }
+    );
+  }
+
   // Upload image to Cloudinary if provided
   let imagePath = null;
   if (imageFile) {
     try {
-      // Validate environment variables
       if (
         !process.env.CLOUDINARY_CLOUD_NAME ||
         !process.env.CLOUDINARY_API_KEY ||
@@ -160,34 +169,25 @@ export async function POST(request: Request) {
         );
       }
 
-      // Convert File to a Buffer (required for Cloudinary upload)
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Upload the image to Cloudinary
       console.log("Uploading image to Cloudinary...");
       const uploadResponse = await new Promise<{ secure_url: string }>(
         (resolve, reject) => {
           const stream = cloudinary.v2.uploader.upload_stream(
-            {
-              folder: "clients", // Optional: Store images in a "clients" folder in Cloudinary
-              resource_type: "image",
-            },
+            { folder: "clients", resource_type: "image" },
             (error, result) => {
-              if (error) {
-                reject(error);
-              } else if (result) {
-                resolve(result);
-              } else {
-                reject(new Error("Upload result is undefined"));
-              }
+              if (error) reject(error);
+              else if (result) resolve(result);
+              else reject(new Error("Upload result is undefined"));
             }
           );
           stream.end(buffer);
         }
       );
 
-      imagePath = uploadResponse.secure_url; // Use secure URL for the image
+      imagePath = uploadResponse.secure_url;
       console.log("Image uploaded successfully. Image Path:", imagePath);
     } catch (error) {
       const errorMessage =
@@ -199,6 +199,7 @@ export async function POST(request: Request) {
     }
   }
 
+  // Check company client limit
   const company = await prisma.company.findUnique({
     where: { id: (session.user as any).companyId },
     select: { clientRegistrationCount: true, maxClientRegistrations: true },
@@ -210,20 +211,21 @@ export async function POST(request: Request) {
     company.clientRegistrationCount >= company.maxClientRegistrations
   ) {
     return NextResponse.json(
-      {
-        error:
-          "Le Nombre d'enregistrements clients est atteint veuillez renouveler votre abonnement",
-      },
+      { error: "Client registration limit reached" },
       { status: 403 }
     );
   }
+
   try {
     const client = await prisma.client.create({
       data: {
         name,
         phone,
         email,
-        imagePath, // Save the Cloudinary image URL
+        registrationDate: registrationDate
+          ? new Date(registrationDate)
+          : undefined, // Use provided date or let Prisma set default
+        imagePath,
         userId: (session.user as any).id,
         companyId: (session.user as any).companyId,
         height: height ? Number(height) : undefined,
@@ -246,11 +248,12 @@ export async function POST(request: Request) {
       data: { clientRegistrationCount: { increment: 1 } },
     });
 
-    const company = await prisma.company.findUnique({
+    const companyData = await prisma.company.findUnique({
       where: { id: (session.user as any).companyId },
       select: { subscriptionType: true },
     });
-    if (company?.subscriptionType !== "free") {
+
+    if (companyData?.subscriptionType !== "free") {
       await prisma.historic.create({
         data: {
           action: "CREATE",
@@ -287,8 +290,6 @@ export async function POST(request: Request) {
           description: "Client created successfully",
         },
       });
-    } else {
-      console.log("Historic record not created: Subscription type is 'free'");
     }
 
     const notificationMessage = `${name} a été enregistré comme client ${
@@ -314,13 +315,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: errorMessage }, { status: 400 });
   }
 }
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (
     !session ||
-    typeof session !== "object" ||
-    !("user" in session) ||
-    !session.user ||
     !(session.user as any).id ||
     !(session.user as any).companyId
   ) {
@@ -336,9 +335,7 @@ export async function GET() {
     const clients = await prisma.client.findMany({
       where: { companyId: (session.user as any).companyId },
       include: { user: true, payments: true },
-      orderBy: {
-        registrationDate: "desc", // Sort by registrationDate in descending order
-      },
+      orderBy: { registrationDate: "desc" },
     });
     return NextResponse.json(clients);
   } catch (error) {

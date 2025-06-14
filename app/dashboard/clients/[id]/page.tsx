@@ -36,8 +36,6 @@ export default function ClientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  console.log("ID du client à partir des paramètres :", clientId); // Log de débogage
-
   // Récupérer les données du client et les paiements au montage
   useEffect(() => {
     const fetchClient = async () => {

@@ -78,7 +78,7 @@ model Client {
   id               String    @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   phone            String?
-  email            String?   @unique
+  email            String?   
   registrationDate DateTime  @default(now())
   imagePath        String?   // Optional Cloudflare image URL (e.g., "https://images.cloudflare.com/client-id/image-id")
   payments         Payment[]

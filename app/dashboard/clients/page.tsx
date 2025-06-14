@@ -491,7 +491,7 @@ export default function ClientsPage() {
                   </Link>
                   {isManager && (
                     <Link
-                      href={`/dashboard/clients/${client.id}/edit}`}
+                      href={`/dashboard/clients/${client.id}/edit`}
                       className="text-yellow-600 hover:text-yellow-800 bg-yellow-50 hover:bg-yellow-100 px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition w-full sm:w-auto"
                     >
                       <Edit className="h-3 sm:h-4 w-3 sm:w-4" />

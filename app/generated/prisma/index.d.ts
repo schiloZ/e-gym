@@ -14983,12 +14983,12 @@ export namespace Prisma {
 
   export type ClientWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    email?: string
     AND?: ClientWhereInput | ClientWhereInput[]
     OR?: ClientWhereInput[]
     NOT?: ClientWhereInput | ClientWhereInput[]
     name?: StringFilter<"Client"> | string
     phone?: StringNullableFilter<"Client"> | string | null
+    email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
     imagePath?: StringNullableFilter<"Client"> | string | null
     userId?: StringFilter<"Client"> | string
@@ -15010,7 +15010,7 @@ export namespace Prisma {
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
     notifications?: NotificationListRelationFilter
-  }, "id" | "email">
+  }, "id">
 
   export type ClientOrderByWithAggregationInput = {
     id?: SortOrder

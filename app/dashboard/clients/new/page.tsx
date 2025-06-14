@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { UserPlus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import Image from "next/image"; // Import Next.js Image component for optimized image rendering
+import Image from "next/image";
 
 export default function AddClientForm() {
   const router = useRouter();
@@ -14,7 +14,8 @@ export default function AddClientForm() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
+    email: "", // Email is optional
+    registrationDate: "", // New field for Date d'inscription
     height: "",
     weight: "",
     age: "",
@@ -31,29 +32,20 @@ export default function AddClientForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null); // State for the selected image file
-  const [previewImage, setPreviewImage] = useState<string | null>(null); // State for image preview
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [companyInfo, setCompanyInfo] = useState<{
     subscriptionType: string | null;
   } | null>(null);
+
+  // Fetch company info
   useEffect(() => {
     const fetchCompanyInfo = async () => {
       try {
-        const response = await fetch("/api/company/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch company details");
-        }
-
+        const response = await fetch("/api/company/me");
+        if (!response.ok) throw new Error("Failed to fetch company details");
         const data = await response.json();
-        setCompanyInfo({
-          ...data,
-        });
+        setCompanyInfo({ ...data });
       } catch (err: unknown) {
         toast.error((err as Error).message, { duration: 4000 });
       }
@@ -61,34 +53,34 @@ export default function AddClientForm() {
     fetchCompanyInfo();
   }, []);
 
+  // Handle input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const isStandardPlan = companyInfo?.subscriptionType !== "free";
-  // Handle image file selection and create a preview
+
+  // Handle image change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-      // Create a preview URL for the selected image
-      const previewUrl = URL.createObjectURL(file);
-      setPreviewImage(previewUrl);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
+
+  // Set userId from session
   useEffect(() => {
     if (session?.user) {
       setFormData((prev) => ({
         ...prev,
-        userId: (session.user as any).id, // or session.user.id if typed
+        userId: (session.user as any).id,
       }));
     }
   }, [session]);
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -108,7 +100,7 @@ export default function AddClientForm() {
     }
 
     if (formData.phone && !/^\+?[1-9]\d{1,14}$/.test(formData.phone)) {
-      toast.error("Format de numéro de téléphone invalide (ex. +1234567890)");
+      toast.error("Format de numéro de téléphone invalide");
       setIsSubmitting(false);
       return;
     }
@@ -186,13 +178,22 @@ export default function AddClientForm() {
       return;
     }
 
-    // Prepare the data to send using FormData
+    // Validate registrationDate
+    if (
+      formData.registrationDate &&
+      isNaN(new Date(formData.registrationDate).getTime())
+    ) {
+      toast.error("La date d'inscription est invalide");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Prepare FormData for submission
     const dataToSend = new FormData();
     dataToSend.append("name", formData.name);
     if (formData.phone) dataToSend.append("phone", formData.phone);
     if (formData.email) dataToSend.append("email", formData.email);
-    if (session?.user)
-      dataToSend.append("userId", (session.user as { id: string }).id);
+    if (session?.user) dataToSend.append("userId", (session.user as any).id);
     if (formData.height) dataToSend.append("height", formData.height);
     if (formData.weight) dataToSend.append("weight", formData.weight);
     if (formData.age) dataToSend.append("age", formData.age);
@@ -215,6 +216,11 @@ export default function AddClientForm() {
         "goalMilestone",
         new Date(formData.goalMilestone).toISOString().split("T")[0]
       );
+    if (formData.registrationDate)
+      dataToSend.append(
+        "registrationDate",
+        new Date(formData.registrationDate).toISOString().split("T")[0]
+      );
     if (imageFile) dataToSend.append("image", imageFile);
 
     try {
@@ -225,32 +231,23 @@ export default function AddClientForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (errorData.error.includes("Failed to upload image")) {
-          toast(
-            "Client enregistré avec succès, mais l'image n'a pas pu être téléchargée.",
-            {
-              icon: "⚠️",
-            }
-          );
-          const data = await response.json(); // Try to parse response for client ID
-          router.push(`/dashboard/clients/${data.client?.id || ""}`);
-        } else {
-          toast.error(errorData.error || "Échec de l'ajout du client");
-          throw new Error(errorData.error || "Échec de l'ajout du client");
-        }
-      } else {
-        const data = await response.json();
-        toast.success("Client enregistré avec succès !", {
-          duration: 3000,
-        });
-        router.push(`/dashboard/clients/${data.client.id}`);
+        toast.error(errorData.error || "Échec de l'ajout du client");
+        throw new Error(errorData.error || "Échec de l'ajout du client");
       }
+
+      const data = await response.json();
+      toast.success("Client enregistré avec succès !", { duration: 3000 });
+      router.push(`/dashboard/clients/${data.client.id}`);
     } catch (err: any) {
       console.error("Erreur de création du client :", err);
+      setError(err.message || "Une erreur est survenue");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const isStandardPlan = companyInfo?.subscriptionType !== "free";
+
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 bg-white rounded-xl shadow-md">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8">
@@ -322,7 +319,7 @@ export default function AddClientForm() {
                 htmlFor="email"
                 className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
               >
-                Adresse email
+                Adresse email (Facultatif)
               </label>
               <input
                 type="email"
@@ -334,6 +331,24 @@ export default function AddClientForm() {
                 placeholder="jean@example.com"
               />
             </div>
+
+            <div>
+              <label
+                htmlFor="registrationDate"
+                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+              >
+                Date d&apos;inscription (Facultatif)
+              </label>
+              <input
+                type="date"
+                id="registrationDate"
+                name="registrationDate"
+                value={formData.registrationDate}
+                onChange={handleChange}
+                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+              />
+            </div>
+
             {isStandardPlan && (
               <div className="md:col-span-2">
                 <label
