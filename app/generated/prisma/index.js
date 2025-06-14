@@ -295,11 +295,12 @@ const config = {
     "db"
   ],
   "activeProvider": "mongodb",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL_LOCAL",
-        "value": "mongodb://127.0.0.1:27017/e-gym?replicaSet=rs0&directConnection=true&socketTimeoutMS=2000"
+        "value": null
       }
     }
   },

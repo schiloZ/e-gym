@@ -48,7 +48,7 @@ export default function Login() {
 
     if (result?.error) {
       setError(result.error);
-      toast.error(result.error, {
+      toast.error("Email ou mot de passe incorrect.", {
         duration: 4000,
       });
     } else {

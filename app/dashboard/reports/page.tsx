@@ -968,7 +968,7 @@ export default function StatsPage() {
           </div>
 
           {/* Graphique des paiements */}
-          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+          {/* <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <div>
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900">
@@ -985,7 +985,7 @@ export default function StatsPage() {
             <div className="h-48 sm:h-64">
               <Bar data={paymentsData} options={commonOptions} />
             </div>
-          </div>
+          </div> */}
 
           {/* Graphique des revenus */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
