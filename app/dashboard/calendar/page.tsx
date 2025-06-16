@@ -424,6 +424,7 @@ export default function DatesPage() {
                         source: keyof typeof eventTypes;
                         type: string;
                         date: Date;
+                        subscription?: string;
                         entityName: string;
                         amount?: number;
                       },
@@ -450,8 +451,17 @@ export default function DatesPage() {
                               <div className="flex items-center justify-between mb-1">
                                 <span className="font-semibold text-sm sm:text-base text-gray-900">
                                   {event.type === "Start Date"
-                                    ? "Début de l'événement"
-                                    : "Fin de l'événement"}
+                                    ? "Date de début"
+                                    : "Date de fin"}{" "}
+                                  {event.subscription === "Monthly"
+                                    ? "Abonnement Mois"
+                                    : event.subscription === "Yearly"
+                                      ? "Abonnement Année"
+                                      : event.subscription === "Daily"
+                                        ? "Abonnement Jour"
+                                        : event.subscription === "Quarterly"
+                                          ? "Abonnement Trimestriel"
+                                          : "Inscription"}
                                 </span>
                                 <span
                                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${colorClass}-100 text-${colorClass}-800`}

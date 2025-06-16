@@ -39,6 +39,9 @@ export async function GET() {
     const overduePayments = await prisma.payment.findMany({
       where: {
         companyId,
+        subscription: {
+          not: "Daily",
+        },
         endDate: {
           not: null,
           lt: currentDate,

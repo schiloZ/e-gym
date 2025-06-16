@@ -38,6 +38,7 @@ export async function GET() {
         id: true,
         client: { select: { name: true } },
         amount: true,
+        subscription: true,
         paymentDate: true,
         startDate: true,
         endDate: true,
@@ -46,20 +47,20 @@ export async function GET() {
     });
 
     // Fetch all historic entries related to clients and payments within the company
-    const historicEntries = await prisma.historic.findMany({
-      where: {
-        OR: [
-          { client: { companyId } }, // Historic entries linked to clients in the company
-          { payment: { companyId } }, // Historic entries linked to payments in the company
-        ],
-      },
-      select: {
-        id: true,
-        entityType: true,
-        description: true,
-        createdAt: true,
-      },
-    });
+    // const historicEntries = await prisma.historic.findMany({
+    //   where: {
+    //     OR: [
+    //       { client: { companyId } }, // Historic entries linked to clients in the company
+    //       { payment: { companyId } }, // Historic entries linked to payments in the company
+    //     ],
+    //   },
+    //   select: {
+    //     id: true,
+    //     entityType: true,
+    //     description: true,
+    //     createdAt: true,
+    //   },
+    // });
 
     // Extract dates from clients
     const clientDates = clients
@@ -81,6 +82,7 @@ export async function GET() {
               date: payment.paymentDate,
               source: "Payment",
               entityId: payment.id,
+              subscription: payment.subscription,
               entityName: payment.client?.name || "Unknown Client",
               amount: payment.amount,
             }
@@ -91,6 +93,7 @@ export async function GET() {
               date: payment.startDate,
               source: "Payment",
               entityId: payment.id,
+              subscription: payment.subscription,
               entityName: payment.client?.name || "Unknown Client",
               amount: payment.amount,
             }
@@ -101,36 +104,41 @@ export async function GET() {
               date: payment.endDate,
               source: "Payment",
               entityId: payment.id,
+              subscription: payment.subscription,
               entityName: payment.client?.name || "Unknown Client",
               amount: payment.amount,
             }
           : null,
-        payment.nextPaymentDate
-          ? {
-              type: "Next Payment Date",
-              date: payment.nextPaymentDate,
-              source: "Payment",
-              entityId: payment.id,
-              entityName: payment.client?.name || "Unknown Client",
-              amount: payment.amount,
-            }
-          : null,
+        // payment.nextPaymentDate
+        //   ? {
+        //       type: "Next Payment Date",
+        //       date: payment.nextPaymentDate,
+        //       source: "Payment",
+        //       entityId: payment.id,
+        //       entityName: payment.client?.name || "Unknown Client",
+        //       amount: payment.amount,
+        //     }
+        //   : null,
       ])
       .filter((date) => date !== null);
 
     // Extract dates from historic entries
-    const historicDates = historicEntries
-      .filter((entry) => entry.createdAt)
-      .map((entry) => ({
-        type: "Activity Date",
-        date: entry.createdAt,
-        source: "Historic",
-        entityId: entry.id,
-        entityName: entry.description,
-      }));
+    // const historicDates = historicEntries
+    //   .filter((entry) => entry.createdAt)
+    //   .map((entry) => ({
+    //     type: "Activity Date",
+    //     date: entry.createdAt,
+    //     source: "Historic",
+    //     entityId: entry.id,
+    //     entityName: entry.description,
+    //   }));
 
     // Combine and sort all dates (most recent first)
-    const allDates = [...clientDates, ...paymentDates, ...historicDates].sort(
+    // const allDates = [...clientDates, ...paymentDates, ...historicDates].sort(
+    //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    // );
+
+    const allDates = [...clientDates, ...paymentDates].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
