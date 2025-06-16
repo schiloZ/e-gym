@@ -451,7 +451,7 @@ export default function DatesPage() {
                               <div className="flex items-center justify-between mb-1">
                                 <span className="font-semibold text-sm sm:text-base text-gray-900">
                                   {event.type === "Start Date"
-                                    ? "Date de début"
+                                    ? "Date de début "
                                     : "Date de fin "}{" "}
                                   {event.subscription === "Monthly"
                                     ? "Abonnement Mois"
