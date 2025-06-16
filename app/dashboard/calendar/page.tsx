@@ -452,16 +452,16 @@ export default function DatesPage() {
                                 <span className="font-semibold text-sm sm:text-base text-gray-900">
                                   {event.type === "Start Date"
                                     ? "Date de début"
-                                    : "Date de fin"}{" "}
+                                    : "Date"}{" "}
                                   {event.subscription === "Monthly"
-                                    ? "Abonnement Mois"
+                                    ? "de fin Abonnement Mois"
                                     : event.subscription === "Yearly"
-                                      ? "Abonnement Année"
+                                      ? "de fin Abonnement Année"
                                       : event.subscription === "Daily"
-                                        ? "Abonnement Jour"
+                                        ? "de fin Abonnement Jour"
                                         : event.subscription === "Quarterly"
-                                          ? "Abonnement Trimestriel"
-                                          : "Inscription"}
+                                          ? "de fin Abonnement Trimestriel"
+                                          : "d'Inscription"}
                                 </span>
                                 <span
                                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-${colorClass}-100 text-${colorClass}-800`}
