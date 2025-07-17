@@ -28,6 +28,7 @@ import {
   Gift,
   Trophy,
   Rocket,
+  QrCode,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -732,6 +733,17 @@ export default function DashboardLayout({
                               <CreditCard className="h-4 w-4" />
                             </div>
                             <span className="font-medium">Paiements</span>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/qr-code"
+                            className="flex items-center text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 px-4 py-3 rounded-xl transition-all duration-200 group"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <div className="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                              <QrCode className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">Mon QR Code</span>
                           </Link>
 
                           {isStandard && (

@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     "gym scheduling",
   ],
   robots: "index, follow",
+  metadataBase: new URL("https://e-gym.top"),
   openGraph: {
     title: "E-Gym",
     description:

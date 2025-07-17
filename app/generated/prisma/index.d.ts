@@ -328,8 +328,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.7.0
-   * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+   * Prisma Client JS version: 6.12.0
+   * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
    */
   export type PrismaVersion = {
     client: string
@@ -6822,7 +6822,7 @@ export namespace Prisma {
     email: string | null
     registrationDate: Date
     imagePath: string | null
-    userId: string
+    userId: string | null
     companyId: string | null
     height: number | null
     weight: number | null
@@ -6879,7 +6879,7 @@ export namespace Prisma {
     targetBodyFat?: boolean
     goalMilestone?: boolean
     payments?: boolean | Client$paymentsArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Client$userArgs<ExtArgs>
     company?: boolean | Client$companyArgs<ExtArgs>
     historics?: boolean | Client$historicsArgs<ExtArgs>
     notifications?: boolean | Client$notificationsArgs<ExtArgs>
@@ -6914,7 +6914,7 @@ export namespace Prisma {
   export type ClientOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "phone" | "email" | "registrationDate" | "imagePath" | "userId" | "companyId" | "height" | "weight" | "age" | "medicalConditions" | "allergies" | "injuries" | "medications" | "bloodPressure" | "targetWeight" | "fitnessGoal" | "targetBodyFat" | "goalMilestone", ExtArgs["result"]["client"]>
   export type ClientInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Client$paymentsArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Client$userArgs<ExtArgs>
     company?: boolean | Client$companyArgs<ExtArgs>
     historics?: boolean | Client$historicsArgs<ExtArgs>
     notifications?: boolean | Client$notificationsArgs<ExtArgs>
@@ -6925,7 +6925,7 @@ export namespace Prisma {
     name: "Client"
     objects: {
       payments: Prisma.$PaymentPayload<ExtArgs>[]
-      user: Prisma.$UserPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
       company: Prisma.$CompanyPayload<ExtArgs> | null
       historics: Prisma.$HistoricPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
@@ -6937,7 +6937,7 @@ export namespace Prisma {
       email: string | null
       registrationDate: Date
       imagePath: string | null
-      userId: string
+      userId: string | null
       companyId: string | null
       height: number | null
       weight: number | null
@@ -7315,7 +7315,7 @@ export namespace Prisma {
   export interface Prisma__ClientClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     payments<T extends Client$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Client$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends Client$userArgs<ExtArgs> = {}>(args?: Subset<T, Client$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     company<T extends Client$companyArgs<ExtArgs> = {}>(args?: Subset<T, Client$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     historics<T extends Client$historicsArgs<ExtArgs> = {}>(args?: Subset<T, Client$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Client$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Client$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7759,6 +7759,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
+  }
+
+  /**
+   * Client.user
+   */
+  export type Client$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -9185,7 +9204,7 @@ export namespace Prisma {
     paymentDate: Date | null
     paymentStatus: string | null
     date: Date
-    userId: string
+    userId: string | null
     companyId: string | null
     _count: PaymentCountAggregateOutputType | null
     _avg: PaymentAvgAggregateOutputType | null
@@ -9226,7 +9245,7 @@ export namespace Prisma {
     userId?: boolean
     companyId?: boolean
     client?: boolean | ClientDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Payment$userArgs<ExtArgs>
     company?: boolean | Payment$companyArgs<ExtArgs>
     historics?: boolean | Payment$historicsArgs<ExtArgs>
     notifications?: boolean | Payment$notificationsArgs<ExtArgs>
@@ -9257,7 +9276,7 @@ export namespace Prisma {
   export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "amount" | "subscription" | "method" | "status" | "createdAt" | "updatedAt" | "startDate" | "endDate" | "nextPaymentDate" | "paymentDate" | "paymentStatus" | "date" | "userId" | "companyId", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     client?: boolean | ClientDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | Payment$userArgs<ExtArgs>
     company?: boolean | Payment$companyArgs<ExtArgs>
     historics?: boolean | Payment$historicsArgs<ExtArgs>
     notifications?: boolean | Payment$notificationsArgs<ExtArgs>
@@ -9268,7 +9287,7 @@ export namespace Prisma {
     name: "Payment"
     objects: {
       client: Prisma.$ClientPayload<ExtArgs>
-      user: Prisma.$UserPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
       company: Prisma.$CompanyPayload<ExtArgs> | null
       historics: Prisma.$HistoricPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
@@ -9288,7 +9307,7 @@ export namespace Prisma {
       paymentDate: Date | null
       paymentStatus: string | null
       date: Date
-      userId: string
+      userId: string | null
       companyId: string | null
     }, ExtArgs["result"]["payment"]>
     composites: {}
@@ -9654,7 +9673,7 @@ export namespace Prisma {
   export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends Payment$userArgs<ExtArgs> = {}>(args?: Subset<T, Payment$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     company<T extends Payment$companyArgs<ExtArgs> = {}>(args?: Subset<T, Payment$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     historics<T extends Payment$historicsArgs<ExtArgs> = {}>(args?: Subset<T, Payment$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Payment$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Payment$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10073,6 +10092,25 @@ export namespace Prisma {
   }
 
   /**
+   * Payment.user
+   */
+  export type Payment$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * Payment.company
    */
   export type Payment$companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10338,7 +10376,7 @@ export namespace Prisma {
     entityId: string
     oldData: JsonValue | null
     newData: JsonValue | null
-    changedBy: string
+    changedBy: string | null
     companyId: string | null
     createdAt: Date
     description: string | null
@@ -10428,7 +10466,7 @@ export namespace Prisma {
       entityId: string
       oldData: Prisma.JsonValue | null
       newData: Prisma.JsonValue | null
-      changedBy: string
+      changedBy: string | null
       companyId: string | null
       createdAt: Date
       description: string | null
@@ -14932,7 +14970,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
     imagePath?: StringNullableFilter<"Client"> | string | null
-    userId?: StringFilter<"Client"> | string
+    userId?: StringNullableFilter<"Client"> | string | null
     companyId?: StringNullableFilter<"Client"> | string | null
     height?: FloatNullableFilter<"Client"> | number | null
     weight?: FloatNullableFilter<"Client"> | number | null
@@ -14947,7 +14985,7 @@ export namespace Prisma {
     targetBodyFat?: FloatNullableFilter<"Client"> | number | null
     goalMilestone?: DateTimeNullableFilter<"Client"> | Date | string | null
     payments?: PaymentListRelationFilter
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -14991,7 +15029,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
     imagePath?: StringNullableFilter<"Client"> | string | null
-    userId?: StringFilter<"Client"> | string
+    userId?: StringNullableFilter<"Client"> | string | null
     companyId?: StringNullableFilter<"Client"> | string | null
     height?: FloatNullableFilter<"Client"> | number | null
     weight?: FloatNullableFilter<"Client"> | number | null
@@ -15006,7 +15044,7 @@ export namespace Prisma {
     targetBodyFat?: FloatNullableFilter<"Client"> | number | null
     goalMilestone?: DateTimeNullableFilter<"Client"> | Date | string | null
     payments?: PaymentListRelationFilter
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -15050,7 +15088,7 @@ export namespace Prisma {
     email?: StringNullableWithAggregatesFilter<"Client"> | string | null
     registrationDate?: DateTimeWithAggregatesFilter<"Client"> | Date | string
     imagePath?: StringNullableWithAggregatesFilter<"Client"> | string | null
-    userId?: StringWithAggregatesFilter<"Client"> | string
+    userId?: StringNullableWithAggregatesFilter<"Client"> | string | null
     companyId?: StringNullableWithAggregatesFilter<"Client"> | string | null
     height?: FloatNullableWithAggregatesFilter<"Client"> | number | null
     weight?: FloatNullableWithAggregatesFilter<"Client"> | number | null
@@ -15168,10 +15206,10 @@ export namespace Prisma {
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
-    userId?: StringFilter<"Payment"> | string
+    userId?: StringNullableFilter<"Payment"> | string | null
     companyId?: StringNullableFilter<"Payment"> | string | null
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -15219,10 +15257,10 @@ export namespace Prisma {
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
-    userId?: StringFilter<"Payment"> | string
+    userId?: StringNullableFilter<"Payment"> | string | null
     companyId?: StringNullableFilter<"Payment"> | string | null
     client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -15270,7 +15308,7 @@ export namespace Prisma {
     paymentDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     date?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
-    userId?: StringWithAggregatesFilter<"Payment"> | string
+    userId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     companyId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
   }
 
@@ -15284,7 +15322,7 @@ export namespace Prisma {
     entityId?: StringFilter<"Historic"> | string
     oldData?: JsonNullableFilter<"Historic">
     newData?: JsonNullableFilter<"Historic">
-    changedBy?: StringFilter<"Historic"> | string
+    changedBy?: StringNullableFilter<"Historic"> | string | null
     companyId?: StringNullableFilter<"Historic"> | string | null
     createdAt?: DateTimeFilter<"Historic"> | Date | string
     description?: StringNullableFilter<"Historic"> | string | null
@@ -15329,7 +15367,7 @@ export namespace Prisma {
     entityId?: StringFilter<"Historic"> | string
     oldData?: JsonNullableFilter<"Historic">
     newData?: JsonNullableFilter<"Historic">
-    changedBy?: StringFilter<"Historic"> | string
+    changedBy?: StringNullableFilter<"Historic"> | string | null
     companyId?: StringNullableFilter<"Historic"> | string | null
     createdAt?: DateTimeFilter<"Historic"> | Date | string
     description?: StringNullableFilter<"Historic"> | string | null
@@ -15372,7 +15410,7 @@ export namespace Prisma {
     entityId?: StringWithAggregatesFilter<"Historic"> | string
     oldData?: JsonNullableWithAggregatesFilter<"Historic">
     newData?: JsonNullableWithAggregatesFilter<"Historic">
-    changedBy?: StringWithAggregatesFilter<"Historic"> | string
+    changedBy?: StringNullableWithAggregatesFilter<"Historic"> | string | null
     companyId?: StringNullableWithAggregatesFilter<"Historic"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Historic"> | Date | string
     description?: StringNullableWithAggregatesFilter<"Historic"> | string | null
@@ -15958,7 +15996,7 @@ export namespace Prisma {
     targetBodyFat?: number | null
     goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
-    user: UserCreateNestedOneWithoutClientsInput
+    user?: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
     notifications?: NotificationCreateNestedManyWithoutClientInput
@@ -15971,7 +16009,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     companyId?: string | null
     height?: number | null
     weight?: number | null
@@ -16009,7 +16047,7 @@ export namespace Prisma {
     targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
     goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
-    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    user?: UserUpdateOneWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
     notifications?: NotificationUpdateManyWithoutClientNestedInput
@@ -16021,7 +16059,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16047,7 +16085,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     companyId?: string | null
     height?: number | null
     weight?: number | null
@@ -16089,7 +16127,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16196,7 +16234,7 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
-    user: UserCreateNestedOneWithoutPaymentsInput
+    user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
@@ -16217,7 +16255,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
     historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
@@ -16237,7 +16275,7 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
-    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
@@ -16257,7 +16295,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
@@ -16278,7 +16316,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
   }
 
@@ -16311,7 +16349,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -16338,7 +16376,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -16368,7 +16406,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16384,7 +16422,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -16409,7 +16447,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17036,6 +17074,11 @@ export namespace Prisma {
     isSet?: boolean
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type ClientCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -17294,11 +17337,6 @@ export namespace Prisma {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     isSet?: boolean
-  }
-
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
   }
 
   export type BillNullableScalarRelationFilter = {
@@ -18214,10 +18252,12 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
-  export type UserUpdateOneRequiredWithoutClientsNestedInput = {
+  export type UserUpdateOneWithoutClientsNestedInput = {
     create?: XOR<UserCreateWithoutClientsInput, UserUncheckedCreateWithoutClientsInput>
     connectOrCreate?: UserCreateOrConnectWithoutClientsInput
     upsert?: UserUpsertWithoutClientsInput
+    disconnect?: boolean
+    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClientsInput, UserUpdateWithoutClientsInput>, UserUncheckedUpdateWithoutClientsInput>
   }
@@ -18422,10 +18462,12 @@ export namespace Prisma {
     update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutPaymentsInput, ClientUpdateWithoutPaymentsInput>, ClientUncheckedUpdateWithoutPaymentsInput>
   }
 
-  export type UserUpdateOneRequiredWithoutPaymentsNestedInput = {
+  export type UserUpdateOneWithoutPaymentsNestedInput = {
     create?: XOR<UserCreateWithoutPaymentsInput, UserUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPaymentsInput
     upsert?: UserUpsertWithoutPaymentsInput
+    disconnect?: boolean
+    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPaymentsInput, UserUpdateWithoutPaymentsInput>, UserUncheckedUpdateWithoutPaymentsInput>
   }
@@ -18904,7 +18946,7 @@ export namespace Prisma {
     targetBodyFat?: number | null
     goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
-    user: UserCreateNestedOneWithoutClientsInput
+    user?: UserCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
     notifications?: NotificationCreateNestedManyWithoutClientInput
   }
@@ -18916,7 +18958,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     height?: number | null
     weight?: number | null
     age?: number | null
@@ -18991,7 +19033,7 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
-    user: UserCreateNestedOneWithoutPaymentsInput
+    user?: UserCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
   }
@@ -19011,7 +19053,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
   }
@@ -19078,7 +19120,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     createdAt?: Date | string
     description?: string | null
     clientId?: string | null
@@ -19151,7 +19193,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Client"> | string | null
     registrationDate?: DateTimeFilter<"Client"> | Date | string
     imagePath?: StringNullableFilter<"Client"> | string | null
-    userId?: StringFilter<"Client"> | string
+    userId?: StringNullableFilter<"Client"> | string | null
     companyId?: StringNullableFilter<"Client"> | string | null
     height?: FloatNullableFilter<"Client"> | number | null
     weight?: FloatNullableFilter<"Client"> | number | null
@@ -19232,7 +19274,7 @@ export namespace Prisma {
     paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: StringNullableFilter<"Payment"> | string | null
     date?: DateTimeFilter<"Payment"> | Date | string
-    userId?: StringFilter<"Payment"> | string
+    userId?: StringNullableFilter<"Payment"> | string | null
     companyId?: StringNullableFilter<"Payment"> | string | null
   }
 
@@ -19293,7 +19335,7 @@ export namespace Prisma {
     entityId?: StringFilter<"Historic"> | string
     oldData?: JsonNullableFilter<"Historic">
     newData?: JsonNullableFilter<"Historic">
-    changedBy?: StringFilter<"Historic"> | string
+    changedBy?: StringNullableFilter<"Historic"> | string | null
     companyId?: StringNullableFilter<"Historic"> | string | null
     createdAt?: DateTimeFilter<"Historic"> | Date | string
     description?: StringNullableFilter<"Historic"> | string | null
@@ -19911,7 +19953,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -20050,7 +20092,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    user: UserCreateNestedOneWithoutPaymentsInput
+    user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
@@ -20070,7 +20112,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
     historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
@@ -20191,7 +20233,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -20483,7 +20525,7 @@ export namespace Prisma {
     targetBodyFat?: number | null
     goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
-    user: UserCreateNestedOneWithoutClientsInput
+    user?: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
   }
@@ -20495,7 +20537,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     companyId?: string | null
     height?: number | null
     weight?: number | null
@@ -20533,7 +20575,7 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
-    user: UserCreateNestedOneWithoutPaymentsInput
+    user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
   }
@@ -20553,7 +20595,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
     historics?: HistoricUncheckedCreateNestedManyWithoutPaymentInput
   }
@@ -20685,7 +20727,7 @@ export namespace Prisma {
     targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
     goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
-    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    user?: UserUpdateOneWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
   }
@@ -20696,7 +20738,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -20739,7 +20781,7 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
-    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
   }
@@ -20758,7 +20800,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
   }
@@ -20782,7 +20824,7 @@ export namespace Prisma {
     fitnessGoal?: string | null
     targetBodyFat?: number | null
     goalMilestone?: Date | string | null
-    user: UserCreateNestedOneWithoutClientsInput
+    user?: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     historics?: HistoricCreateNestedManyWithoutClientInput
     notifications?: NotificationCreateNestedManyWithoutClientInput
@@ -20795,7 +20837,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     companyId?: string | null
     height?: number | null
     weight?: number | null
@@ -20924,7 +20966,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -21001,7 +21043,7 @@ export namespace Prisma {
     fitnessGoal?: NullableStringFieldUpdateOperationsInput | string | null
     targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
     goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    user?: UserUpdateOneWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
     notifications?: NotificationUpdateManyWithoutClientNestedInput
@@ -21013,7 +21055,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -21259,7 +21301,7 @@ export namespace Prisma {
     targetBodyFat?: number | null
     goalMilestone?: Date | string | null
     payments?: PaymentCreateNestedManyWithoutClientInput
-    user: UserCreateNestedOneWithoutClientsInput
+    user?: UserCreateNestedOneWithoutClientsInput
     company?: CompanyCreateNestedOneWithoutClientsInput
     notifications?: NotificationCreateNestedManyWithoutClientInput
   }
@@ -21271,7 +21313,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     companyId?: string | null
     height?: number | null
     weight?: number | null
@@ -21309,7 +21351,7 @@ export namespace Prisma {
     paymentStatus?: string | null
     date?: Date | string
     client: ClientCreateNestedOneWithoutPaymentsInput
-    user: UserCreateNestedOneWithoutPaymentsInput
+    user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
   }
@@ -21329,7 +21371,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
     notifications?: NotificationUncheckedCreateNestedManyWithoutPaymentInput
   }
@@ -21490,7 +21532,7 @@ export namespace Prisma {
     targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
     goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
-    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    user?: UserUpdateOneWithoutClientsNestedInput
     company?: CompanyUpdateOneWithoutClientsNestedInput
     notifications?: NotificationUpdateManyWithoutClientNestedInput
   }
@@ -21501,7 +21543,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -21544,7 +21586,7 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
-    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
@@ -21563,7 +21605,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
@@ -21782,7 +21824,7 @@ export namespace Prisma {
     email?: string | null
     registrationDate?: Date | string
     imagePath?: string | null
-    userId: string
+    userId?: string | null
     height?: number | null
     weight?: number | null
     age?: number | null
@@ -21823,7 +21865,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
   }
 
   export type NotificationCreateManyCompanyInput = {
@@ -21844,7 +21886,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     createdAt?: Date | string
     description?: string | null
     clientId?: string | null
@@ -21912,7 +21954,7 @@ export namespace Prisma {
     targetBodyFat?: NullableFloatFieldUpdateOperationsInput | number | null
     goalMilestone?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     payments?: PaymentUpdateManyWithoutClientNestedInput
-    user?: UserUpdateOneRequiredWithoutClientsNestedInput
+    user?: UserUpdateOneWithoutClientsNestedInput
     historics?: HistoricUpdateManyWithoutClientNestedInput
     notifications?: NotificationUpdateManyWithoutClientNestedInput
   }
@@ -21923,7 +21965,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
@@ -21947,7 +21989,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     registrationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     imagePath?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     height?: NullableFloatFieldUpdateOperationsInput | number | null
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
@@ -22008,7 +22050,7 @@ export namespace Prisma {
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
-    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
@@ -22027,7 +22069,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
   }
@@ -22046,7 +22088,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type NotificationUpdateWithoutCompanyInput = {
@@ -22099,7 +22141,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22113,7 +22155,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22507,7 +22549,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -22535,7 +22577,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22549,7 +22591,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22571,7 +22613,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    userId: string
+    userId?: string | null
     companyId?: string | null
   }
 
@@ -22582,7 +22624,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -22614,7 +22656,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPaymentsNestedInput
+    user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
@@ -22633,7 +22675,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     historics?: HistoricUncheckedUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutPaymentNestedInput
@@ -22652,7 +22694,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -22676,7 +22718,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22690,7 +22732,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22735,7 +22777,7 @@ export namespace Prisma {
     entityId: string
     oldData?: InputJsonValue | null
     newData?: InputJsonValue | null
-    changedBy: string
+    changedBy?: string | null
     companyId?: string | null
     createdAt?: Date | string
     description?: string | null
@@ -22774,7 +22816,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22788,7 +22830,7 @@ export namespace Prisma {
     entityId?: StringFieldUpdateOperationsInput | string
     oldData?: InputJsonValue | InputJsonValue | null
     newData?: InputJsonValue | InputJsonValue | null
-    changedBy?: StringFieldUpdateOperationsInput | string
+    changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     companyId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
