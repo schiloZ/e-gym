@@ -44,6 +44,8 @@ export async function GET() {
         paymentCount: true,
         maxPayments: true,
         subscriptionEndDate: true,
+        name: true,
+        location: true,
       },
     });
 

@@ -80,7 +80,7 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
-  const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+  const id = url.pathname.split("/").pop();
 
   if (!id) {
     return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
@@ -88,10 +88,8 @@ export async function DELETE(request: Request) {
 
   console.log("API DELETE /api/clients/[id] called with clientId:", id);
 
-  // Get the session
   const session = await getServerSession(authOptions);
 
-  // Check if the user is authenticated and has a companyId
   if (
     !session ||
     typeof session !== "object" ||
@@ -113,11 +111,8 @@ export async function DELETE(request: Request) {
   const clientId = id;
 
   try {
-    // Fetch the client to verify ownership and capture data for historic record
     const client = await prisma.client.findUnique({
-      where: {
-        id: clientId,
-      },
+      where: { id: clientId },
     });
 
     if (!client) {
@@ -125,7 +120,6 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    // Verify the client belongs to the authenticated user's company
     if (client.companyId !== companyId) {
       console.log(
         "Client does not belong to company. Client companyId:",
@@ -139,7 +133,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Capture the client's data before deletion for the historic record
     const oldData = {
       name: client.name,
       email: client.email,
@@ -158,12 +151,17 @@ export async function DELETE(request: Request) {
       objectifGraisse: client.targetBodyFat,
     };
 
-    // Delete the client (and associated payments due to cascading, if configured)
-    await prisma.client.delete({
-      where: {
-        id: clientId,
-      },
-    });
+    // Start a transaction to ensure atomicity
+    await prisma.$transaction([
+      // Delete related Payment records
+      prisma.payment.deleteMany({
+        where: { clientId: clientId },
+      }),
+      // Delete the Client
+      prisma.client.delete({
+        where: { id: clientId },
+      }),
+    ]);
 
     const company = await prisma.company.findUnique({
       where: { id: (session.user as any).companyId },
@@ -175,9 +173,9 @@ export async function DELETE(request: Request) {
           action: "DELETE",
           entityType: "CLIENT",
           entityId: clientId,
-          clientId: clientId, // Link to the client
-          oldData, // Store the client's data before deletion
-          newData: null, // No new data since this is a deletion
+          clientId: clientId,
+          oldData,
+          newData: null,
           changedBy: (session.user as any).id,
           companyId: (session.user as any).companyId,
           description: "Client deleted successfully",
@@ -199,6 +197,129 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+// export async function DELETE(request: Request) {
+//   const url = new URL(request.url);
+//   const id = url.pathname.split("/").pop(); // Extracts the ID from the path
+
+//   if (!id) {
+//     return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
+//   }
+
+//   console.log("API DELETE /api/clients/[id] called with clientId:", id);
+
+//   // Get the session
+//   const session = await getServerSession(authOptions);
+
+//   // Check if the user is authenticated and has a companyId
+//   if (
+//     !session ||
+//     typeof session !== "object" ||
+//     !("user" in session) ||
+//     !session.user ||
+//     !(session.user as any).id ||
+//     !(session.user as any).companyId
+//   ) {
+//     console.log("Unauthorized: No session, user ID, or company ID");
+//     return NextResponse.json(
+//       {
+//         error: "Unauthorized: User not authenticated or no company associated",
+//       },
+//       { status: 401 }
+//     );
+//   }
+
+//   const companyId = (session.user as any).companyId;
+//   const clientId = id;
+
+//   try {
+//     // Fetch the client to verify ownership and capture data for historic record
+//     const client = await prisma.client.findUnique({
+//       where: {
+//         id: clientId,
+//       },
+//     });
+
+//     if (!client) {
+//       console.log("Client not found for clientId:", clientId);
+//       return NextResponse.json({ error: "Client not found" }, { status: 404 });
+//     }
+
+//     // Verify the client belongs to the authenticated user's company
+//     if (client.companyId !== companyId) {
+//       console.log(
+//         "Client does not belong to company. Client companyId:",
+//         client.companyId,
+//         "Authenticated user's companyId:",
+//         companyId
+//       );
+//       return NextResponse.json(
+//         { error: "Client does not belong to the authenticated user's company" },
+//         { status: 403 }
+//       );
+//     }
+
+//     // Capture the client's data before deletion for the historic record
+//     const oldData = {
+//       name: client.name,
+//       email: client.email,
+//       phone: client.phone,
+//       dateEnregistrement: client.registrationDate.toISOString(),
+//       taille: client.height,
+//       poids: client.weight,
+//       age: client.age,
+//       conditionMedical: client.medicalConditions,
+//       allergies: client.allergies,
+//       blessures: client.injuries,
+//       medications: client.medications,
+//       pressionSanguine: client.bloodPressure,
+//       poidsCiblé: client.targetWeight,
+//       objectifFitness: client.fitnessGoal,
+//       objectifGraisse: client.targetBodyFat,
+//     };
+
+//     // Delete the client (and associated payments due to cascading, if configured)
+//     await prisma.client.delete({
+//       where: {
+//         id: clientId,
+//       },
+//     });
+
+//     const company = await prisma.company.findUnique({
+//       where: { id: (session.user as any).companyId },
+//       select: { subscriptionType: true },
+//     });
+//     if (company?.subscriptionType !== "free") {
+//       await prisma.historic.create({
+//         data: {
+//           action: "DELETE",
+//           entityType: "CLIENT",
+//           entityId: clientId,
+//           clientId: clientId, // Link to the client
+//           oldData, // Store the client's data before deletion
+//           newData: null, // No new data since this is a deletion
+//           changedBy: (session.user as any).id,
+//           companyId: (session.user as any).companyId,
+//           description: "Client deleted successfully",
+//         },
+//       });
+//     } else {
+//       console.log(
+//         "Client deleted, but historic record not created: Subscription type is 'free'"
+//       );
+//     }
+
+//     console.log("Client deleted successfully:", clientId);
+//     return NextResponse.json({ message: "Client deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting client:", error);
+//     return NextResponse.json(
+//       { error: "Error deleting client" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function PATCH(request: Request) {
   const url = new URL(request.url);
   const id = url.pathname.split("/").pop(); // Extracts the ID from the path

@@ -64,6 +64,7 @@ export default function DashboardLayout({
       router.push("/dashboard/clients");
     }
   }, [session, router]);
+
   // Fetch company details from the API
   useEffect(() => {
     const fetchCompanyInfo = async () => {
@@ -673,10 +674,12 @@ export default function DashboardLayout({
         <div className="flex flex-1">
           <aside
             className={`lg:flex flex-col w-64 bg-white border-r border-gray-200 shadow-sm ${
-              isMenuOpen ? "fixed inset-0 z-40 pt-16" : "hidden"
-            } lg:relative lg:pt-0`}
+              isMenuOpen
+                ? "fixed top-0 left-0 bottom-0 z-40 pt-16 overflow-y-auto"
+                : "hidden"
+            } lg:static lg:pt-0 lg:overflow-y-visible`}
           >
-            <div className="p-4 lg:p-6">
+            <div className="flex-1 p-4 lg:p-6">
               <div className="lg:hidden flex justify-between items-center mb-6">
                 <h2 className="font-bold text-gray-800">Menu principal</h2>
                 <button
@@ -744,6 +747,18 @@ export default function DashboardLayout({
                               <QrCode className="h-4 w-4" />
                             </div>
                             <span className="font-medium">Mon QR Code</span>
+                          </Link>
+                          <Link
+                            href="/dashboard/stock"
+                            className="flex items-center text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-600 px-4 py-3 rounded-xl transition-all duration-200 group"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <div className="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                              <TrendingUp className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">
+                              Gestionnaire de Stock
+                            </span>
                           </Link>
 
                           {isStandard && (
@@ -836,7 +851,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Enhanced Footer with Plan Benefits */}
-            <div className="mt-auto p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200">
               {subscriptionWarning?.daysRemaining !== 0 && (
                 <div
                   className={`rounded-2xl p-4 ${

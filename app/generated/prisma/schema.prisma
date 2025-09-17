@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL_LOCAL")
+  url      = env("DATABASE_URL")
 }
 
 model SuperAdmin {
@@ -124,8 +124,8 @@ model Notification {
 
 model Payment {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
-  clientId        String         @db.ObjectId
-  client          Client         @relation(fields: [clientId], references: [id])
+  clientId        String?        @db.ObjectId
+  client          Client?        @relation(fields: [clientId], references: [id])
   amount          Int
   subscription    String
   method          String

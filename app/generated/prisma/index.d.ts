@@ -9191,7 +9191,7 @@ export namespace Prisma {
 
   export type PaymentGroupByOutputType = {
     id: string
-    clientId: string
+    clientId: string | null
     amount: number
     subscription: string
     method: string
@@ -9244,7 +9244,7 @@ export namespace Prisma {
     date?: boolean
     userId?: boolean
     companyId?: boolean
-    client?: boolean | ClientDefaultArgs<ExtArgs>
+    client?: boolean | Payment$clientArgs<ExtArgs>
     user?: boolean | Payment$userArgs<ExtArgs>
     company?: boolean | Payment$companyArgs<ExtArgs>
     historics?: boolean | Payment$historicsArgs<ExtArgs>
@@ -9275,7 +9275,7 @@ export namespace Prisma {
 
   export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "amount" | "subscription" | "method" | "status" | "createdAt" | "updatedAt" | "startDate" | "endDate" | "nextPaymentDate" | "paymentDate" | "paymentStatus" | "date" | "userId" | "companyId", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    client?: boolean | ClientDefaultArgs<ExtArgs>
+    client?: boolean | Payment$clientArgs<ExtArgs>
     user?: boolean | Payment$userArgs<ExtArgs>
     company?: boolean | Payment$companyArgs<ExtArgs>
     historics?: boolean | Payment$historicsArgs<ExtArgs>
@@ -9286,7 +9286,7 @@ export namespace Prisma {
   export type $PaymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Payment"
     objects: {
-      client: Prisma.$ClientPayload<ExtArgs>
+      client: Prisma.$ClientPayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs> | null
       company: Prisma.$CompanyPayload<ExtArgs> | null
       historics: Prisma.$HistoricPayload<ExtArgs>[]
@@ -9294,7 +9294,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      clientId: string
+      clientId: string | null
       amount: number
       subscription: string
       method: string
@@ -9672,7 +9672,7 @@ export namespace Prisma {
    */
   export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    client<T extends ClientDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClientDefaultArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends Payment$clientArgs<ExtArgs> = {}>(args?: Subset<T, Payment$clientArgs<ExtArgs>>): Prisma__ClientClient<$Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends Payment$userArgs<ExtArgs> = {}>(args?: Subset<T, Payment$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     company<T extends Payment$companyArgs<ExtArgs> = {}>(args?: Subset<T, Payment$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     historics<T extends Payment$historicsArgs<ExtArgs> = {}>(args?: Subset<T, Payment$historicsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10089,6 +10089,25 @@ export namespace Prisma {
      * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
      */
     options?: InputJsonValue
+  }
+
+  /**
+   * Payment.client
+   */
+  export type Payment$clientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Client
+     */
+    select?: ClientSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Client
+     */
+    omit?: ClientOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientInclude<ExtArgs> | null
+    where?: ClientWhereInput
   }
 
   /**
@@ -15193,7 +15212,7 @@ export namespace Prisma {
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
     id?: StringFilter<"Payment"> | string
-    clientId?: StringFilter<"Payment"> | string
+    clientId?: StringNullableFilter<"Payment"> | string | null
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
@@ -15208,7 +15227,7 @@ export namespace Prisma {
     date?: DateTimeFilter<"Payment"> | Date | string
     userId?: StringNullableFilter<"Payment"> | string | null
     companyId?: StringNullableFilter<"Payment"> | string | null
-    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
@@ -15244,7 +15263,7 @@ export namespace Prisma {
     AND?: PaymentWhereInput | PaymentWhereInput[]
     OR?: PaymentWhereInput[]
     NOT?: PaymentWhereInput | PaymentWhereInput[]
-    clientId?: StringFilter<"Payment"> | string
+    clientId?: StringNullableFilter<"Payment"> | string | null
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
@@ -15259,7 +15278,7 @@ export namespace Prisma {
     date?: DateTimeFilter<"Payment"> | Date | string
     userId?: StringNullableFilter<"Payment"> | string | null
     companyId?: StringNullableFilter<"Payment"> | string | null
-    client?: XOR<ClientScalarRelationFilter, ClientWhereInput>
+    client?: XOR<ClientNullableScalarRelationFilter, ClientWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     company?: XOR<CompanyNullableScalarRelationFilter, CompanyWhereInput> | null
     historics?: HistoricListRelationFilter
@@ -15295,7 +15314,7 @@ export namespace Prisma {
     OR?: PaymentScalarWhereWithAggregatesInput[]
     NOT?: PaymentScalarWhereWithAggregatesInput | PaymentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Payment"> | string
-    clientId?: StringWithAggregatesFilter<"Payment"> | string
+    clientId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     amount?: IntWithAggregatesFilter<"Payment"> | number
     subscription?: StringWithAggregatesFilter<"Payment"> | string
     method?: StringWithAggregatesFilter<"Payment"> | string
@@ -16233,7 +16252,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    client: ClientCreateNestedOneWithoutPaymentsInput
+    client?: ClientCreateNestedOneWithoutPaymentsInput
     user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
@@ -16242,7 +16261,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedCreateInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -16274,7 +16293,7 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    client?: ClientUpdateOneWithoutPaymentsNestedInput
     user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
@@ -16282,7 +16301,7 @@ export namespace Prisma {
   }
 
   export type PaymentUncheckedUpdateInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -16303,7 +16322,7 @@ export namespace Prisma {
 
   export type PaymentCreateManyInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -16336,7 +16355,7 @@ export namespace Prisma {
   }
 
   export type PaymentUncheckedUpdateManyInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -17255,11 +17274,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type ClientScalarRelationFilter = {
-    is?: ClientWhereInput
-    isNot?: ClientWhereInput
   }
 
   export type PaymentCountOrderByAggregateInput = {
@@ -18454,10 +18468,12 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
-  export type ClientUpdateOneRequiredWithoutPaymentsNestedInput = {
+  export type ClientUpdateOneWithoutPaymentsNestedInput = {
     create?: XOR<ClientCreateWithoutPaymentsInput, ClientUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: ClientCreateOrConnectWithoutPaymentsInput
     upsert?: ClientUpsertWithoutPaymentsInput
+    disconnect?: boolean
+    delete?: ClientWhereInput | boolean
     connect?: ClientWhereUniqueInput
     update?: XOR<XOR<ClientUpdateToOneWithWhereWithoutPaymentsInput, ClientUpdateWithoutPaymentsInput>, ClientUncheckedUpdateWithoutPaymentsInput>
   }
@@ -19032,7 +19048,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    client: ClientCreateNestedOneWithoutPaymentsInput
+    client?: ClientCreateNestedOneWithoutPaymentsInput
     user?: UserCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
@@ -19040,7 +19056,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedCreateWithoutCompanyInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -19261,7 +19277,7 @@ export namespace Prisma {
     OR?: PaymentScalarWhereInput[]
     NOT?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
     id?: StringFilter<"Payment"> | string
-    clientId?: StringFilter<"Payment"> | string
+    clientId?: StringNullableFilter<"Payment"> | string | null
     amount?: IntFilter<"Payment"> | number
     subscription?: StringFilter<"Payment"> | string
     method?: StringFilter<"Payment"> | string
@@ -19520,7 +19536,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    client: ClientCreateNestedOneWithoutPaymentsInput
+    client?: ClientCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
@@ -19528,7 +19544,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedCreateWithoutUserInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -20574,7 +20590,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    client: ClientCreateNestedOneWithoutPaymentsInput
+    client?: ClientCreateNestedOneWithoutPaymentsInput
     user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     historics?: HistoricCreateNestedManyWithoutPaymentInput
@@ -20582,7 +20598,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedCreateWithoutNotificationsInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -20780,14 +20796,14 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    client?: ClientUpdateOneWithoutPaymentsNestedInput
     user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutNotificationsInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -21350,7 +21366,7 @@ export namespace Prisma {
     paymentDate?: Date | string | null
     paymentStatus?: string | null
     date?: Date | string
-    client: ClientCreateNestedOneWithoutPaymentsInput
+    client?: ClientCreateNestedOneWithoutPaymentsInput
     user?: UserCreateNestedOneWithoutPaymentsInput
     company?: CompanyCreateNestedOneWithoutPaymentsInput
     notifications?: NotificationCreateNestedManyWithoutPaymentInput
@@ -21358,7 +21374,7 @@ export namespace Prisma {
 
   export type PaymentUncheckedCreateWithoutHistoricsInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -21585,14 +21601,14 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    client?: ClientUpdateOneWithoutPaymentsNestedInput
     user?: UserUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutHistoricsInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -21852,7 +21868,7 @@ export namespace Prisma {
 
   export type PaymentCreateManyCompanyInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -22049,14 +22065,14 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    client?: ClientUpdateOneWithoutPaymentsNestedInput
     user?: UserUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutCompanyInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -22075,7 +22091,7 @@ export namespace Prisma {
   }
 
   export type PaymentUncheckedUpdateManyWithoutCompanyInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -22207,7 +22223,7 @@ export namespace Prisma {
 
   export type PaymentCreateManyUserInput = {
     id?: string
-    clientId: string
+    clientId?: string | null
     amount: number
     subscription: string
     method: string
@@ -22396,14 +22412,14 @@ export namespace Prisma {
     paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
-    client?: ClientUpdateOneRequiredWithoutPaymentsNestedInput
+    client?: ClientUpdateOneWithoutPaymentsNestedInput
     company?: CompanyUpdateOneWithoutPaymentsNestedInput
     historics?: HistoricUpdateManyWithoutPaymentNestedInput
     notifications?: NotificationUpdateManyWithoutPaymentNestedInput
   }
 
   export type PaymentUncheckedUpdateWithoutUserInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
@@ -22422,7 +22438,7 @@ export namespace Prisma {
   }
 
   export type PaymentUncheckedUpdateManyWithoutUserInput = {
-    clientId?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: IntFieldUpdateOperationsInput | number
     subscription?: StringFieldUpdateOperationsInput | string
     method?: StringFieldUpdateOperationsInput | string
