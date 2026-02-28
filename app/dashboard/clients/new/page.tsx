@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { UserPlus, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -37,6 +37,10 @@ export default function AddClientForm() {
   const [companyInfo, setCompanyInfo] = useState<{
     subscriptionType: string | null;
   } | null>(null);
+
+  const [showOptionalInfo, setShowOptionalInfo] = useState(false);
+  const [showMedical, setShowMedical] = useState(false);
+  const [showGoals, setShowGoals] = useState(false);
 
   // Fetch company info
   useEffect(() => {
@@ -190,7 +194,7 @@ export default function AddClientForm() {
 
     // Prepare FormData for submission
     const dataToSend = new FormData();
-    dataToSend.append("name", formData.name);
+    dataToSend.append("name", formData.name.toUpperCase());
     if (formData.phone) dataToSend.append("phone", formData.phone);
     if (formData.email) dataToSend.append("email", formData.email);
     if (session?.user) dataToSend.append("userId", (session.user as any).id);
@@ -270,374 +274,417 @@ export default function AddClientForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        {/* General Information Section */}
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        {/* Champs essentiels — toujours visibles */}
         <div className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Informations Générales
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <label
-                htmlFor="name"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Nom complet <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="Jean Dupont"
-                required
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-semibold text-gray-700 mb-1.5"
+            >
+              Nom complet <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base uppercase"
+              placeholder="Jean Dupont"
+              required
+            />
+          </div>
 
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Numéro de téléphone
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="+237 6XX XXX XXX"
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+            >
+              Numéro de téléphone
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+              placeholder="+237 6XX XXX XXX"
+            />
+          </div>
+        </div>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Adresse email (Facultatif)
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="jean@example.com"
-              />
-            </div>
+        {/* Section facultative : Autres informations */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowOptionalInfo(!showOptionalInfo)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition text-sm font-medium text-gray-700"
+          >
+            <span>Autres informations <span className="text-gray-400 font-normal">(email, date d&apos;inscription, photo)</span></span>
+            {showOptionalInfo ? (
+              <ChevronUp className="h-4 w-4 text-gray-500 shrink-0" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500 shrink-0" />
+            )}
+          </button>
 
-            <div>
-              <label
-                htmlFor="registrationDate"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Date d&apos;inscription (Facultatif)
-              </label>
-              <input
-                type="date"
-                id="registrationDate"
-                name="registrationDate"
-                value={formData.registrationDate}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-              />
-            </div>
-
-            {isStandardPlan && (
-              <div className="md:col-span-2">
+          {showOptionalInfo && (
+            <div className="p-4 space-y-4 border-t border-gray-200">
+              <div>
                 <label
-                  htmlFor="image"
+                  htmlFor="email"
                   className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
                 >
-                  Photo du client (Facultatif)
+                  Adresse email
                 </label>
                 <input
-                  type="file"
-                  id="image"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm md:text-base"
-                  disabled={isSubmitting}
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                  placeholder="jean@example.com"
                 />
-                {previewImage && (
-                  <div className="mt-2">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">
-                      Aperçu de l&apos;image :
-                    </p>
-                    <Image
-                      src={previewImage}
-                      alt="Aperçu de la photo du client"
-                      width={100}
-                      height={100}
-                      className="rounded-lg object-cover"
-                    />
-                  </div>
-                )}
               </div>
+
+              <div>
+                <label
+                  htmlFor="registrationDate"
+                  className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                >
+                  Date d&apos;inscription
+                </label>
+                <input
+                  type="date"
+                  id="registrationDate"
+                  name="registrationDate"
+                  value={formData.registrationDate}
+                  onChange={handleChange}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                />
+              </div>
+
+              {isStandardPlan && (
+                <div>
+                  <label
+                    htmlFor="image"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Photo du client
+                  </label>
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm md:text-base"
+                    disabled={isSubmitting}
+                  />
+                  {previewImage && (
+                    <div className="mt-2">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                        Aperçu de l&apos;image :
+                      </p>
+                      <Image
+                        src={previewImage}
+                        alt="Aperçu de la photo du client"
+                        width={100}
+                        height={100}
+                        className="rounded-lg object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Section facultative : Informations Médicales */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowMedical(!showMedical)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition text-sm font-medium text-gray-700"
+          >
+            <span>Informations Médicales <span className="text-gray-400 font-normal">(facultatif)</span></span>
+            {showMedical ? (
+              <ChevronUp className="h-4 w-4 text-gray-500 shrink-0" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500 shrink-0" />
             )}
-          </div>
+          </button>
+
+          {showMedical && (
+            <div className="p-4 border-t border-gray-200">
+              <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="height"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Taille (cm)
+                  </label>
+                  <input
+                    type="number"
+                    id="height"
+                    name="height"
+                    value={formData.height}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="175.5"
+                    step="0.1"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="weight"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Poids (kg)
+                  </label>
+                  <input
+                    type="number"
+                    id="weight"
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="70.2"
+                    step="0.1"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="age"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Âge (années)
+                  </label>
+                  <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="30"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="bloodPressure"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Pression artérielle (systolique/diastolique)
+                  </label>
+                  <input
+                    type="text"
+                    id="bloodPressure"
+                    name="bloodPressure"
+                    value={formData.bloodPressure}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="120/80"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="medicalConditions"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Conditions médicales
+                  </label>
+                  <input
+                    type="text"
+                    id="medicalConditions"
+                    name="medicalConditions"
+                    value={formData.medicalConditions}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="Diabète, Asthme"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="allergies"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Allergies
+                  </label>
+                  <input
+                    type="text"
+                    id="allergies"
+                    name="allergies"
+                    value={formData.allergies}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="Arachides, Poussière"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="injuries"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Blessures
+                  </label>
+                  <input
+                    type="text"
+                    id="injuries"
+                    name="injuries"
+                    value={formData.injuries}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="Chirurgie du genou 2023"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="medications"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Médicaments
+                  </label>
+                  <input
+                    type="text"
+                    id="medications"
+                    name="medications"
+                    value={formData.medications}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="Metformine"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Medical Information Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Informations Médicales (Facultatif)
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-            <div>
-              <label
-                htmlFor="height"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Taille (cm)
-              </label>
-              <input
-                type="number"
-                id="height"
-                name="height"
-                value={formData.height}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="175.5"
-                step="0.1"
-              />
-            </div>
+        {/* Section facultative : Objectifs Physiques */}
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowGoals(!showGoals)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition text-sm font-medium text-gray-700"
+          >
+            <span>Objectifs Physiques <span className="text-gray-400 font-normal">(facultatif)</span></span>
+            {showGoals ? (
+              <ChevronUp className="h-4 w-4 text-gray-500 shrink-0" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-500 shrink-0" />
+            )}
+          </button>
 
-            <div>
-              <label
-                htmlFor="weight"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Poids (kg)
-              </label>
-              <input
-                type="number"
-                id="weight"
-                name="weight"
-                value={formData.weight}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="70.2"
-                step="0.1"
-              />
-            </div>
+          {showGoals && (
+            <div className="p-4 border-t border-gray-200">
+              <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="targetWeight"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Poids cible (kg)
+                  </label>
+                  <input
+                    type="number"
+                    id="targetWeight"
+                    name="targetWeight"
+                    value={formData.targetWeight}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="65.0"
+                    step="0.1"
+                  />
+                </div>
 
-            <div>
-              <label
-                htmlFor="age"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Âge (années)
-              </label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="30"
-              />
-            </div>
+                <div>
+                  <label
+                    htmlFor="targetBodyFat"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Pourcentage de graisse corporelle cible (%)
+                  </label>
+                  <input
+                    type="number"
+                    id="targetBodyFat"
+                    name="targetBodyFat"
+                    value={formData.targetBodyFat}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                    placeholder="15.0"
+                    step="0.1"
+                  />
+                </div>
 
-            <div>
-              <label
-                htmlFor="bloodPressure"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Pression artérielle (systolique/diastolique)
-              </label>
-              <input
-                type="text"
-                id="bloodPressure"
-                name="bloodPressure"
-                value={formData.bloodPressure}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="120/80"
-              />
-            </div>
+                <div>
+                  <label
+                    htmlFor="fitnessGoal"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Objectif physique
+                  </label>
+                  <select
+                    id="fitnessGoal"
+                    name="fitnessGoal"
+                    value={formData.fitnessGoal}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                  >
+                    <option value="">Sélectionner un objectif</option>
+                    <option value="weight loss">Perte de poids</option>
+                    <option value="muscle gain">Gain musculaire</option>
+                    <option value="endurance">Endurance</option>
+                    <option value="general fitness">
+                      Condition physique générale
+                    </option>
+                  </select>
+                </div>
 
-            <div className="md:col-span-2">
-              <label
-                htmlFor="medicalConditions"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Conditions médicales
-              </label>
-              <input
-                type="text"
-                id="medicalConditions"
-                name="medicalConditions"
-                value={formData.medicalConditions}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="Diabète, Asthme"
-              />
+                <div>
+                  <label
+                    htmlFor="goalMilestone"
+                    className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
+                  >
+                    Date d&apos;objectif
+                  </label>
+                  <input
+                    type="date"
+                    id="goalMilestone"
+                    name="goalMilestone"
+                    value={formData.goalMilestone}
+                    onChange={handleChange}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                  />
+                </div>
+              </div>
             </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="allergies"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Allergies
-              </label>
-              <input
-                type="text"
-                id="allergies"
-                name="allergies"
-                value={formData.allergies}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="Arachides, Poussière"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="injuries"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Blessures
-              </label>
-              <input
-                type="text"
-                id="injuries"
-                name="injuries"
-                value={formData.injuries}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="Chirurgie du genou 2023"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label
-                htmlFor="medications"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Médicaments
-              </label>
-              <input
-                type="text"
-                id="medications"
-                name="medications"
-                value={formData.medications}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="Metformine"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Body Goals Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-            Objectifs Physiques (Facultatif)
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-            <div>
-              <label
-                htmlFor="targetWeight"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Poids cible (kg)
-              </label>
-              <input
-                type="number"
-                id="targetWeight"
-                name="targetWeight"
-                value={formData.targetWeight}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="65.0"
-                step="0.1"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="targetBodyFat"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Pourcentage de graisse corporelle cible (%)
-              </label>
-              <input
-                type="number"
-                id="targetBodyFat"
-                name="targetBodyFat"
-                value={formData.targetBodyFat}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-                placeholder="15.0"
-                step="0.1"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="fitnessGoal"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Objectif physique
-              </label>
-              <select
-                id="fitnessGoal"
-                name="fitnessGoal"
-                value={formData.fitnessGoal}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-              >
-                <option value="">Sélectionner un objectif</option>
-                <option value="weight loss">Perte de poids</option>
-                <option value="muscle gain">Gain musculaire</option>
-                <option value="endurance">Endurance</option>
-                <option value="general fitness">
-                  Condition physique générale
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="goalMilestone"
-                className="block text-xs sm:text-sm md:text-base font-medium text-gray-700 mb-1"
-              >
-                Date d&apos;objectif
-              </label>
-              <input
-                type="date"
-                id="goalMilestone"
-                name="goalMilestone"
-                value={formData.goalMilestone}
-                onChange={handleChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
-              />
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Form Actions */}
         <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-4 border-t border-gray-100">
           <Link
             href="/dashboard/clients"
-            className="px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-xs sm:text-sm md:text-base w-full sm:w-auto"
+            className="px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-xs sm:text-sm md:text-base w-full sm:w-auto text-center"
           >
             Annuler
           </Link>
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-white font-medium flex items-center ${
+            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-white font-medium flex items-center justify-center ${
               isSubmitting
                 ? "bg-blue-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"

@@ -5,15 +5,13 @@ import Link from "next/link";
 import {
   Users,
   CreditCard,
-  Calendar,
   DollarSign,
-  Search,
-  ArrowRight,
   TrendingUp,
   Activity,
-  BarChart,
+  ArrowRight,
+  Wallet,
 } from "lucide-react";
-import { Bar, Line } from "react-chartjs-2";
+import { Bar, Line, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,6 +19,7 @@ import {
   BarElement,
   LineElement,
   PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -33,11 +32,39 @@ ChartJS.register(
   BarElement,
   LineElement,
   PointElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
   Filler
 );
+
+function groupByMonth(
+  data: { date: string; count?: number; totalAmount?: number }[],
+  valueKey: "count" | "totalAmount"
+) {
+  const grouped: { [key: string]: number } = {};
+  data.forEach((d) => {
+    const monthKey = d.date.slice(0, 7);
+    grouped[monthKey] = (grouped[monthKey] || 0) + (d[valueKey] || 0);
+  });
+  return Object.entries(grouped)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, value]) => ({ month, value }));
+}
+
+function formatMonth(monthStr: string) {
+  const [year, month] = monthStr.split("-");
+  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+  return date.toLocaleDateString("fr-FR", { month: "short", year: "numeric" });
+}
+
+const METHOD_LABELS: { [key: string]: string } = {
+  Cash: "Espèces",
+  "Mobile Money": "Paiement mobile",
+  "Credit Card": "Carte de crédit",
+  "Bank Transfer": "Virement bancaire",
+};
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -46,468 +73,570 @@ export default function Dashboard() {
     monthlyRevenue: 0,
     averagePayment: 0,
   });
-  const [recentClients, setRecentClients] = useState([]);
-  const [chartData, setChartData] = useState({
-    registrationsPerDay: [],
-    activeSubscriptionsPerDay: [],
-  });
-  const [searchQuery, setSearchQuery] = useState("");
+  const [recentClients, setRecentClients] = useState<any[]>([]);
+  const [registrationsPerMonth, setRegistrationsPerMonth] = useState<
+    { month: string; value: number }[]
+  >([]);
+  const [revenuePerMonth, setRevenuePerMonth] = useState<
+    { month: string; value: number }[]
+  >([]);
+  const [methodCounts, setMethodCounts] = useState<{ [key: string]: number }>(
+    {}
+  );
 
-  // Récupérer les statistiques, les clients récents et les données des graphiques au montage
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Récupérer le total des clients
-        const clientsRes = await fetch("/api/clients");
+        const [clientsRes, paymentsRes, registrationsRes, revenueRes] =
+          await Promise.all([
+            fetch("/api/clients"),
+            fetch("/api/payments"),
+            fetch("/api/stats/registrations-per-day"),
+            fetch("/api/stats/payment-amount-per-day"),
+          ]);
+
         const clientsData = await clientsRes.json();
-        const totalClients = clientsData.length || 0;
-
-        // Récupérer les paiements pour les calculs de revenus
-        const paymentsRes = await fetch("/api/payments");
         const paymentsData = await paymentsRes.json();
+        const registrationsData = await registrationsRes.json();
+        const revenueData = await revenueRes.json();
+
+        // Stats
+        const totalClients = clientsData.length || 0;
         const totalRevenue = paymentsData.reduce(
-          (sum: never, payment: { amount: never }) => sum + payment.amount,
+          (sum: number, p: { amount: number }) => sum + p.amount,
           0
         );
-
-        // Calculer les revenus mensuels (pour mai 2025)
-        const currentMonth = new Date("2025-05-01");
-        const monthlyPayments = paymentsData.filter(
-          (payment: { date: string | number | Date }) => {
-            const paymentDate = new Date(payment.date);
+        const now = new Date();
+        const monthlyRevenue = paymentsData
+          .filter((p: { date: string }) => {
+            const d = new Date(p.date);
             return (
-              paymentDate.getMonth() === currentMonth.getMonth() &&
-              paymentDate.getFullYear() === currentMonth.getFullYear()
+              d.getMonth() === now.getMonth() &&
+              d.getFullYear() === now.getFullYear()
             );
-          }
-        );
-        const monthlyRevenue = monthlyPayments.reduce(
-          (sum: any, payment: { amount: any }) => sum + payment.amount,
-          0
-        );
-
-        // Calculer le paiement moyen
+          })
+          .reduce(
+            (sum: number, p: { amount: number }) => sum + p.amount,
+            0
+          );
         const averagePayment =
-          paymentsData.length > 0 ? totalRevenue / paymentsData.length : 0;
+          paymentsData.length > 0
+            ? Math.round(totalRevenue / paymentsData.length)
+            : 0;
 
-        setStats({
-          totalClients,
-          totalRevenue,
-          monthlyRevenue,
-          averagePayment: Math.round(averagePayment),
-        });
+        setStats({ totalClients, totalRevenue, monthlyRevenue, averagePayment });
 
-        // Récupérer les clients récents (triés par date d'inscription, limités à 3)
-        const recentClients = clientsData
+        // Clients récents
+        const sorted = [...clientsData]
           .sort(
-            (
-              a: { registrationDate: string | number | Date },
-              b: { registrationDate: string | number | Date }
-            ) =>
+            (a, b) =>
               new Date(b.registrationDate).getTime() -
               new Date(a.registrationDate).getTime()
           )
-          .slice(0, 3);
-        setRecentClients(recentClients);
+          .slice(0, 4);
+        setRecentClients(sorted);
 
-        // Récupérer les données des graphiques
-        const [registrations, subscriptions] = await Promise.all([
-          fetch("/api/stats/registrations-per-day").then((res) => res.json()),
-          fetch("/api/stats/active-subscriptions-per-day").then((res) =>
-            res.json()
-          ),
-        ]);
-        setChartData({
-          registrationsPerDay: registrations,
-          activeSubscriptionsPerDay: subscriptions,
+        // Graphiques par mois
+        setRegistrationsPerMonth(groupByMonth(registrationsData, "count"));
+        setRevenuePerMonth(groupByMonth(revenueData, "totalAmount"));
+
+        // Moyens de paiement
+        const counts: { [key: string]: number } = {};
+        paymentsData.forEach((p: { method: string }) => {
+          const m = p.method || "Autre";
+          counts[m] = (counts[m] || 0) + 1;
         });
+        setMethodCounts(counts);
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des données du tableau de bord :",
-          error
-        );
+        console.error("Erreur dashboard :", error);
       }
     };
 
     fetchData();
   }, []);
 
-  // Configurations des graphiques
-  const commonOptions: any = {
+  // Graphique inscriptions par mois
+  const regMaxValue =
+    registrationsPerMonth.length > 0
+      ? Math.max(...registrationsPerMonth.map((d) => d.value))
+      : 0;
+  const totalRegInscriptions = registrationsPerMonth.reduce(
+    (s, d) => s + d.value,
+    0
+  );
+  const bestRegMonth =
+    registrationsPerMonth.length > 0
+      ? registrationsPerMonth.reduce((best, d) =>
+          d.value > best.value ? d : best
+        )
+      : null;
+  const avgRegPerMonth =
+    registrationsPerMonth.length > 0
+      ? Math.round(totalRegInscriptions / registrationsPerMonth.length)
+      : 0;
+
+  const registrationsChartData = {
+    labels: registrationsPerMonth.map((d) => formatMonth(d.month)),
+    datasets: [
+      {
+        label: "Inscriptions",
+        data: registrationsPerMonth.map((d) => d.value),
+        backgroundColor: (context: any) => {
+          const chart = context.chart;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return "rgba(96,165,250,0.85)";
+          const isMax = context.parsed?.y === regMaxValue && regMaxValue > 0;
+          const gradient = ctx.createLinearGradient(
+            0, chartArea.top, 0, chartArea.bottom
+          );
+          if (isMax) {
+            gradient.addColorStop(0, "rgba(37,99,235,1)");
+            gradient.addColorStop(1, "rgba(37,99,235,0.4)");
+          } else {
+            gradient.addColorStop(0, "rgba(96,165,250,0.85)");
+            gradient.addColorStop(1, "rgba(147,197,253,0.3)");
+          }
+          return gradient;
+        },
+        borderColor: (context: any) =>
+          context.parsed?.y === regMaxValue && regMaxValue > 0
+            ? "rgba(30,64,175,1)"
+            : "rgba(59,130,246,0)",
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+    ],
+  };
+
+  // Graphique revenus par mois
+  const revenueChartData = {
+    labels: revenuePerMonth.map((d) => formatMonth(d.month)),
+    datasets: [
+      {
+        label: "Revenus (FCFA)",
+        data: revenuePerMonth.map((d) => d.value),
+        backgroundColor: "rgba(16, 185, 129, 0.12)",
+        borderColor: "rgba(5, 150, 105, 1)",
+        borderWidth: 2.5,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: "rgba(5, 150, 105, 1)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      },
+    ],
+  };
+
+  // Graphique moyens de paiement (donut)
+  const methodKeys = Object.keys(methodCounts);
+  const doughnutData = {
+    labels: methodKeys.map((k) => METHOD_LABELS[k] || k),
+    datasets: [
+      {
+        data: methodKeys.map((k) => methodCounts[k]),
+        backgroundColor: [
+          "rgba(16, 185, 129, 0.85)",
+          "rgba(249, 115, 22, 0.85)",
+          "rgba(59, 130, 246, 0.85)",
+          "rgba(168, 85, 247, 0.85)",
+        ],
+        borderColor: "#fff",
+        borderWidth: 2,
+        hoverOffset: 6,
+      },
+    ],
+  };
+
+  const baseOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        titleColor: "#1e293b",
-        bodyColor: "#334155",
-        titleFont: { weight: "bold" },
-        bodyFont: { size: 12 },
-        padding: 10,
-        borderColor: "rgba(203, 213, 225, 0.5)",
+        backgroundColor: "rgba(15, 23, 42, 0.9)",
+        titleColor: "#f1f5f9",
+        bodyColor: "#cbd5e1",
+        padding: 12,
+        borderColor: "rgba(148, 163, 184, 0.2)",
         borderWidth: 1,
         displayColors: false,
         callbacks: {
-          label: function (context: {
-            dataset: { label: string };
-            parsed: { y: string | number | bigint | null };
-          }) {
-            let label = context.dataset.label || "";
-            if (label) {
-              label += ": ";
-            }
-            if (context.parsed.y !== null) {
-              label += new Intl.NumberFormat("fr-FR").format(
-                Number(context.parsed.y)
-              );
-            }
-            return label;
+          label: (ctx: any) =>
+            ctx.parsed.y != null
+              ? `${new Intl.NumberFormat("fr-FR").format(ctx.parsed.y)}`
+              : "",
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 11 }, color: "#94a3b8" },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(203, 213, 225, 0.15)" },
+        ticks: { font: { size: 11 }, color: "#94a3b8", padding: 8 },
+      },
+    },
+  };
+
+  const doughnutOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "68%",
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          font: { size: 11 },
+          color: "#64748b",
+          padding: 12,
+          boxWidth: 12,
+          boxHeight: 12,
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(15, 23, 42, 0.9)",
+        titleColor: "#f1f5f9",
+        bodyColor: "#cbd5e1",
+        padding: 12,
+        borderColor: "rgba(148, 163, 184, 0.2)",
+        borderWidth: 1,
+        callbacks: {
+          label: (ctx: any) => ` ${ctx.parsed} transaction${ctx.parsed > 1 ? "s" : ""}`,
+        },
+      },
+    },
+  };
+
+  const registrationsOptions: any = {
+    ...baseOptions,
+    plugins: {
+      ...baseOptions.plugins,
+      tooltip: {
+        ...baseOptions.plugins.tooltip,
+        callbacks: {
+          title: (items: any[]) => items[0]?.label || "",
+          label: (ctx: any) => {
+            const v = ctx.parsed.y;
+            return ` ${v} inscription${v > 1 ? "s" : ""}`;
           },
         },
       },
     },
-    elements: {
-      line: { tension: 0.3 },
-      point: { radius: 3, hoverRadius: 5 },
-    },
     scales: {
-      x: {
-        grid: { display: false, drawBorder: false },
-        ticks: { font: { size: 9 }, color: "#94a3b8" },
-      },
+      ...baseOptions.scales,
       y: {
-        beginAtZero: true,
-        grid: { color: "rgba(203, 213, 225, 0.2)", drawBorder: false },
-        ticks: { font: { size: 10 }, color: "#94a3b8", padding: 6 },
+        ...baseOptions.scales.y,
+        ticks: { ...baseOptions.scales.y.ticks, precision: 0, stepSize: 1 },
       },
     },
   };
 
-  // Données du graphique des inscriptions
-  const registrationsData = {
-    labels: chartData.registrationsPerDay.map((d: any) =>
-      new Date(d.date).toLocaleDateString("fr-FR", {
-        month: "short",
-        day: "numeric",
-      })
-    ),
-    datasets: [
-      {
-        label: "Inscriptions",
-        data: chartData.registrationsPerDay.map((d: any) => d.count),
-        backgroundColor: "rgba(59, 130, 246, 0.7)",
-        borderColor: "rgba(37, 99, 235, 1)",
-        borderWidth: 2,
-        borderRadius: 4,
-        barThickness: 10,
-      },
-    ],
-  };
-
-  // Données du graphique des abonnements
-  const subscriptionsData = {
-    labels: chartData.activeSubscriptionsPerDay.map((d: any) =>
-      new Date(d.date).toLocaleDateString("fr-FR", {
-        month: "short",
-        day: "numeric",
-      })
-    ),
-    datasets: [
-      {
-        label: "Abonnements actifs",
-        data: chartData.activeSubscriptionsPerDay.map((d: any) => d.count),
-        backgroundColor: "rgba(168, 85, 247, 0.15)",
-        borderColor: "rgba(126, 34, 206, 1)",
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: "rgba(126, 34, 206, 1)",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 1,
-        pointRadius: 4,
-      },
-    ],
-  };
+  const totalTransactions = Object.values(methodCounts).reduce(
+    (a, b) => a + b,
+    0
+  );
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-5">
       {/* En-tête */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 bg-gradient-to-r from-blue-600 to-blue-800 p-4 sm:p-6 rounded-xl text-white shadow-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-blue-600 to-blue-800 p-5 sm:p-6 rounded-2xl text-white shadow-lg">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Tableau de bord E-Gym
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Tableau de bord
           </h1>
-          <p className="text-blue-100 text-sm sm:text-base">
-            Gérez votre entreprise de fitness facilement
+          <p className="text-blue-200 text-sm mt-0.5">
+            Vue d&apos;ensemble de votre salle de sport
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex gap-3">
           <Link
             href="/dashboard/clients/new"
-            className="bg-white text-blue-600 hover:bg-blue-50 py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-1 sm:gap-2 transition shadow-md text-sm sm:text-base"
+            className="bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2 px-4 rounded-xl font-medium flex items-center gap-2 transition text-sm backdrop-blur-sm"
           >
-            <Users className="h-4 sm:h-5 w-4 sm:w-5" />
+            <Users className="h-4 w-4" />
             Nouveau client
           </Link>
           <Link
             href="/dashboard/payments/new"
-            className="bg-green-500 hover:bg-green-600 text-white py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg font-medium flex items-center gap-1 sm:gap-2 transition shadow-md text-sm sm:text-base"
+            className="bg-green-500 hover:bg-green-400 text-white py-2 px-4 rounded-xl font-medium flex items-center gap-2 transition text-sm shadow-md"
           >
-            <CreditCard className="h-4 sm:h-5 w-4 sm:w-5" />
-            Nouveau paiement
+            <CreditCard className="h-4 w-4" />
+            Paiement
           </Link>
         </div>
       </div>
 
-      {/* Disposition en grille Bento */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {/* Cartes de statistiques */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-lg transition group">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                Clients totaux
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1 sm:mt-2 mb-1 sm:mb-1 group-hover:text-blue-600 transition">
-                {stats.totalClients}
-              </p>
-              <p className="text-xs font-medium text-gray-400 flex items-center">
-                <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                <span className="text-green-500">+0</span> ce mois
-              </p>
-            </div>
-            <div className="bg-blue-100 p-2 sm:p-3 rounded-full text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition">
-              <Users className="h-5 sm:h-6 w-5 sm:w-6" />
+      {/* Cartes de stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">Clients totaux</p>
+            <div className="bg-blue-50 p-2 rounded-xl group-hover:bg-blue-500 transition">
+              <Users className="h-4 w-4 text-blue-500 group-hover:text-white transition" />
             </div>
           </div>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-800">
+            {stats.totalClients}
+          </p>
+          <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+            <TrendingUp className="h-3 w-3 text-green-400" /> Clients inscrits
+          </p>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-l-4 border-green-500 hover:shadow-lg transition group">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                Revenus totaux
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1 sm:mt-2 mb-1 sm:mb-1 group-hover:text-green-600 transition">
-                {stats.totalRevenue.toLocaleString()} FCFA
-              </p>
-              <p className="text-xs font-medium text-gray-400">Gains totaux</p>
-            </div>
-            <div className="bg-green-100 p-2 sm:p-3 rounded-full text-green-500 group-hover:bg-green-500 group-hover:text-white transition">
-              <DollarSign className="h-5 sm:h-6 w-5 sm:w-6" />
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">Revenus totaux</p>
+            <div className="bg-green-50 p-2 rounded-xl group-hover:bg-green-500 transition">
+              <DollarSign className="h-4 w-4 text-green-500 group-hover:text-white transition" />
             </div>
           </div>
+          <p className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+            {stats.totalRevenue.toLocaleString()}
+            <span className="text-sm font-medium text-gray-400 ml-1">FCFA</span>
+          </p>
+          <p className="text-xs text-gray-400 mt-1">Tous paiements confondus</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-l-4 border-purple-500 hover:shadow-lg transition group">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                Revenus mensuels
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1 sm:mt-2 mb-1 sm:mb-1 group-hover:text-purple-600 transition">
-                {stats.monthlyRevenue.toLocaleString()} FCFA
-              </p>
-              <p className="text-xs font-medium text-gray-400 flex items-center">
-                <Activity className="h-3 w-3 mr-1 text-purple-500" />
-                <span>0 paiements</span> ce mois
-              </p>
-            </div>
-            <div className="bg-purple-100 p-2 sm:p-3 rounded-full text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition">
-              <Calendar className="h-5 sm:h-6 w-5 sm:w-6" />
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">Ce mois</p>
+            <div className="bg-purple-50 p-2 rounded-xl group-hover:bg-purple-500 transition">
+              <Activity className="h-4 w-4 text-purple-500 group-hover:text-white transition" />
             </div>
           </div>
+          <p className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+            {stats.monthlyRevenue.toLocaleString()}
+            <span className="text-sm font-medium text-gray-400 ml-1">FCFA</span>
+          </p>
+          <p className="text-xs text-gray-400 mt-1">Revenus du mois en cours</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-l-4 border-orange-500 hover:shadow-lg transition group">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                Paiement moyen
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1 sm:mt-2 mb-1 sm:mb-1 group-hover:text-orange-600 transition">
-                {stats.averagePayment.toLocaleString()} FCFA
-              </p>
-              <p className="text-xs font-medium text-gray-400">
-                Par transaction
-              </p>
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">Paiement moyen</p>
+            <div className="bg-orange-50 p-2 rounded-xl group-hover:bg-orange-500 transition">
+              <Wallet className="h-4 w-4 text-orange-500 group-hover:text-white transition" />
             </div>
-            <div className="bg-orange-100 p-2 sm:p-3 rounded-full text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition">
-              <CreditCard className="h-5 sm:h-6 w-5 sm:w-6" />
-            </div>
+          </div>
+          <p className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+            {stats.averagePayment.toLocaleString()}
+            <span className="text-sm font-medium text-gray-400 ml-1">FCFA</span>
+          </p>
+          <p className="text-xs text-gray-400 mt-1">Par transaction</p>
+        </div>
+      </div>
+
+      {/* Graphique revenus (pleine largeur) */}
+      <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-green-500" />
+              Revenus nets par mois
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">Évolution des entrées d&apos;argent</p>
           </div>
         </div>
-
-        {/* Clients récents dans la grille Bento */}
-        <div className="md:col-span-2 bg-white p-4 sm:p-6 rounded-xl shadow-md overflow-hidden">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold text-gray-800 flex items-center">
-                <Users className="h-4 sm:h-5 w-4 sm:w-5 mr-1 sm:mr-2 text-blue-500" />
-                Clients récents
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Vos clients récemment inscrits
-              </p>
-            </div>
-            <div className="relative w-full sm:w-auto">
-              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-3 sm:h-4 w-3 sm:w-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 sm:pl-10 pr-3 sm:pr-4 py-1 sm:py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-gray-50 w-full text-sm sm:text-base"
-                placeholder="Rechercher des clients..."
-              />
-            </div>
-          </div>
-          <div className="space-y-3 sm:space-y-4">
-            {recentClients.map((client: any) => (
-              <div
-                key={client.id}
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 py-2 sm:py-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition border border-gray-100 hover:border-blue-200"
-              >
-                <div className="mb-2 sm:mb-0">
-                  <p className="font-semibold text-gray-800 text-sm sm:text-base">
-                    {client.name}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-blue-500">✉️</span>{" "}
-                      {client.email || "N/A"}
-                    </p>
-                    <br />
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                      <span className="text-blue-500">📞</span>{" "}
-                      {client.phone || "N/A"}
-                    </p>
-                  </div>
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-                    <span className="text-blue-500">📅</span> Inscrit(e) le :{" "}
-                    {new Date(client.registrationDate).toLocaleDateString(
-                      "fr-FR"
-                    )}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <Link
-                    href={`/dashboard/clients/${client.id}`}
-                    className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-medium transition"
-                  >
-                    Voir les détails
-                  </Link>
-                </div>
-              </div>
-            ))}
-            {recentClients.length === 0 && (
-              <div className="text-gray-500 text-center py-10 sm:py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                <Users className="h-10 sm:h-12 w-10 sm:w-12 mx-auto text-gray-300 mb-2 sm:mb-3" />
-                <p className="font-medium text-sm sm:text-base">
-                  Aucun client trouvé
-                </p>
-                <p className="text-xs sm:text-sm mt-1">
-                  Ajoutez votre premier client pour commencer
-                </p>
-              </div>
-            )}
-          </div>
-          {recentClients.length > 0 && (
-            <div className="mt-3 sm:mt-4 text-center">
-              <Link
-                href="/dashboard/clients"
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center"
-              >
-                Voir tous les clients
-                <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4 ml-1" />
-              </Link>
+        <div className="h-52 sm:h-64">
+          {revenuePerMonth.length > 0 ? (
+            <Line data={revenueChartData} options={baseOptions} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-gray-300 text-sm">
+              Aucune donnée disponible
             </div>
           )}
         </div>
+      </div>
 
-        {/* Graphiques dans la grille Bento */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-t-4 border-blue-500">
-          <div className="flex justify-between items-center mb-2 sm:mb-4">
+      {/* Inscriptions par mois + Moyens de paiement */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Inscriptions */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-5 py-4 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-800 flex items-center">
-                <Users className="h-4 sm:h-5 w-4 sm:w-5 mr-1 sm:mr-2 text-blue-500" />
-                Inscriptions des utilisateurs
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Inscriptions par mois
               </h2>
-              <p className="text-sm text-gray-600">
-                Nouveaux utilisateurs dans le temps
-              </p>
+              <p className="text-blue-100 text-xs mt-0.5">Nouveaux clients enregistrés</p>
             </div>
+            {totalRegInscriptions > 0 && (
+              <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                {totalRegInscriptions} au total
+              </span>
+            )}
           </div>
-          <div className="h-40 sm:h-48 md:h-64">
-            <Bar data={registrationsData} options={commonOptions} />
+          <div className="p-5">
+            <div className="h-52 sm:h-60">
+              {registrationsPerMonth.length > 0 ? (
+                <Bar data={registrationsChartData} options={registrationsOptions} />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-300 text-sm">
+                  Aucune donnée disponible
+                </div>
+              )}
+            </div>
+            {registrationsPerMonth.length > 0 && (
+              <div className="flex items-center justify-around mt-4 pt-4 border-t border-gray-100">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-blue-600">{totalRegInscriptions}</p>
+                  <p className="text-xs text-gray-400">Total</p>
+                </div>
+                <div className="w-px h-8 bg-gray-100" />
+                <div className="text-center">
+                  <p className="text-sm font-bold text-gray-800">
+                    {bestRegMonth ? formatMonth(bestRegMonth.month) : "—"}
+                  </p>
+                  <p className="text-xs text-gray-400">Meilleur mois</p>
+                </div>
+                <div className="w-px h-8 bg-gray-100" />
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-800">{avgRegPerMonth}</p>
+                  <p className="text-xs text-gray-400">Moy./mois</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md border-t-4 border-purple-500">
-          <div className="flex justify-between items-center mb-2 sm:mb-4">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800 flex items-center">
-                <Calendar className="h-4 sm:h-5 w-4 sm:w-5 mr-1 sm:mr-2 text-purple-500" />
-                Abonnements actifs
-              </h2>
-              <p className="text-sm text-gray-600">
-                Croissance des abonnements dans le temps
-              </p>
-            </div>
+        {/* Moyens de paiement */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="mb-5">
+            <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-orange-500" />
+              Moyens de paiement
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {totalTransactions} transaction{totalTransactions !== 1 ? "s" : ""} au total
+            </p>
           </div>
-          <div className="h-40 sm:h-48 md:h-64">
-            <Line data={subscriptionsData} options={commonOptions} />
+          <div className="h-52 sm:h-64">
+            {totalTransactions > 0 ? (
+              <Doughnut data={doughnutData} options={doughnutOptions} />
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-300 text-sm">
+                Aucune donnée disponible
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Actions rapides */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
-        <h2 className="text-lg font-bold text-gray-800 mb-2 sm:mb-4 flex items-center">
-          <Activity className="h-4 sm:h-5 w-4 sm:w-5 mr-1 sm:mr-2 text-purple-500" />
-          Analyse commerciale
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          <Link
-            href="/dashboard/payments"
-            className="text-gray-700 hover:text-blue-600 flex items-center justify-between p-2 sm:p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition text-xs sm:text-sm"
-          >
-            <span className="flex items-center">
-              <CreditCard className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-2 text-blue-500" />
-              Historique des paiements
-            </span>
-            <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
-          </Link>
-          <Link
-            href="/dashboard/reports"
-            className="text-gray-700 hover:text-blue-600 flex items-center justify-between p-2 sm:p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition text-xs sm:text-sm"
-          >
-            <span className="flex items-center">
-              <TrendingUp className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-2 text-green-500" />
-              Rapports financiers
-            </span>
-            <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
-          </Link>
-          <Link
-            href="/dashboard/clients"
-            className="text-gray-700 hover:text-blue-600 flex items-center justify-between p-2 sm:p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition text-xs sm:text-sm"
-          >
-            <span className="flex items-center">
-              <Users className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-2 text-purple-500" />
-              Gestion des clients
-            </span>
-            <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
-          </Link>
-          <Link
-            href="/dashboard/reports"
-            className="text-gray-700 hover:text-blue-600 flex items-center justify-between p-2 sm:p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition text-xs sm:text-sm"
-          >
-            <span className="flex items-center">
-              <BarChart className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-2 text-purple-500" />
-              Voir plus d&apos;analyses
-            </span>
-            <ArrowRight className="h-3 sm:h-4 w-3 sm:w-4" />
-          </Link>
+      {/* Clients récents + Actions rapides */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Clients récents */}
+        <div className="lg:col-span-2 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-500" />
+              Clients récents
+            </h2>
+            <Link
+              href="/dashboard/clients"
+              className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1 font-medium"
+            >
+              Voir tous <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {recentClients.length > 0 ? (
+              recentClients.map((client: any) => (
+                <Link
+                  key={client.id}
+                  href={`/dashboard/clients/${client.id}`}
+                  className="flex items-center justify-between p-3 rounded-xl hover:bg-blue-50 transition border border-transparent hover:border-blue-100 group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm shrink-0 group-hover:bg-blue-500 group-hover:text-white transition">
+                      {client.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {client.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {client.phone || client.email || "Aucun contact"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400">
+                      {new Date(client.registrationDate).toLocaleDateString(
+                        "fr-FR",
+                        { day: "numeric", month: "short" }
+                      )}
+                    </p>
+                    <ArrowRight className="h-3 w-3 text-gray-300 group-hover:text-blue-500 transition ml-auto mt-1" />
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="text-center py-10 text-gray-300">
+                <Users className="h-10 w-10 mx-auto mb-2" />
+                <p className="text-sm">Aucun client pour le moment</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Actions rapides */}
+        <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-purple-500" />
+            Actions rapides
+          </h2>
+          <div className="space-y-2">
+            {[
+              {
+                href: "/dashboard/clients/new",
+                icon: <Users className="h-4 w-4 text-blue-500" />,
+                label: "Nouveau client",
+                bg: "hover:bg-blue-50 hover:border-blue-100",
+              },
+              {
+                href: "/dashboard/payments/new",
+                icon: <CreditCard className="h-4 w-4 text-green-500" />,
+                label: "Enregistrer un paiement",
+                bg: "hover:bg-green-50 hover:border-green-100",
+              },
+              {
+                href: "/dashboard/payments",
+                icon: <DollarSign className="h-4 w-4 text-orange-500" />,
+                label: "Historique des paiements",
+                bg: "hover:bg-orange-50 hover:border-orange-100",
+              },
+              {
+                href: "/dashboard/clients",
+                icon: <Users className="h-4 w-4 text-purple-500" />,
+                label: "Gestion des clients",
+                bg: "hover:bg-purple-50 hover:border-purple-100",
+              },
+              {
+                href: "/dashboard/reports",
+                icon: <TrendingUp className="h-4 w-4 text-blue-400" />,
+                label: "Rapports financiers",
+                bg: "hover:bg-blue-50 hover:border-blue-100",
+              },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center justify-between p-3 rounded-xl border border-transparent transition text-sm text-gray-700 ${item.bg}`}
+              >
+                <span className="flex items-center gap-2">
+                  {item.icon}
+                  {item.label}
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 text-gray-300" />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

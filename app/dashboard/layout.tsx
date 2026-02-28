@@ -29,6 +29,7 @@ import {
   Trophy,
   Rocket,
   QrCode,
+  CalendarX2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -138,7 +139,7 @@ export default function DashboardLayout({
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des notifications :",
-          error
+          error,
         );
       }
     };
@@ -423,7 +424,7 @@ export default function DashboardLayout({
                         <div className="flex items-center gap-1">
                           <span
                             className={`px-3 py-1.5 rounded-full text-sm font-bold ${getPlanBadgeStyle(
-                              companyInfo?.subscriptionType
+                              companyInfo?.subscriptionType,
                             )} flex items-center gap-1.5 transition-all duration-300 hover:scale-105`}
                           >
                             {getPlanText(companyInfo?.subscriptionType)}
@@ -438,10 +439,10 @@ export default function DashboardLayout({
                       <div className="sm:hidden">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-bold ${getPlanBadgeStyle(
-                            companyInfo?.subscriptionType
+                            companyInfo?.subscriptionType,
                           )} flex items-center gap-1`}
                           title={getPlanDescription(
-                            companyInfo?.subscriptionType
+                            companyInfo?.subscriptionType,
                           )}
                         >
                           {getPlanText(companyInfo?.subscriptionType)}
@@ -566,12 +567,12 @@ export default function DashboardLayout({
                       >
                         <Bell className="h-5 w-5" />
                         {notifications.filter(
-                          (n: { isRead: boolean }) => !n.isRead
+                          (n: { isRead: boolean }) => !n.isRead,
                         ).length > 0 && (
                           <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
                             {
                               notifications.filter(
-                                (n: { isRead: boolean }) => !n.isRead
+                                (n: { isRead: boolean }) => !n.isRead,
                               ).length
                             }
                           </span>
@@ -589,7 +590,7 @@ export default function DashboardLayout({
                               <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
                                 {
                                   notifications.filter(
-                                    (n: { isRead: boolean }) => !n.isRead
+                                    (n: { isRead: boolean }) => !n.isRead,
                                   ).length
                                 }{" "}
                                 nouvelles
@@ -739,6 +740,17 @@ export default function DashboardLayout({
                           </Link>
 
                           <Link
+                            href="/dashboard/subscriptions"
+                            className="flex items-center text-gray-700 hover:bg-gradient-to-r hover:from-rose-50 hover:to-orange-50 hover:text-rose-600 px-4 py-3 rounded-xl transition-all duration-200 group"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <div className="bg-rose-100 text-rose-600 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+                              <CalendarX2 className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">Fins d&apos;abonnement</span>
+                          </Link>
+
+                          {/* <Link
                             href="/dashboard/qr-code"
                             className="flex items-center text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 px-4 py-3 rounded-xl transition-all duration-200 group"
                             onClick={() => setIsMenuOpen(false)}
@@ -747,8 +759,8 @@ export default function DashboardLayout({
                               <QrCode className="h-4 w-4" />
                             </div>
                             <span className="font-medium">Mon QR Code</span>
-                          </Link>
-                          <Link
+                          </Link> */}
+                          {/* <Link
                             href="/dashboard/stock"
                             className="flex items-center text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-600 px-4 py-3 rounded-xl transition-all duration-200 group"
                             onClick={() => setIsMenuOpen(false)}
@@ -759,7 +771,7 @@ export default function DashboardLayout({
                             <span className="font-medium">
                               Gestionnaire de Stock
                             </span>
-                          </Link>
+                          </Link> */}
 
                           {isStandard && (
                             <>

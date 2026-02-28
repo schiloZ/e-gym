@@ -176,7 +176,7 @@ export default function ClientEditPage() {
 
     // Prepare the data to send (convert numeric fields to numbers, dates to Date objects)
     const dataToSend = {
-      name: client.name,
+      name: client.name.toUpperCase(),
       email: client.email,
       phone: client.phone,
       registrationDate: client.registrationDate || undefined,
@@ -295,7 +295,7 @@ export default function ClientEditPage() {
                   onChange={(e) =>
                     setClient({ ...client, name: e.target.value })
                   }
-                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-xs sm:text-sm md:text-base uppercase"
                   required
                 />
               </div>
