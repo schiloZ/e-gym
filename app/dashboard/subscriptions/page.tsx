@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CalendarX2,
   Clock,
@@ -66,7 +67,7 @@ function StatusBadge({ days }: { days: number }) {
     return (
       <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full">
         <AlertTriangle className="h-3 w-3" />
-        Expire aujourd'hui
+        Expire aujourd&apos;hui
       </span>
     );
   }
@@ -199,7 +200,7 @@ export default function SubscriptionsPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">
-                Fins d'abonnement
+                Fins d&apos;abonnement
               </h1>
               <p className="text-rose-100 text-sm mt-0.5">
                 Suivez les abonnements expirés et ceux qui arrivent à échéance
@@ -330,9 +331,11 @@ export default function SubscriptionsPage() {
                     {/* Avatar */}
                     <div className="flex-shrink-0">
                       {payment.client.imagePath ? (
-                        <img
+                        <Image
                           src={payment.client.imagePath}
                           alt={payment.client.name}
+                          width={48}
+                          height={48}
                           className="h-12 w-12 rounded-full object-cover border-2 border-gray-100"
                         />
                       ) : (
